@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>TUTORIAL.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="tutorial-building-a-simple-chatbot-with-html-css-and-javascript">Tutorial: Building a Simple Chatbot with HTML, CSS, and JavaScript</h1>
+<p>Welcome to this tutorial where you'll learn how to build a simple chatbot from scratch. This project is a great way to get started with web development, as it covers the three fundamental technologies of the web: HTML for structure, CSS for styling, and JavaScript for interactivity.</p>
+<h2 id="final-result">Final Result</h2>
+<p>Here is what you will be building:</p>
+<p><img src="image.png" alt="Chatbot Demo"></p>
+<h2 id="step-1-setting-up-the-html-structure">Step 1: Setting up the HTML Structure</h2>
+<p>First, we'll create the basic structure of our chatbot using HTML. HTML (HyperText Markup Language) is the standard language for creating web pages.</p>
+<p>Create a file named <code>index.html</code> and add the following code:</p>
+<pre class="hljs"><code><div><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"viewport"</span> <span class="hljs-attr">content</span>=<span class="hljs-string">"width=device-width, initial-scale=1.0"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Simple Chatbot<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"chat-container"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"chat-messages"</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"chat-messages"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"input-container"</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text"</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"user-input"</span> <span class="hljs-attr">placeholder</span>=<span class="hljs-string">"Type your message..."</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"send-button"</span>&gt;</span>Send<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</div></code></pre>
+<h3 id="explanation-of-the-html-code">Explanation of the HTML code</h3>
+<ul>
+<li><code>&lt;!DOCTYPE html&gt;</code>: Declares the document type.</li>
+<li><code>&lt;html&gt;</code>: The root element of an HTML page.</li>
+<li><code>&lt;head&gt;</code>: Contains meta-information about the HTML page, like the title.</li>
+<li><code>&lt;title&gt;</code>: Sets the title of the page, which appears in the browser tab.</li>
+<li><code>&lt;body&gt;</code>: Contains the visible content of the HTML page.</li>
+<li><code>&lt;div class=&quot;chat-container&quot;&gt;</code>: A container for the entire chatbot interface.</li>
+<li><code>&lt;div id=&quot;chat-messages&quot;&gt;</code>: This is where the chat messages will be displayed.</li>
+<li><code>&lt;div class=&quot;input-container&quot;&gt;</code>: A container for the user input field and the send button.</li>
+<li><code>&lt;input type=&quot;text&quot; id=&quot;user-input&quot;&gt;</code>: A text field where the user can type their message.</li>
+<li><code>&lt;button id=&quot;send-button&quot;&gt;</code>: A button to send the message.</li>
+</ul>
+<p>At this point, if you open <code>index.html</code> in a browser, you will see a simple text box and a button. It's not pretty yet, but that's what CSS is for!</p>
+<h2 id="step-2-styling-with-css">Step 2: Styling with CSS</h2>
+<p>Now let's add some style to our chatbot using CSS (Cascading Style Sheets). CSS is used to control the presentation, formatting, and layout of web pages.</p>
+<p>Add the following <code>&lt;style&gt;</code> block inside the <code>&lt;head&gt;</code> section of your <code>index.html</code> file, just before the closing <code>&lt;/head&gt;</code> tag.</p>
+<pre class="hljs"><code><div><span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    ...
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Simple Chatbot<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="css">
+        <span class="hljs-selector-tag">body</span> { <span class="hljs-attribute">font-family</span>: Arial, sans-serif; <span class="hljs-attribute">background-color</span>: <span class="hljs-number">#f0f0f0</span>; <span class="hljs-attribute">display</span>: flex; <span class="hljs-attribute">justify-content</span>: center; <span class="hljs-attribute">align-items</span>: center; <span class="hljs-attribute">height</span>: <span class="hljs-number">100vh</span>; <span class="hljs-attribute">margin</span>: <span class="hljs-number">0</span>; }
+        <span class="hljs-selector-class">.chat-container</span> { <span class="hljs-attribute">background-color</span>: white; <span class="hljs-attribute">border-radius</span>: <span class="hljs-number">8px</span>; <span class="hljs-attribute">box-shadow</span>: <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">10px</span> <span class="hljs-built_in">rgba</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0.1</span>); <span class="hljs-attribute">width</span>: <span class="hljs-number">400px</span>; <span class="hljs-attribute">height</span>: <span class="hljs-number">500px</span>; <span class="hljs-attribute">display</span>: flex; <span class="hljs-attribute">flex-direction</span>: column; }
+        <span class="hljs-selector-class">.chat-messages</span> { <span class="hljs-attribute">flex</span>: <span class="hljs-number">1</span>; <span class="hljs-attribute">padding</span>: <span class="hljs-number">10px</span>; <span class="hljs-attribute">overflow-y</span>: auto; <span class="hljs-attribute">border-bottom</span>: <span class="hljs-number">1px</span> solid <span class="hljs-number">#ddd</span>; }
+        <span class="hljs-selector-class">.message</span> { <span class="hljs-attribute">margin</span>: <span class="hljs-number">10px</span> <span class="hljs-number">0</span>; <span class="hljs-attribute">padding</span>: <span class="hljs-number">8px</span> <span class="hljs-number">12px</span>; <span class="hljs-attribute">border-radius</span>: <span class="hljs-number">20px</span>; <span class="hljs-attribute">max-width</span>: <span class="hljs-number">80%</span>; }
+        <span class="hljs-selector-class">.user-message</span> { <span class="hljs-attribute">background-color</span>: <span class="hljs-number">#007bff</span>; <span class="hljs-attribute">color</span>: white; <span class="hljs-attribute">align-self</span>: flex-end; <span class="hljs-attribute">margin-left</span>: auto; }
+        <span class="hljs-selector-class">.bot-message</span> { <span class="hljs-attribute">background-color</span>: <span class="hljs-number">#e0e0e0</span>; <span class="hljs-attribute">color</span>: black; <span class="hljs-attribute">align-self</span>: flex-start; <span class="hljs-attribute">margin-right</span>: auto; }
+        <span class="hljs-selector-class">.input-container</span> { <span class="hljs-attribute">display</span>: flex; <span class="hljs-attribute">padding</span>: <span class="hljs-number">10px</span>; }
+        <span class="hljs-selector-id">#user-input</span> { <span class="hljs-attribute">flex</span>: <span class="hljs-number">1</span>; <span class="hljs-attribute">padding</span>: <span class="hljs-number">8px</span>; <span class="hljs-attribute">border</span>: <span class="hljs-number">1px</span> solid <span class="hljs-number">#ddd</span>; <span class="hljs-attribute">border-radius</span>: <span class="hljs-number">4px</span>; <span class="hljs-attribute">margin-right</span>: <span class="hljs-number">10px</span>; }
+        <span class="hljs-selector-id">#send-button</span> { <span class="hljs-attribute">padding</span>: <span class="hljs-number">8px</span> <span class="hljs-number">16px</span>; <span class="hljs-attribute">background-color</span>: <span class="hljs-number">#007bff</span>; <span class="hljs-attribute">color</span>: white; <span class="hljs-attribute">border</span>: none; <span class="hljs-attribute">border-radius</span>: <span class="hljs-number">4px</span>; <span class="hljs-attribute">cursor</span>: pointer; }
+        <span class="hljs-selector-id">#send-button</span><span class="hljs-selector-pseudo">:hover</span> { <span class="hljs-attribute">background-color</span>: <span class="hljs-number">#0056b3</span>; }
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+</div></code></pre>
+<h3 id="explanation-of-the-css-code">Explanation of the CSS code</h3>
+<ul>
+<li>We are styling the <code>body</code> to center the chat container on the page.</li>
+<li><code>.chat-container</code> is styled to look like a chat window with a border, shadow, and rounded corners.</li>
+<li><code>.chat-messages</code> is the area where messages will appear. <code>overflow-y: auto;</code> allows scrolling if there are many messages.</li>
+<li><code>.message</code>, <code>.user-message</code>, and <code>.bot-message</code> define the appearance of the chat bubbles for the user and the bot.</li>
+<li>The rest of the styles are for the input field and send button to make them look nice and user-friendly.</li>
+</ul>
+<p>Refresh your <code>index.html</code> in the browser. Now it should look much more like a real chat application!</p>
+<h2 id="step-3-adding-javascript-for-interactivity">Step 3: Adding JavaScript for Interactivity</h2>
+<p>Finally, let's add JavaScript to make our chatbot functional. JavaScript is a programming language that allows you to implement complex features on web pages.</p>
+<p>Add the following <code>&lt;script&gt;</code> block at the end of your <code>&lt;body&gt;</code> section, just before the closing <code>&lt;/body&gt;</code> tag.</p>
+<pre class="hljs"><code><div><span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    ...
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
+        <span class="hljs-keyword">const</span> chatMessages = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'chat-messages'</span>);
+        <span class="hljs-keyword">const</span> userInput = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'user-input'</span>);
+        <span class="hljs-keyword">const</span> sendButton = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'send-button'</span>);
+
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">addMessage</span>(<span class="hljs-params">text, isUser</span>) </span>{
+            <span class="hljs-keyword">const</span> messageDiv = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>);
+            messageDiv.classList.add(<span class="hljs-string">'message'</span>);
+            <span class="hljs-keyword">if</span> (isUser) {
+                messageDiv.classList.add(<span class="hljs-string">'user-message'</span>);
+            } <span class="hljs-keyword">else</span> {
+                messageDiv.classList.add(<span class="hljs-string">'bot-message'</span>);
+            }
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        sendButton.addEventListener(<span class="hljs-string">'click'</span>, () =&gt; {
+            <span class="hljs-keyword">const</span> message = userInput.value.trim();
+            <span class="hljs-keyword">if</span> (message) {
+                addMessage(message, <span class="hljs-literal">true</span>);
+                userInput.value = <span class="hljs-string">''</span>;
+
+                setTimeout(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+                    <span class="hljs-keyword">const</span> botReply = <span class="hljs-string">`Bot says: You typed "<span class="hljs-subst">${message}</span>"! How can I help?`</span>;
+                    addMessage(botReply, <span class="hljs-literal">false</span>);
+                }, <span class="hljs-number">1000</span>);
+            }
+        });
+
+        userInput.addEventListener(<span class="hljs-string">'keypress'</span>, (event) =&gt; {
+            <span class="hljs-keyword">if</span> (event.key === <span class="hljs-string">'Enter'</span>) {
+                sendButton.click();
+            }
+        });
+    </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+</div></code></pre>
+<h3 id="explanation-of-the-javascript-code">Explanation of the JavaScript code</h3>
+<ul>
+<li>We first get references to our HTML elements (<code>chat-messages</code>, <code>user-input</code>, <code>send-button</code>) using <code>document.getElementById</code>.</li>
+<li>The <code>addMessage</code> function creates a new <code>div</code> for a message, styles it as a user or bot message, adds the text, and appends it to the chat messages area.</li>
+<li>We add a 'click' event listener to the <code>sendButton</code>. When clicked, it takes the user's message, displays it, and then simulates a bot reply after a 1-second delay using <code>setTimeout</code>.</li>
+<li>We also add a 'keypress' event listener to the <code>userInput</code> to allow sending a message by pressing the 'Enter' key.</li>
+</ul>
+<p>Now, open <code>index.html</code> in your browser one last time. You should have a fully functional, if simple, chatbot!</p>
+<h2 id="conclusion-and-next-steps">Conclusion and Next Steps</h2>
+<p>Congratulations! You have successfully built a simple chatbot using HTML, CSS, and JavaScript.</p>
+<p>From here, you can try to:</p>
+<ul>
+<li>Create separate files for your CSS (<code>styles.css</code>) and JavaScript (<code>script.js</code>) and link them to your HTML. This is a best practice for organizing your code.</li>
+<li>Improve the bot's intelligence by adding more complex logic to its replies.</li>
+<li>Add more features, like timestamps for messages or user avatars.</li>
+</ul>
+<p>Happy coding!</p>
+<h2 id="question">Question</h2>
+<p><img src="overflowyAuto.png" alt="Chatbot Demo"></p>
+<p>Which part of the code is resposible for the scrolling of the chat messages?</p>
+
+</body>
+</html>
