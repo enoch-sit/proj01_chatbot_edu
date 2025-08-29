@@ -1,66 +1,80 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Chatbot</title>
+<!DOCTYPE html> <!-- Declares HTML5 document type -->
+<html lang="en"> <!-- Root HTML element with English language attribute -->
+<head> <!-- Contains metadata and page configuration -->
+    <meta charset="UTF-8"> <!-- Sets character encoding to UTF-8 for proper text display -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Makes page responsive on mobile devices -->
+    <title>Simple Chatbot</title> <!-- Sets the browser tab title -->
     <style>
         /* Paste the CSS from styles.css here */
+        /* Body styling: sets font, background, and centers content */
         body { font-family: Arial, sans-serif; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        /* Main chat container: white background with rounded corners and shadow */
         .chat-container { background-color: white; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); width: 400px; height: 500px; display: flex; flex-direction: column; }
+        /* Messages area: scrollable area that takes up remaining space */
         .chat-messages { flex: 1; padding: 10px; overflow-y: auto; border-bottom: 1px solid #ddd; }
+        /* Individual message styling: rounded bubbles with spacing */
         .message { margin: 10px 0; padding: 8px 12px; border-radius: 20px; max-width: 80%; }
+        /* User messages: blue background, white text, aligned to right */
         .user-message { background-color: #007bff; color: white; align-self: flex-end; margin-left: auto; }
+        /* Bot messages: gray background, black text, aligned to left */
         .bot-message { background-color: #e0e0e0; color: black; align-self: flex-start; margin-right: auto; }
+        /* Input area container: horizontal layout with padding */
         .input-container { display: flex; padding: 10px; }
+        /* Text input field: takes up most space with border and padding */
         #user-input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin-right: 10px; }
+        /* Send button: blue background with white text and hover effect */
         #send-button { padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        /* Send button hover state: darker blue background */
         #send-button:hover { background-color: #0056b3; }
     </style>
 </head>
-<body>
-    <div class="chat-container">
-        <div id="chat-messages" class="chat-messages"></div>
-        <div class="input-container">
-            <input type="text" id="user-input" placeholder="Type your message...">
-            <button id="send-button">Send</button>
+<body> <!-- Main content area of the page -->
+    <div class="chat-container"> <!-- Main container for the entire chatbot interface -->
+        <div id="chat-messages" class="chat-messages"></div> <!-- Scrollable area where chat messages will be displayed -->
+        <div class="input-container"> <!-- Container for the input field and send button -->
+            <input type="text" id="user-input" placeholder="Type your message..."> <!-- Text input where users type their messages -->
+            <button id="send-button">Send</button> <!-- Button to send the typed message -->
         </div>
     </div>
     <script>
-        // Paste the JS from script.js here
-        const chatMessages = document.getElementById('chat-messages');
-        const userInput = document.getElementById('user-input');
-        const sendButton = document.getElementById('send-button');
+        // Get references to the main DOM elements we'll be working with
+        const chatMessages = document.getElementById('chat-messages'); // Container where messages will be displayed
+        const userInput = document.getElementById('user-input'); // Text input field for user messages
+        const sendButton = document.getElementById('send-button'); // Send button
 
+        // Function to add a new message to the chat area
         function addMessage(text, isUser) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message');
+            const messageDiv = document.createElement('div'); // Create a new div element for the message
+            messageDiv.classList.add('message'); // Add the base 'message' CSS class
             if (isUser) {
-                messageDiv.classList.add('user-message');
+                messageDiv.classList.add('user-message'); // Add 'user-message' class for user messages (blue, right-aligned)
             } else {
-                messageDiv.classList.add('bot-message');
+                messageDiv.classList.add('bot-message'); // Add 'bot-message' class for bot messages (gray, left-aligned)
             }
-            messageDiv.textContent = text;
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            messageDiv.textContent = text; // Set the message text content
+            chatMessages.appendChild(messageDiv); // Add the message div to the chat container
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to show the latest message
         }
 
+        // Event listener for the send button click
         sendButton.addEventListener('click', () => {
-            const message = userInput.value.trim();
-            if (message) {
-                addMessage(message, true);
-                userInput.value = '';
+            const message = userInput.value.trim(); // Get the user's input and remove whitespace
+            if (message) { // Only proceed if there's actually a message
+                addMessage(message, true); // Add the user's message to the chat (isUser = true)
+                userInput.value = ''; // Clear the input field
 
+                // Simulate bot response with a delay
                 setTimeout(() => {
-                    const botReply = `Bot says: You typed "${message}"! How can I help?`;
-                    addMessage(botReply, false);
-                }, 1000);
+                    const botReply = `Bot says: You typed "${message}"! How can I help?`; // Create bot response
+                    addMessage(botReply, false); // Add bot's response to the chat (isUser = false)
+                }, 1000); // Wait 1 second before showing bot response
             }
         });
 
+        // Event listener for Enter key press in the input field
         userInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                sendButton.click();
+            if (event.key === 'Enter') { // Check if the pressed key is Enter
+                sendButton.click(); // Trigger the send button click event
             }
         });
     </script>
