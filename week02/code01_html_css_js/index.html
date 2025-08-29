@@ -37,36 +37,45 @@
         </div>
     </div>
     <script>
+        // State management - keeping track of all messages
+        let messages = []; // Array to store all chat messages
+
         // Get references to the main DOM elements we'll be working with
         const chatMessages = document.getElementById('chat-messages'); // Container where messages will be displayed
         const userInput = document.getElementById('user-input'); // Text input field for user messages
         const sendButton = document.getElementById('send-button'); // Send button
 
-        // Function to add a new message to the chat area
-        function addMessage(text, isUser) {
-            const messageDiv = document.createElement('div'); // Create a new div element for the message
-            messageDiv.classList.add('message'); // Add the base 'message' CSS class
-            if (isUser) {
-                messageDiv.classList.add('user-message'); // Add 'user-message' class for user messages (blue, right-aligned)
-            } else {
-                messageDiv.classList.add('bot-message'); // Add 'bot-message' class for bot messages (gray, left-aligned)
-            }
-            messageDiv.textContent = text; // Set the message text content
-            chatMessages.appendChild(messageDiv); // Add the message div to the chat container
+        // Function to render all messages (similar to React's render concept)
+        function renderMessages() {
+            chatMessages.innerHTML = ''; // Clear existing messages
+            messages.forEach(message => {
+                const messageDiv = document.createElement('div'); // Create a new div element for the message
+                messageDiv.classList.add('message'); // Add the base 'message' CSS class
+                messageDiv.classList.add(message.sender === 'user' ? 'user-message' : 'bot-message'); // Add sender-specific class
+                messageDiv.textContent = message.text; // Set the message text content
+                chatMessages.appendChild(messageDiv); // Add the message div to the chat container
+            });
             chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to show the latest message
+        }
+
+        // Function to add a new message to the state and re-render
+        function addMessage(text, sender) {
+            const newMessage = { text: text, sender: sender }; // Create message object
+            messages.push(newMessage); // Add to messages array (state)
+            renderMessages(); // Re-render the UI to reflect the new state
         }
 
         // Event listener for the send button click
         sendButton.addEventListener('click', () => {
             const message = userInput.value.trim(); // Get the user's input and remove whitespace
             if (message) { // Only proceed if there's actually a message
-                addMessage(message, true); // Add the user's message to the chat (isUser = true)
+                addMessage(message, 'user'); // Add the user's message to the chat
                 userInput.value = ''; // Clear the input field
 
                 // Simulate bot response with a delay
                 setTimeout(() => {
                     const botReply = `Bot says: You typed "${message}"! How can I help?`; // Create bot response
-                    addMessage(botReply, false); // Add bot's response to the chat (isUser = false)
+                    addMessage(botReply, 'bot'); // Add bot's response to the chat
                 }, 1000); // Wait 1 second before showing bot response
             }
         });
