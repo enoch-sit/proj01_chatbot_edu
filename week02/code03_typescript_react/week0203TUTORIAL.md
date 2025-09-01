@@ -405,7 +405,7 @@ Open your terminal and navigate to the `code03_typescript_react` folder:
 
 ```bash
 # Navigate to the project directory
-cd "c:\Users\user\Documents\proj01_chatbot_edu\week02\code03_typescript_react"
+cd "week02\code03_typescript_react"
 
 # Create a new React TypeScript project
 npx create-react-app chatbot-app --template typescript

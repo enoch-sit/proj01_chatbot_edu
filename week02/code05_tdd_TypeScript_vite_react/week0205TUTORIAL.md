@@ -100,7 +100,7 @@ Before starting, ensure you have completed Week 02-04 or have Node.js installed.
 
 ```bash
 # Navigate to the TDD directory
-cd "c:\Users\user\Documents\proj01_chatbot_edu\week02\code05_tdd_TypeScript_vite_react"
+cd "week02\code05_tdd_TypeScript_vite_react"
 
 # Create a new Vite React TypeScript project
 # Select React + TypeScript
