@@ -179,7 +179,7 @@ Navigate to the `code04_typescript_vite_react` folder and create the project:
 
 ```bash
 # Navigate to the project directory
-cd "c:\Users\user\Documents\proj01_chatbot_edu\week02\code04_typescript_vite_react"
+cd "week02\code04_typescript_vite_react"
 
 # Create a new Vite React TypeScript project
 npm create vite@latest chatbot-vite-app --template react-ts

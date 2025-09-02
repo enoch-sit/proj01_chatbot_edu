@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>JEST_EXPECT_CHEATSHEET.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="%F0%9F%A7%AA-jest-expect-function-cheat-sheet-for-typescript-testing">🧪 Jest <code>expect()</code> Function Cheat Sheet for TypeScript Testing</h1>
+<h2 id="%F0%9F%93%8B-basic-syntax">📋 <strong>Basic Syntax</strong></h2>
+<pre class="hljs"><code><div>expect(actualValue).matcher(expectedValue);
+</div></code></pre>
+<h2 id="%F0%9F%8E%AF-core-matchers">🎯 <strong>Core Matchers</strong></h2>
+<h3 id="equality-matchers"><strong>Equality Matchers</strong></h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// Exact equality (checks reference for objects)</span>
+expect(<span class="hljs-number">2</span> + <span class="hljs-number">2</span>).toBe(<span class="hljs-number">4</span>);
+expect(<span class="hljs-literal">true</span>).toBe(<span class="hljs-literal">true</span>);
+expect(<span class="hljs-string">'hello'</span>).toBe(<span class="hljs-string">'hello'</span>);
+
+<span class="hljs-comment">// Deep equality (checks content for objects/arrays)</span>
+expect({ name: <span class="hljs-string">'John'</span>, age: <span class="hljs-number">30</span> }).toEqual({ name: <span class="hljs-string">'John'</span>, age: <span class="hljs-number">30</span> });
+expect([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]).toEqual([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]);
+
+<span class="hljs-comment">// Not equal</span>
+expect(<span class="hljs-number">2</span> + <span class="hljs-number">2</span>).not.toBe(<span class="hljs-number">5</span>);
+expect({ a: <span class="hljs-number">1</span> }).not.toEqual({ a: <span class="hljs-number">2</span> });
+</div></code></pre>
+<h3 id="truthiness-matchers"><strong>Truthiness Matchers</strong></h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// Truthy/Falsy</span>
+expect(<span class="hljs-literal">true</span>).toBeTruthy();
+expect(<span class="hljs-string">'hello'</span>).toBeTruthy();  <span class="hljs-comment">// Non-empty strings are truthy</span>
+expect(<span class="hljs-number">1</span>).toBeTruthy();        <span class="hljs-comment">// Non-zero numbers are truthy</span>
+
+expect(<span class="hljs-literal">false</span>).toBeFalsy();
+expect(<span class="hljs-string">''</span>).toBeFalsy();        <span class="hljs-comment">// Empty string is falsy</span>
+expect(<span class="hljs-number">0</span>).toBeFalsy();         <span class="hljs-comment">// Zero is falsy</span>
+expect(<span class="hljs-literal">null</span>).toBeFalsy();
+expect(<span class="hljs-literal">undefined</span>).toBeFalsy();
+
+<span class="hljs-comment">// Specific null/undefined checks</span>
+expect(<span class="hljs-literal">null</span>).toBeNull();
+expect(<span class="hljs-literal">undefined</span>).toBeUndefined();
+expect(<span class="hljs-string">'hello'</span>).toBeDefined();
+</div></code></pre>
+<h3 id="number-matchers"><strong>Number Matchers</strong></h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// Comparison</span>
+expect(<span class="hljs-number">2</span> + <span class="hljs-number">2</span>).toBeGreaterThan(<span class="hljs-number">3</span>);
+expect(<span class="hljs-number">2</span> + <span class="hljs-number">2</span>).toBeGreaterThanOrEqual(<span class="hljs-number">4</span>);
+expect(<span class="hljs-number">2</span> + <span class="hljs-number">2</span>).toBeLessThan(<span class="hljs-number">5</span>);
+expect(<span class="hljs-number">2</span> + <span class="hljs-number">2</span>).toBeLessThanOrEqual(<span class="hljs-number">4</span>);
+
+<span class="hljs-comment">// Floating point numbers</span>
+expect(<span class="hljs-number">0.1</span> + <span class="hljs-number">0.2</span>).toBeCloseTo(<span class="hljs-number">0.3</span>);  <span class="hljs-comment">// Use for floating point precision</span>
+</div></code></pre>
+<h3 id="string-matchers"><strong>String Matchers</strong></h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// Contains substring</span>
+expect(<span class="hljs-string">'Hello World'</span>).toContain(<span class="hljs-string">'World'</span>);
+expect(<span class="hljs-string">'Hello World'</span>).toContain(<span class="hljs-string">'Hello'</span>);
+
+<span class="hljs-comment">// Regex matching</span>
+expect(<span class="hljs-string">'Hello123'</span>).toMatch(<span class="hljs-regexp">/\d+/</span>);          <span class="hljs-comment">// Contains digits</span>
+expect(<span class="hljs-string">'hello@email.com'</span>).toMatch(<span class="hljs-regexp">/\w+@\w+\.\w+/</span>);  <span class="hljs-comment">// Email pattern</span>
+
+<span class="hljs-comment">// Case-insensitive checks (custom approach)</span>
+expect(<span class="hljs-string">'HELLO WORLD'</span>.toLowerCase()).toContain(<span class="hljs-string">'world'</span>);
+</div></code></pre>
+<h3 id="arrayobject-matchers"><strong>Array/Object Matchers</strong></h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// Array contains item</span>
+expect([<span class="hljs-string">'apple'</span>, <span class="hljs-string">'banana'</span>, <span class="hljs-string">'orange'</span>]).toContain(<span class="hljs-string">'banana'</span>);
+
+<span class="hljs-comment">// Array length</span>
+expect([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]).toHaveLength(<span class="hljs-number">3</span>);
+
+<span class="hljs-comment">// Object properties</span>
+expect({ name: <span class="hljs-string">'John'</span>, age: <span class="hljs-number">30</span> }).toHaveProperty(<span class="hljs-string">'name'</span>);
+expect({ name: <span class="hljs-string">'John'</span>, age: <span class="hljs-number">30</span> }).toHaveProperty(<span class="hljs-string">'name'</span>, <span class="hljs-string">'John'</span>);
+
+<span class="hljs-comment">// Array containing object</span>
+expect([
+  { id: <span class="hljs-number">1</span>, name: <span class="hljs-string">'John'</span> },
+  { id: <span class="hljs-number">2</span>, name: <span class="hljs-string">'Jane'</span> }
+]).toContainEqual({ id: <span class="hljs-number">1</span>, name: <span class="hljs-string">'John'</span> });
+</div></code></pre>
+<h3 id="type-matchers"><strong>Type Matchers</strong></h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// Check specific types</span>
+expect(<span class="hljs-string">'hello'</span>).toEqual(expect.any(<span class="hljs-built_in">String</span>));
+expect(<span class="hljs-number">123</span>).toEqual(expect.any(<span class="hljs-built_in">Number</span>));
+expect(<span class="hljs-literal">true</span>).toEqual(expect.any(<span class="hljs-built_in">Boolean</span>));
+expect(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>()).toEqual(expect.any(<span class="hljs-built_in">Date</span>));
+expect([]).toEqual(expect.any(<span class="hljs-built_in">Array</span>));
+expect({}).toEqual(expect.any(<span class="hljs-built_in">Object</span>));
+
+<span class="hljs-comment">// Check constructor type</span>
+expect(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>()).toBeInstanceOf(<span class="hljs-built_in">Date</span>);
+expect([]).toBeInstanceOf(<span class="hljs-built_in">Array</span>);
+</div></code></pre>
+<h2 id="%F0%9F%94%84-function-testing-matchers">🔄 <strong>Function Testing Matchers</strong></h2>
+<h3 id="function-calls-mocksspies"><strong>Function Calls (Mocks/Spies)</strong></h3>
+<pre class="hljs"><code><div><span class="hljs-keyword">const</span> mockFn = jest.fn();
+
+<span class="hljs-comment">// Call the function</span>
+mockFn(<span class="hljs-string">'arg1'</span>, <span class="hljs-string">'arg2'</span>);
+mockFn(<span class="hljs-string">'arg3'</span>);
+
+<span class="hljs-comment">// Check if called</span>
+expect(mockFn).toHaveBeenCalled();
+expect(mockFn).toHaveBeenCalledTimes(<span class="hljs-number">2</span>);
+
+<span class="hljs-comment">// Check call arguments</span>
+expect(mockFn).toHaveBeenCalledWith(<span class="hljs-string">'arg1'</span>, <span class="hljs-string">'arg2'</span>);
+expect(mockFn).toHaveBeenLastCalledWith(<span class="hljs-string">'arg3'</span>);
+expect(mockFn).toHaveBeenNthCalledWith(<span class="hljs-number">1</span>, <span class="hljs-string">'arg1'</span>, <span class="hljs-string">'arg2'</span>);
+</div></code></pre>
+<h3 id="return-values"><strong>Return Values</strong></h3>
+<pre class="hljs"><code><div><span class="hljs-keyword">const</span> mockFn = jest.fn();
+mockFn.mockReturnValue(<span class="hljs-string">'hello'</span>);
+
+expect(mockFn()).toBe(<span class="hljs-string">'hello'</span>);
+expect(mockFn).toHaveReturnedWith(<span class="hljs-string">'hello'</span>);
+</div></code></pre>
+<h3 id="thrown-errors"><strong>Thrown Errors</strong></h3>
+<pre class="hljs"><code><div><span class="hljs-keyword">const</span> throwError = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Something went wrong'</span>);
+};
+
+expect(throwError).toThrow();
+expect(throwError).toThrow(<span class="hljs-string">'Something went wrong'</span>);
+expect(throwError).toThrow(<span class="hljs-regexp">/went wrong/</span>);
+</div></code></pre>
+<h2 id="%F0%9F%8C%90-react-testing-library-dom-matchers">🌐 <strong>React Testing Library DOM Matchers</strong></h2>
+<p><strong>(Requires @testing-library/jest-dom)</strong></p>
+<h3 id="element-presence"><strong>Element Presence</strong></h3>
+<pre class="hljs"><code><div><span class="hljs-keyword">import</span> { render, screen } <span class="hljs-keyword">from</span> <span class="hljs-string">'@testing-library/react'</span>;
+
+<span class="hljs-comment">// Element exists in DOM</span>
+expect(screen.getByText(<span class="hljs-string">'Hello'</span>)).toBeInTheDocument();
+expect(screen.queryByText(<span class="hljs-string">'Missing'</span>)).not.toBeInTheDocument();
+
+<span class="hljs-comment">// Element visibility</span>
+expect(screen.getByText(<span class="hljs-string">'Visible Text'</span>)).toBeVisible();
+</div></code></pre>
+<h3 id="element-attributes"><strong>Element Attributes</strong></h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// Class names</span>
+expect(element).toHaveClass(<span class="hljs-string">'btn'</span>);
+expect(element).toHaveClass(<span class="hljs-string">'btn'</span>, <span class="hljs-string">'btn-primary'</span>);
+
+<span class="hljs-comment">// Attributes</span>
+expect(input).toHaveAttribute(<span class="hljs-string">'placeholder'</span>, <span class="hljs-string">'Enter text'</span>);
+expect(input).toHaveAttribute(<span class="hljs-string">'disabled'</span>);
+
+<span class="hljs-comment">// Values</span>
+expect(input).toHaveValue(<span class="hljs-string">'hello'</span>);
+expect(input).toHaveDisplayValue(<span class="hljs-string">'hello'</span>);
+</div></code></pre>
+<h3 id="form-elements"><strong>Form Elements</strong></h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// Input states</span>
+expect(checkbox).toBeChecked();
+expect(input).toBeDisabled();
+expect(input).toBeEnabled();
+expect(select).toHaveValue(<span class="hljs-string">'option1'</span>);
+
+<span class="hljs-comment">// Focus</span>
+expect(input).toHaveFocus();
+</div></code></pre>
+<h2 id="%F0%9F%8E%AF-common-tdd-patterns">🎯 <strong>Common TDD Patterns</strong></h2>
+<h3 id="chatbot-response-testing"><strong>Chatbot Response Testing</strong></h3>
+<pre class="hljs"><code><div>it(<span class="hljs-string">'should respond to greeting'</span>, <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> response = getBotResponse(<span class="hljs-string">'hello'</span>);
+  
+  <span class="hljs-comment">// Check response exists and has content</span>
+  expect(response).toBeDefined();
+  expect(response.text).toBeDefined();
+  expect(response.text.length).toBeGreaterThan(<span class="hljs-number">0</span>);
+  
+  <span class="hljs-comment">// Check specific content</span>
+  expect(response.text).toContain(<span class="hljs-string">'Hello'</span>);
+  expect(response.text.toLowerCase()).toContain(<span class="hljs-string">'chatbot'</span>);
+  
+  <span class="hljs-comment">// Check response timing</span>
+  expect(response.delay).toBeGreaterThan(<span class="hljs-number">0</span>);
+  expect(response.delay).toBeLessThan(<span class="hljs-number">3000</span>);
+});
+</div></code></pre>
+<h3 id="component-props-testing"><strong>Component Props Testing</strong></h3>
+<pre class="hljs"><code><div>it(<span class="hljs-string">'should render with correct props'</span>, <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> message = {
+    id: <span class="hljs-string">'1'</span>,
+    text: <span class="hljs-string">'Hello World'</span>,
+    sender: <span class="hljs-string">'user'</span> <span class="hljs-keyword">as</span> <span class="hljs-keyword">const</span>,
+    timestamp: <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>()
+  };
+  
+  render(&lt;MessageComponent message={message} /&gt;);
+  
+  <span class="hljs-comment">// Check rendered content</span>
+  expect(screen.getByText(<span class="hljs-string">'Hello World'</span>)).toBeInTheDocument();
+  expect(screen.getByText(<span class="hljs-string">'user'</span>)).toBeInTheDocument();
+  
+  <span class="hljs-comment">// Check CSS classes</span>
+  expect(screen.getByTestId(<span class="hljs-string">'message'</span>)).toHaveClass(<span class="hljs-string">'message'</span>, <span class="hljs-string">'message--user'</span>);
+});
+</div></code></pre>
+<h3 id="user-interaction-testing"><strong>User Interaction Testing</strong></h3>
+<pre class="hljs"><code><div>it(<span class="hljs-string">'should handle user input'</span>, <span class="hljs-keyword">async</span> () =&gt; {
+  <span class="hljs-keyword">const</span> user = userEvent.setup();
+  <span class="hljs-keyword">const</span> onSubmit = jest.fn();
+  
+  render(&lt;ChatInput onSubmit={onSubmit} /&gt;);
+  
+  <span class="hljs-keyword">const</span> input = screen.getByPlaceholderText(<span class="hljs-string">'Type message...'</span>);
+  <span class="hljs-keyword">const</span> button = screen.getByRole(<span class="hljs-string">'button'</span>, { name: <span class="hljs-regexp">/send/i</span> });
+  
+  <span class="hljs-comment">// Initial state</span>
+  expect(button).toBeDisabled();
+  
+  <span class="hljs-comment">// Type message</span>
+  <span class="hljs-keyword">await</span> user.type(input, <span class="hljs-string">'Hello'</span>);
+  
+  <span class="hljs-comment">// Button should be enabled</span>
+  expect(button).toBeEnabled();
+  expect(input).toHaveValue(<span class="hljs-string">'Hello'</span>);
+  
+  <span class="hljs-comment">// Submit form</span>
+  <span class="hljs-keyword">await</span> user.click(button);
+  
+  <span class="hljs-comment">// Check function was called</span>
+  expect(onSubmit).toHaveBeenCalledTimes(<span class="hljs-number">1</span>);
+  expect(onSubmit).toHaveBeenCalledWith(<span class="hljs-string">'Hello'</span>);
+});
+</div></code></pre>
+<h2 id="%F0%9F%94%84-async-testing">🔄 <strong>Async Testing</strong></h2>
+<h3 id="promises"><strong>Promises</strong></h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// Resolving promises</span>
+<span class="hljs-keyword">await</span> expect(fetchData()).resolves.toEqual({ data: <span class="hljs-string">'success'</span> });
+
+<span class="hljs-comment">// Rejecting promises</span>
+<span class="hljs-keyword">await</span> expect(fetchDataThatFails()).rejects.toThrow(<span class="hljs-string">'Network error'</span>);
+</div></code></pre>
+<h3 id="waiting-for-elements"><strong>Waiting for Elements</strong></h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// Wait for element to appear</span>
+<span class="hljs-keyword">await</span> waitFor(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  expect(screen.getByText(<span class="hljs-string">'Loaded'</span>)).toBeInTheDocument();
+});
+
+<span class="hljs-comment">// Wait for element to disappear</span>
+<span class="hljs-keyword">await</span> waitFor(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  expect(screen.queryByText(<span class="hljs-string">'Loading...'</span>)).not.toBeInTheDocument();
+});
+</div></code></pre>
+<h2 id="%F0%9F%8E%A8-custom-matchers">🎨 <strong>Custom Matchers</strong></h2>
+<h3 id="creating-custom-matchers"><strong>Creating Custom Matchers</strong></h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// Extend Jest matchers</span>
+<span class="hljs-keyword">declare</span> global {
+  <span class="hljs-keyword">namespace</span> jest {
+    <span class="hljs-keyword">interface</span> Matchers&lt;R&gt; {
+      toBeValidEmail(): R;
+    }
+  }
+}
+
+expect.extend({
+  toBeValidEmail(received: <span class="hljs-built_in">string</span>) {
+    <span class="hljs-keyword">const</span> emailRegex = <span class="hljs-regexp">/^[^\s@]+@[^\s@]+\.[^\s@]+$/</span>;
+    <span class="hljs-keyword">const</span> pass = emailRegex.test(received);
+    
+    <span class="hljs-keyword">return</span> {
+      message: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-string">`expected <span class="hljs-subst">${received}</span> <span class="hljs-subst">${pass ? <span class="hljs-string">'not '</span> : <span class="hljs-string">''</span>}</span>to be a valid email`</span>,
+      pass,
+    };
+  },
+});
+
+<span class="hljs-comment">// Usage</span>
+expect(<span class="hljs-string">'test@example.com'</span>).toBeValidEmail();
+</div></code></pre>
+<h2 id="%F0%9F%93%9D-best-practices">📝 <strong>Best Practices</strong></h2>
+<h3 id="descriptive-test-messages"><strong>Descriptive Test Messages</strong></h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// ❌ Poor description</span>
+expect(result).toBe(<span class="hljs-literal">true</span>);
+
+<span class="hljs-comment">// ✅ Good description with context</span>
+expect(isValidMessage(message)).toBe(<span class="hljs-literal">true</span>); <span class="hljs-comment">// Message validation should pass</span>
+</div></code></pre>
+<h3 id="multiple-assertions"><strong>Multiple Assertions</strong></h3>
+<pre class="hljs"><code><div>it(<span class="hljs-string">'should create a properly formatted message'</span>, <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> result = formatMessage(<span class="hljs-string">'Hello'</span>, <span class="hljs-string">'user'</span>);
+  
+  <span class="hljs-comment">// Group related assertions</span>
+  expect(result).toEqual(expect.objectContaining({
+    text: <span class="hljs-string">'Hello'</span>,
+    sender: <span class="hljs-string">'user'</span>,
+    timestamp: expect.any(<span class="hljs-built_in">Date</span>),
+    id: expect.any(<span class="hljs-built_in">String</span>)
+  }));
+  
+  <span class="hljs-comment">// Additional specific checks</span>
+  expect(result.id).toMatch(<span class="hljs-regexp">/^\d+-[a-z0-9]+$/</span>); <span class="hljs-comment">// Timestamp + random string format</span>
+});
+</div></code></pre>
+<h3 id="error-testing"><strong>Error Testing</strong></h3>
+<pre class="hljs"><code><div>it(<span class="hljs-string">'should handle invalid input gracefully'</span>, <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-comment">// Test various invalid inputs</span>
+  expect(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> formatMessage(<span class="hljs-string">''</span>, <span class="hljs-string">'user'</span>)).toThrow(<span class="hljs-string">'Text cannot be empty'</span>);
+  expect(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> formatMessage(<span class="hljs-string">'Hello'</span>, <span class="hljs-string">''</span>)).toThrow(<span class="hljs-string">'Sender cannot be empty'</span>);
+  expect(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> formatMessage(<span class="hljs-string">'Hello'</span>, <span class="hljs-string">'invalid'</span>)).toThrow(<span class="hljs-string">'Sender must be user or bot'</span>);
+});
+</div></code></pre>
+<h2 id="%F0%9F%9A%80-quick-reference">🚀 <strong>Quick Reference</strong></h2>
+<table>
+<thead>
+<tr>
+<th><strong>Pattern</strong></th>
+<th><strong>Use Case</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.toBe()</code></td>
+<td>Primitive values, exact equality</td>
+</tr>
+<tr>
+<td><code>.toEqual()</code></td>
+<td>Objects, arrays, deep equality</td>
+</tr>
+<tr>
+<td><code>.toContain()</code></td>
+<td>Arrays, strings contain item/substring</td>
+</tr>
+<tr>
+<td><code>.toHaveLength()</code></td>
+<td>Arrays, strings length check</td>
+</tr>
+<tr>
+<td><code>.toBeGreaterThan()</code></td>
+<td>Number comparisons</td>
+</tr>
+<tr>
+<td><code>.toMatch()</code></td>
+<td>String regex patterns</td>
+</tr>
+<tr>
+<td><code>.toThrow()</code></td>
+<td>Function throws error</td>
+</tr>
+<tr>
+<td><code>.toHaveBeenCalled()</code></td>
+<td>Mock function was called</td>
+</tr>
+<tr>
+<td><code>.toBeInTheDocument()</code></td>
+<td>DOM element exists (RTL)</td>
+</tr>
+<tr>
+<td><code>.toHaveClass()</code></td>
+<td>DOM element has CSS class (RTL)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p>💡 <strong>Pro Tip</strong>: Always use the most specific matcher possible for clearer error messages and better test intent!</p>
+
+</body>
+</html>
