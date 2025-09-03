@@ -33,6 +33,19 @@ export interface RequestConfiguration {
   isStreaming: boolean;
 }
 
+export interface ApiResponse {
+  rawResponse: string;
+  statusCode: number;
+  headers: Record<string, string>;
+  timestamp: Date;
+  requestConfig: {
+    method: string;
+    url: string;
+    headers: Record<string, string>;
+    body: any;
+  };
+}
+
 export interface AppState {
   // API Configuration
   selectedProvider: string;
@@ -49,6 +62,9 @@ export interface AppState {
   // Chat State
   messages: Message[];
   systemPrompt: string;
+  
+  // API Response State
+  lastApiResponse: ApiResponse | null;
   
   // UI State
   isLoading: boolean;
@@ -67,6 +83,7 @@ export interface AppState {
   clearMessages: () => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  setLastApiResponse: (response: ApiResponse | null) => void;
 }
 
 export interface StreamResponse {

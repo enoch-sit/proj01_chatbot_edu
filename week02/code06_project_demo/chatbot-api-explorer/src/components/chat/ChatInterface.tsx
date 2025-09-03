@@ -10,6 +10,7 @@ import {
   CircularProgress
 } from '@mui/joy';
 import { useAppStore } from '../../stores/appStore';
+import { ApiService } from '../../services/apiService';
 import type { Message } from '../../types';
 
 export const ChatInterface: React.FC = () => {
@@ -18,11 +19,16 @@ export const ChatInterface: React.FC = () => {
     systemPrompt,
     isLoading,
     error,
+    endpoint,
+    headers,
+    model,
+    isStreaming,
     addMessage,
     clearMessages,
     setSystemPrompt,
     setLoading,
     setError,
+    setLastApiResponse,
   } = useAppStore();
 
   const [inputMessage, setInputMessage] = useState('');
@@ -36,7 +42,7 @@ export const ChatInterface: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
     const userMessage: Message = {
@@ -51,17 +57,75 @@ export const ChatInterface: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    // Simulate API call for now
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: 'This is a simulated response. The actual API integration will be implemented next.',
-        timestamp: new Date(),
-      };
-      addMessage(assistantMessage);
+    try {
+      if (isStreaming) {
+        // Handle streaming response
+        let assistantContent = '';
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: '',
+          timestamp: new Date(),
+        };
+        
+        addMessage(assistantMessage);
+
+        await ApiService.handleStreamingResponse(
+          endpoint,
+          headers,
+          messages.concat(userMessage), // Include the user message we just added
+          systemPrompt,
+          model,
+          (chunk: string) => {
+            assistantContent += chunk;
+            // Update the assistant message with accumulated content
+            assistantMessage.content = assistantContent;
+            // Note: In a real implementation, you'd want to update the message in the store
+            // For now, this will show the final content when streaming completes
+          },
+          (apiResponse) => {
+            // Update the final message content
+            assistantMessage.content = assistantContent;
+            setLastApiResponse(apiResponse);
+            setLoading(false);
+          },
+          (error, apiResponse) => {
+            setError(error);
+            setLastApiResponse(apiResponse);
+            setLoading(false);
+          }
+        );
+      } else {
+        // Handle regular response
+        const { response: content, apiResponse } = await ApiService.sendChatCompletion(
+          endpoint,
+          headers,
+          messages.concat(userMessage), // Include the user message we just added
+          systemPrompt,
+          model,
+          false
+        );
+
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content,
+          timestamp: new Date(),
+        };
+
+        addMessage(assistantMessage);
+        setLastApiResponse(apiResponse);
+        setLoading(false);
+      }
+    } catch (err: any) {
+      if (err.apiResponse) {
+        setLastApiResponse(err.apiResponse);
+        setError(err.error || 'API request failed');
+      } else {
+        setError(err.message || 'An unexpected error occurred');
+      }
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

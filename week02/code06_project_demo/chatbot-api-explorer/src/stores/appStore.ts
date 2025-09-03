@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { AppState, Message } from '../types';
+import type { AppState, Message, ApiResponse } from '../types';
 import { persist } from 'zustand/middleware';
 import CryptoJS from 'crypto-js';
 
@@ -37,6 +37,9 @@ export const useAppStore = create<AppState>()(
       messages: [],
       systemPrompt: 'You are a helpful AI assistant.',
       
+      // API Response State
+      lastApiResponse: null,
+      
       // UI State
       isLoading: false,
       error: null,
@@ -68,6 +71,8 @@ export const useAppStore = create<AppState>()(
       setLoading: (loading: boolean) => set({ isLoading: loading }),
       
       setError: (error: string | null) => set({ error }),
+      
+      setLastApiResponse: (response: ApiResponse | null) => set({ lastApiResponse: response }),
     }),
     {
       name: 'chatbot-api-explorer-storage',

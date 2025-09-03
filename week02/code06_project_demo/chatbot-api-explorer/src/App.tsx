@@ -2,6 +2,7 @@ import { Box, Typography, Container, Grid } from '@mui/joy';
 import { ApiConfigPanel } from './components/config/ApiConfigPanel';
 import { RequestConfigPanel } from './components/config/RequestConfigPanel';
 import { ChatInterface } from './components/chat/ChatInterface';
+import { RawResponsePanel } from './components/response/RawResponsePanel';
 import './App.css';
 
 function App() {
@@ -38,16 +39,21 @@ function App() {
         <Container maxWidth="xl">
           <Grid container spacing={3} sx={{ height: 'calc(100vh - 200px)' }}>
             {/* Left Panel - Configuration */}
-            <Grid xs={12} lg={4}>
+            <Grid xs={12} lg={3}>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, height: '100%', overflow: 'auto' }}>
                 <ApiConfigPanel />
                 <RequestConfigPanel />
               </Box>
             </Grid>
 
-            {/* Right Panel - Chat Interface */}
-            <Grid xs={12} lg={8}>
+            {/* Center Panel - Chat Interface */}
+            <Grid xs={12} lg={6}>
               <ChatInterface />
+            </Grid>
+
+            {/* Right Panel - Raw Response */}
+            <Grid xs={12} lg={3}>
+              <RawResponsePanel />
             </Grid>
           </Grid>
         </Container>

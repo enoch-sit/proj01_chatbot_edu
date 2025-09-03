@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Card, 
   Typography, 
@@ -8,12 +8,15 @@ import {
   Option, 
   Input, 
   Box,
-  Chip
+  Chip,
+  Checkbox
 } from '@mui/joy';
 import { useAppStore } from '../../stores/appStore';
 import { API_PROVIDERS, getProviderEndpoint, getAuthHeader } from '../../utils/apiProviders';
 
 export const ApiConfigPanel: React.FC = () => {
+  const [useCustomModel, setUseCustomModel] = useState(false);
+  const [customModelName, setCustomModelName] = useState('');
   const {
     selectedProvider,
     apiKey,
@@ -34,6 +37,10 @@ export const ApiConfigPanel: React.FC = () => {
     const provider = API_PROVIDERS[providerId];
     setEndpoint(getProviderEndpoint(providerId, provider.defaultModel));
     setModel(provider.defaultModel);
+    
+    // Reset custom model state when changing providers
+    setUseCustomModel(false);
+    setCustomModelName('');
     
     // Update headers with provider defaults and auth
     const authHeaders = apiKey ? getAuthHeader(providerId, apiKey) : {};
@@ -65,6 +72,33 @@ export const ApiConfigPanel: React.FC = () => {
   const handleModelChange = (selectedModel: string) => {
     setModel(selectedModel);
     setEndpoint(getProviderEndpoint(selectedProvider, selectedModel));
+    setUseCustomModel(false); // Reset custom model when selecting from dropdown
+  };
+
+  const handleCustomModelToggle = () => {
+    const newUseCustom = !useCustomModel;
+    setUseCustomModel(newUseCustom);
+    
+    if (newUseCustom) {
+      // When enabling custom model, clear the current model or set to custom name
+      if (customModelName) {
+        setModel(customModelName);
+        setEndpoint(getProviderEndpoint(selectedProvider, customModelName));
+      }
+    } else {
+      // When disabling custom model, revert to default model
+      const defaultModel = currentProvider.defaultModel;
+      setModel(defaultModel);
+      setEndpoint(getProviderEndpoint(selectedProvider, defaultModel));
+    }
+  };
+
+  const handleCustomModelNameChange = (name: string) => {
+    setCustomModelName(name);
+    if (useCustomModel) {
+      setModel(name);
+      setEndpoint(getProviderEndpoint(selectedProvider, name));
+    }
   };
 
   return (
@@ -102,19 +136,48 @@ export const ApiConfigPanel: React.FC = () => {
       )}
 
       {/* Model Selection */}
-      <FormControl sx={{ mb: 2 }}>
-        <FormLabel>Model</FormLabel>
-        <Select
-          value={model}
-          onChange={(_, value) => value && handleModelChange(value)}
-        >
-          {currentProvider.models.map((modelName) => (
-            <Option key={modelName} value={modelName}>
-              {modelName}
-            </Option>
-          ))}
-        </Select>
-      </FormControl>
+      <Box sx={{ mb: 2 }}>
+        <FormLabel sx={{ mb: 1 }}>Model</FormLabel>
+        
+        {/* Custom Model Toggle */}
+        <Box sx={{ mb: 2 }}>
+          <Checkbox
+            checked={useCustomModel}
+            onChange={handleCustomModelToggle}
+            label="Use custom model name"
+            size="sm"
+          />
+        </Box>
+
+        {useCustomModel ? (
+          <FormControl>
+            <Input
+              value={customModelName}
+              onChange={(e) => handleCustomModelNameChange(e.target.value)}
+              placeholder="Enter custom model name (e.g., gpt-4-custom, claude-custom)"
+            />
+          </FormControl>
+        ) : (
+          <FormControl>
+            <Select
+              value={model}
+              onChange={(_, value) => value && handleModelChange(value)}
+            >
+              {currentProvider.models.map((modelName) => (
+                <Option key={modelName} value={modelName}>
+                  {modelName}
+                </Option>
+              ))}
+            </Select>
+          </FormControl>
+        )}
+        
+        {useCustomModel && (
+          <Typography level="body-xs" sx={{ mt: 1, color: 'text.tertiary' }}>
+            Enter any model name supported by your selected provider
+          </Typography>
+        )}
+      </Box>
 
       {/* Endpoint */}
       <FormControl sx={{ mb: 2 }}>
@@ -161,7 +224,31 @@ export const ApiConfigPanel: React.FC = () => {
             {currentProvider.requiresAuth ? 'Required' : 'Optional'}
           </Chip>
         </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography level="body-sm">Custom Models:</Typography>
+          <Chip 
+            color="primary" 
+            size="sm"
+          >
+            Supported
+          </Chip>
+        </Box>
       </Box>
+      
+      {/* Custom Model Info */}
+      {useCustomModel && (
+        <Box sx={{ 
+          bgcolor: 'primary.50', 
+          p: 2, 
+          borderRadius: 'sm',
+          mt: 2
+        }}>
+          <Typography level="body-sm" sx={{ color: 'primary.700' }}>
+            <strong>Custom Model Mode:</strong> You can enter any model name supported by your provider. 
+            Make sure the model exists and is accessible with your API key.
+          </Typography>
+        </Box>
+      )}
     </Card>
   );
 };
