@@ -1,36 +1,6 @@
 import type { ApiProvider } from '../types';
 
 export const API_PROVIDERS: Record<string, ApiProvider> = {
-  openai: {
-    id: 'openai',
-    name: 'OpenAI',
-    baseUrl: 'https://api.openai.com/v1',
-    defaultHeaders: {
-      'Content-Type': 'application/json',
-    },
-    defaultModel: 'gpt-3.5-turbo',
-    models: ['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo', 'gpt-4o'],
-    requiresAuth: true,
-    supportsStreaming: true,
-  },
-  anthropic: {
-    id: 'anthropic',
-    name: 'Anthropic',
-    baseUrl: 'https://api.anthropic.com/v1',
-    defaultHeaders: {
-      'Content-Type': 'application/json',
-      'anthropic-version': '2023-06-01',
-    },
-    defaultModel: 'claude-3-sonnet-20240229',
-    models: [
-      'claude-3-opus-20240229',
-      'claude-3-sonnet-20240229',
-      'claude-3-haiku-20240307',
-      'claude-3-5-sonnet-20241022',
-    ],
-    requiresAuth: true,
-    supportsStreaming: true,
-  },
   huggingface: {
     id: 'huggingface',
     name: 'Hugging Face',
@@ -60,18 +30,6 @@ export const API_PROVIDERS: Record<string, ApiProvider> = {
     requiresAuth: true,
     supportsStreaming: true,
   },
-  google: {
-    id: 'google',
-    name: 'Google Gemini',
-    baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
-    defaultHeaders: {
-      'Content-Type': 'application/json',
-    },
-    defaultModel: 'gemini-1.5-flash',
-    models: ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.0-pro'],
-    requiresAuth: true,
-    supportsStreaming: true,
-  },
   custom: {
     id: 'custom',
     name: 'Custom API',
@@ -82,7 +40,7 @@ export const API_PROVIDERS: Record<string, ApiProvider> = {
     defaultModel: '',
     models: [],
     requiresAuth: false,
-    supportsStreaming: false,
+    supportsStreaming: true,
   },
 };
 
@@ -90,15 +48,10 @@ export const getProviderEndpoint = (providerId: string, model?: string): string 
   const provider = API_PROVIDERS[providerId];
   
   switch (providerId) {
-    case 'openai':
     case 'grok':
       return `${provider.baseUrl}/chat/completions`;
-    case 'anthropic':
-      return `${provider.baseUrl}/messages`;
     case 'huggingface':
       return `${provider.baseUrl}/${model || provider.defaultModel}`;
-    case 'google':
-      return `${provider.baseUrl}/models/${model || provider.defaultModel}:generateContent`;
     case 'custom':
       return '';
     default:
@@ -108,16 +61,8 @@ export const getProviderEndpoint = (providerId: string, model?: string): string 
 
 export const getAuthHeader = (providerId: string, apiKey: string): Record<string, string> => {
   switch (providerId) {
-    case 'openai':
-    case 'grok':
-      return { Authorization: `Bearer ${apiKey}` };
-    case 'anthropic':
-      return { 'x-api-key': apiKey };
-    case 'huggingface':
-      return { Authorization: `Bearer ${apiKey}` };
-    case 'google':
-      return {}; // Google uses query parameter
+    case 'custom':
     default:
-      return {};
+      return { Authorization: `Bearer ${apiKey}` };
   }
 };

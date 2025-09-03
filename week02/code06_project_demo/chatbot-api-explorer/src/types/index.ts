@@ -80,6 +80,7 @@ export interface AppState {
   setStreaming: (streaming: boolean) => void;
   setSystemPrompt: (prompt: string) => void;
   addMessage: (message: Message) => void;
+  updateMessage: (messageId: string, content: string) => void;
   clearMessages: () => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;

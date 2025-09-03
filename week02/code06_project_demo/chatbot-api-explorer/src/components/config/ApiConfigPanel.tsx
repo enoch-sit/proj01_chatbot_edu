@@ -15,8 +15,8 @@ import { useAppStore } from '../../stores/appStore';
 import { API_PROVIDERS, getProviderEndpoint, getAuthHeader } from '../../utils/apiProviders';
 
 export const ApiConfigPanel: React.FC = () => {
-  const [useCustomModel, setUseCustomModel] = useState(false);
-  const [customModelName, setCustomModelName] = useState('');
+  const [useCustomModel, setUseCustomModel] = useState(true); // Default to true
+  const [customModelName, setCustomModelName] = useState('grok-3-mini'); // Default custom model
   const {
     selectedProvider,
     apiKey,
@@ -38,9 +38,8 @@ export const ApiConfigPanel: React.FC = () => {
     setEndpoint(getProviderEndpoint(providerId, provider.defaultModel));
     setModel(provider.defaultModel);
     
-    // Reset custom model state when changing providers
-    setUseCustomModel(false);
-    setCustomModelName('');
+    // Keep custom model state as default
+    setUseCustomModel(true);
     
     // Update headers with provider defaults and auth
     const authHeaders = apiKey ? getAuthHeader(providerId, apiKey) : {};

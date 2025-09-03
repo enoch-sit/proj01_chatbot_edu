@@ -20,10 +20,10 @@ export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       // API Configuration
-      selectedProvider: 'openai',
+      selectedProvider: 'grok',
       apiKey: '',
-      endpoint: 'https://api.openai.com/v1/chat/completions',
-      model: 'gpt-3.5-turbo',
+      endpoint: 'https://api.x.ai/v1/chat/completions',
+      model: 'grok-3-mini',
       
       // Request Configuration
       headers: {
@@ -64,6 +64,14 @@ export const useAppStore = create<AppState>()(
       addMessage: (message: Message) => {
         const messages = get().messages;
         set({ messages: [...messages, message] });
+      },
+      
+      updateMessage: (messageId: string, content: string) => {
+        const messages = get().messages;
+        const updatedMessages = messages.map(msg => 
+          msg.id === messageId ? { ...msg, content } : msg
+        );
+        set({ messages: updatedMessages });
       },
       
       clearMessages: () => set({ messages: [] }),
