@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "noEmit": false,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": false,
+    "allowImportingTsExtensions": false,
+    "moduleResolution": "node"
+  },
+  "include": [
+    "src/**/*",
+    "src/__tests__/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
