@@ -7,10 +7,12 @@ import {
   AccordionDetails,
   AccordionSummary,
   Chip,
-  Alert
+  Alert,
+  Button
 } from '@mui/joy';
 import { useAppStore } from '../../stores/appStore';
 import { JsonEditor } from '../editors/JsonEditor';
+import { RequestBodyModal } from '../modals/RequestBodyModal';
 
 export const RequestPreviewPanel: React.FC = () => {
   const {
@@ -25,6 +27,7 @@ export const RequestPreviewPanel: React.FC = () => {
 
   const [actualHeaders, setActualHeaders] = useState<Record<string, string>>({});
   const [actualBody, setActualBody] = useState<any>({});
+  const [modalOpen, setModalOpen] = useState(false);
 
   // Generate the actual request data that would be sent
   useEffect(() => {
@@ -76,9 +79,19 @@ ${headersStr} \\
 
   return (
     <Card variant="outlined" sx={{ p: 3 }}>
-      <Typography level="h3" sx={{ mb: 3 }}>
-        Request Preview
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography level="h3">
+          Request Preview
+        </Typography>
+        <Button
+          variant="solid"
+          color="primary"
+          size="sm"
+          onClick={() => setModalOpen(true)}
+        >
+          View Full Request
+        </Button>
+      </Box>
 
       {/* Request Summary */}
       <Box sx={{ 
@@ -183,6 +196,16 @@ ${headersStr} \\
           It updates automatically as you change configuration settings.
         </Typography>
       </Alert>
+
+      {/* Request Body Modal */}
+      <RequestBodyModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        requestBody={actualBody}
+        headers={actualHeaders}
+        endpoint={endpoint}
+        method={httpMethod}
+      />
     </Card>
   );
 };

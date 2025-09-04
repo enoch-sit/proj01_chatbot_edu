@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "clean": "rmdir /s /q dist 2>nul || echo \"dist folder already clean\"",
+    "clean:build": "npm run clean && npm run build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "jest",

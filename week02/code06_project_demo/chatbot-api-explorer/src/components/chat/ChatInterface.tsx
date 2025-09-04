@@ -15,6 +15,7 @@ import {
 } from '@mui/joy';
 import { useAppStore } from '../../stores/appStore';
 import { ApiService } from '../../services/apiService';
+import { RequestBodyModal } from '../modals/RequestBodyModal';
 import type { Message } from '../../types';
 
 export const ChatInterface: React.FC = () => {
@@ -39,6 +40,7 @@ export const ChatInterface: React.FC = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [showRawChunks, setShowRawChunks] = useState(false);
   const [rawChunks, setRawChunks] = useState<string[]>([]);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [customParser, setCustomParser] = useState(`// Default parser function
 function parseChunk(chunk) {
   // Handle different streaming formats
@@ -106,6 +108,38 @@ function parseChunk(chunk) {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Generate preview request body including the current input
+  const generatePreviewRequest = () => {
+    const requestMessages = [];
+    if (systemPrompt && systemPrompt.trim()) {
+      requestMessages.push({ role: 'system', content: systemPrompt });
+    }
+    
+    // Add existing messages
+    messages.forEach(msg => {
+      requestMessages.push({
+        role: msg.role,
+        content: msg.content
+      });
+    });
+
+    // Add current input as user message if it exists
+    if (inputMessage.trim()) {
+      requestMessages.push({
+        role: 'user',
+        content: inputMessage.trim()
+      });
+    }
+
+    return {
+      model: model || 'gpt-3.5-turbo',
+      messages: requestMessages,
+      stream: isStreaming,
+      temperature: 0.7,
+      max_tokens: 1000,
+    };
+  };
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -440,19 +474,39 @@ function parseChunk(chunk) {
             disabled={isLoading}
             sx={{ flex: 1 }}
           />
-          <Button
-            onClick={handleSendMessage}
-            disabled={isLoading || !inputMessage.trim()}
-            variant="solid"
-            sx={{ alignSelf: 'flex-end' }}
-          >
-            Send
-          </Button>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Button
+              variant="soft"
+              color="neutral"
+              size="sm"
+              onClick={() => setPreviewModalOpen(true)}
+              disabled={isLoading}
+            >
+              Preview
+            </Button>
+            <Button
+              onClick={handleSendMessage}
+              disabled={isLoading || !inputMessage.trim()}
+              variant="solid"
+            >
+              Send
+            </Button>
+          </Box>
         </Box>
         <Typography level="body-xs" sx={{ mt: 1, color: 'text.tertiary' }}>
           Press Enter to send, Shift+Enter for new line
         </Typography>
       </Box>
+
+      {/* Preview Request Modal */}
+      <RequestBodyModal
+        open={previewModalOpen}
+        onClose={() => setPreviewModalOpen(false)}
+        requestBody={generatePreviewRequest()}
+        headers={headers}
+        endpoint={endpoint}
+        method="POST"
+      />
     </Card>
   );
 };
