@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Card, 
   Typography, 
@@ -16,7 +16,7 @@ import { API_PROVIDERS, getProviderEndpoint, getAuthHeader } from '../../utils/a
 
 export const ApiConfigPanel: React.FC = () => {
   const [useCustomModel, setUseCustomModel] = useState(true); // Default to true
-  const [customModelName, setCustomModelName] = useState('grok-3-mini'); // Default custom model
+  const [customModelName, setCustomModelName] = useState(''); // Will be set based on provider
   const {
     selectedProvider,
     apiKey,
@@ -32,11 +32,59 @@ export const ApiConfigPanel: React.FC = () => {
 
   const currentProvider = API_PROVIDERS[selectedProvider];
 
+  // Initialize custom model name based on current provider on mount
+  useEffect(() => {
+    if (!customModelName && selectedProvider) {
+      const defaultCustomModel = getDefaultCustomModel(selectedProvider);
+      setCustomModelName(defaultCustomModel);
+    }
+  }, []); // Run only on mount
+
+  // Get default custom model based on provider
+  const getDefaultCustomModel = (providerId: string): string => {
+    switch (providerId) {
+      case 'grok':
+        return 'grok-3-mini';
+      case 'huggingface':
+        return 'meta-llama/Llama-3.1-8B-Instruct:cerebras';
+      case 'custom':
+        return '';
+      default:
+        return '';
+    }
+  };
+
+  // Ensure provider configuration is up to date on mount
+  useEffect(() => {
+    if (selectedProvider && currentProvider) {
+      // Set custom model name based on provider if not already set
+      if (!customModelName) {
+        const defaultCustomModel = getDefaultCustomModel(selectedProvider);
+        setCustomModelName(defaultCustomModel);
+      }
+      
+      // Update endpoint to current provider configuration
+      const currentEndpoint = getProviderEndpoint(selectedProvider);
+      if (endpoint !== currentEndpoint) {
+        setEndpoint(currentEndpoint);
+      }
+      
+      // Update model to current provider default if not using custom
+      if (!useCustomModel && model !== currentProvider.defaultModel) {
+        setModel(currentProvider.defaultModel);
+      }
+    }
+  }, [selectedProvider, currentProvider, endpoint, model, useCustomModel, customModelName, setEndpoint, setModel]);
+
   const handleProviderChange = (providerId: string) => {
     setProvider(providerId);
     const provider = API_PROVIDERS[providerId];
-    setEndpoint(getProviderEndpoint(providerId, provider.defaultModel));
-    setModel(provider.defaultModel);
+    setEndpoint(getProviderEndpoint(providerId));
+    
+    // Set the custom model name based on the new provider
+    const defaultCustomModel = getDefaultCustomModel(providerId);
+    setCustomModelName(defaultCustomModel);
+    setModel(defaultCustomModel);
     
     // Keep custom model state as default
     setUseCustomModel(true);
@@ -70,7 +118,7 @@ export const ApiConfigPanel: React.FC = () => {
 
   const handleModelChange = (selectedModel: string) => {
     setModel(selectedModel);
-    setEndpoint(getProviderEndpoint(selectedProvider, selectedModel));
+    setEndpoint(getProviderEndpoint(selectedProvider));
     setUseCustomModel(false); // Reset custom model when selecting from dropdown
   };
 
@@ -82,13 +130,13 @@ export const ApiConfigPanel: React.FC = () => {
       // When enabling custom model, clear the current model or set to custom name
       if (customModelName) {
         setModel(customModelName);
-        setEndpoint(getProviderEndpoint(selectedProvider, customModelName));
+        setEndpoint(getProviderEndpoint(selectedProvider));
       }
     } else {
       // When disabling custom model, revert to default model
       const defaultModel = currentProvider.defaultModel;
       setModel(defaultModel);
-      setEndpoint(getProviderEndpoint(selectedProvider, defaultModel));
+      setEndpoint(getProviderEndpoint(selectedProvider));
     }
   };
 
@@ -96,7 +144,7 @@ export const ApiConfigPanel: React.FC = () => {
     setCustomModelName(name);
     if (useCustomModel) {
       setModel(name);
-      setEndpoint(getProviderEndpoint(selectedProvider, name));
+      setEndpoint(getProviderEndpoint(selectedProvider));
     }
   };
 

@@ -83,7 +83,7 @@ export const useAppStore = create<AppState>()(
       setLastApiResponse: (response: ApiResponse | null) => set({ lastApiResponse: response }),
     }),
     {
-      name: 'chatbot-api-explorer-storage',
+      name: 'chatbot-api-explorer-storage-v2', // Changed version to force reset
       partialize: (state) => ({
         selectedProvider: state.selectedProvider,
         apiKey: state.apiKey ? encrypt(state.apiKey) : '',

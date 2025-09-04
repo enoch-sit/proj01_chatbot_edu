@@ -1,6 +1,7 @@
 import { Box, Typography } from '@mui/joy';
 import { ApiConfigPanel } from './components/config/ApiConfigPanel';
 import { RequestConfigPanel } from './components/config/RequestConfigPanel';
+import { RequestPreviewPanel } from './components/preview/RequestPreviewPanel';
 import { ChatInterface } from './components/chat/ChatInterface';
 
 /**
@@ -53,6 +54,7 @@ function App() {
         }}>
           <ApiConfigPanel />
           <RequestConfigPanel />
+          <RequestPreviewPanel />
         </Box>
       </Box>
 
