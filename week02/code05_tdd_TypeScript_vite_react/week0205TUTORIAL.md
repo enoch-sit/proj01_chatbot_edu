@@ -3752,17 +3752,7 @@ npm run test:e2e:headless
 npm run test:coverage
 ```
 
-This should show high coverage percentages across your codebase:
-
-```
-File                     | % Stmts | % Branch | % Funcs | % Lines
--------------------------|---------|----------|---------|--------
-All files               |     95+ |      90+ |     95+ |     95+
- src/components          |     100 |      100 |     100 |     100
- src/hooks              |     100 |       95 |     100 |     100
- src/services           |     100 |      100 |     100 |     100
- src/utils              |     100 |      100 |     100 |     100
-```
+This should show the coverage percentages across your codebase
 
 ## Key TDD Takeaways
 
