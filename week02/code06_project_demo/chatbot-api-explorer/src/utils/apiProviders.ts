@@ -44,6 +44,10 @@ export const API_PROVIDERS: Record<string, ApiProvider> = {
 export const getProviderEndpoint = (providerId: string): string => {
   const provider = API_PROVIDERS[providerId];
   
+  if (!provider) {
+    return '';
+  }
+  
   switch (providerId) {
     case 'grok':
       return `${provider.baseUrl}/chat/completions`;
