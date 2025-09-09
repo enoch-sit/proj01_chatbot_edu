@@ -78,10 +78,13 @@ export interface AppState {
   setHeaders: (headers: Record<string, string>) => void;
   setRequestBody: (body: object) => void;
   setStreaming: (streaming: boolean) => void;
+  setHttpMethod: (method: 'GET' | 'POST' | 'PUT' | 'DELETE') => void;
   setSystemPrompt: (prompt: string) => void;
   addMessage: (message: Message) => void;
   updateMessage: (messageId: string, content: string) => void;
   clearMessages: () => void;
+  updateRequestBodyFromMessages: () => void;
+  setMessagesFromRequestBody: (requestBody: any) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setLastApiResponse: (response: ApiResponse | null) => void;

@@ -28,6 +28,9 @@ export const ChatInterface: React.FC = () => {
     headers,
     model,
     isStreaming,
+    requestBody,
+    httpMethod,
+    selectedProvider,
     addMessage,
     updateMessage,
     clearMessages,
@@ -163,7 +166,10 @@ function parseChunk(chunk) {
     setRawChunks([]); // Clear previous raw chunks
 
     try {
-      if (isStreaming) {
+      // Check if this is a custom API that only supports streaming
+      const forceStreaming = selectedProvider === 'custom' || isStreaming;
+      
+      if (forceStreaming) {
         console.log('Starting streaming response...');
         
         // Create assistant message placeholder for streaming
@@ -214,7 +220,9 @@ function parseChunk(chunk) {
             setError(error);
             setLastApiResponse(apiResponse);
             setLoading(false);
-          }
+          },
+          requestBody,
+          httpMethod
         );
       } else {
         console.log('Starting non-streaming response...');
@@ -226,7 +234,9 @@ function parseChunk(chunk) {
           messages.concat(userMessage), // Include the user message we just added
           systemPrompt,
           model,
-          false
+          false,
+          requestBody,
+          httpMethod
         );
 
         console.log('Non-streaming response received:', content);
@@ -387,7 +397,9 @@ function parseChunk(chunk) {
                       {message.content}
                     </Typography>
                     <Typography level="body-xs" sx={{ mt: 1, color: 'text.tertiary' }}>
-                      {message.timestamp.toLocaleTimeString()}
+                      {message.timestamp instanceof Date 
+                        ? message.timestamp.toLocaleTimeString() 
+                        : new Date(message.timestamp).toLocaleTimeString()}
                     </Typography>
                   </Box>
                 </Box>

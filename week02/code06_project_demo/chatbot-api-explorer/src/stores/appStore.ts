@@ -59,11 +59,18 @@ export const useAppStore = create<AppState>()(
       
       setStreaming: (streaming: boolean) => set({ isStreaming: streaming }),
       
+      setHttpMethod: (method: 'GET' | 'POST' | 'PUT' | 'DELETE') => set({ httpMethod: method }),
+      
       setSystemPrompt: (prompt: string) => set({ systemPrompt: prompt }),
       
       addMessage: (message: Message) => {
         const messages = get().messages;
         set({ messages: [...messages, message] });
+        
+        // Only auto-update request body after assistant responses
+        if (message.role === 'assistant') {
+          get().updateRequestBodyFromMessages();
+        }
       },
       
       updateMessage: (messageId: string, content: string) => {
@@ -72,9 +79,65 @@ export const useAppStore = create<AppState>()(
           msg.id === messageId ? { ...msg, content } : msg
         );
         set({ messages: updatedMessages });
+        
+        // Only auto-update request body if updating an assistant message
+        const updatedMessage = updatedMessages.find(msg => msg.id === messageId);
+        if (updatedMessage?.role === 'assistant') {
+          get().updateRequestBodyFromMessages();
+        }
       },
       
       clearMessages: () => set({ messages: [] }),
+      
+      updateRequestBodyFromMessages: () => {
+        const state = get();
+        const { messages, systemPrompt, model, isStreaming } = state;
+        
+        // Build the messages array for the request
+        const requestMessages = [];
+        if (systemPrompt && systemPrompt.trim()) {
+          requestMessages.push({ role: 'system', content: systemPrompt });
+        }
+        
+        // Add existing messages
+        messages.forEach(msg => {
+          requestMessages.push({
+            role: msg.role,
+            content: msg.content
+          });
+        });
+
+        // Build actual request body - preserve existing properties but override key ones
+        const updatedBody = {
+          ...state.requestBody, // Preserve existing parameters
+          model: model || (state.requestBody as any).model || 'gpt-3.5-turbo',
+          messages: requestMessages,
+          stream: isStreaming,
+        };
+
+        set({ requestBody: updatedBody });
+      },
+      
+      setMessagesFromRequestBody: (requestBody: any) => {
+        try {
+          if (requestBody?.messages && Array.isArray(requestBody.messages)) {
+            const chatMessages: Message[] = requestBody.messages
+              .filter((msg: any) => msg.role !== 'system') // Exclude system messages
+              .map((msg: any, index: number) => ({
+                id: `msg-${Date.now()}-${index}`,
+                role: msg.role as 'user' | 'assistant',
+                content: typeof msg.content === 'string' ? msg.content : 
+                        Array.isArray(msg.content) ? 
+                        msg.content.map((c: any) => c.text || c.content || '').join(' ') : 
+                        String(msg.content || ''),
+                timestamp: new Date()
+              }));
+            set({ messages: chatMessages });
+          }
+        } catch (error) {
+          console.log('Could not parse messages from request body:', error);
+        }
+      },
       
       setLoading: (loading: boolean) => set({ isLoading: loading }),
       
