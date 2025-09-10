@@ -329,45 +329,8 @@ export class ApiService {
                 continue;
               }
 
-              try {
-                const parsed = JSON.parse(data);
-                
-                // Handle different streaming content formats
-                let content = '';
-                
-                if (parsed.choices?.[0]?.delta?.content) {
-                  const deltaContent = parsed.choices[0].delta.content;
-                  
-                  // Handle string content
-                  if (typeof deltaContent === 'string') {
-                    content = deltaContent;
-                  }
-                  // Handle array content
-                  else if (Array.isArray(deltaContent)) {
-                    content = deltaContent
-                      .map((item: any) => item.text || item.content || JSON.stringify(item))
-                      .join('');
-                  }
-                  // Handle object content
-                  else if (typeof deltaContent === 'object') {
-                    content = deltaContent.text || deltaContent.content || JSON.stringify(deltaContent);
-                  } else {
-                    content = String(deltaContent);
-                  }
-                } else if (parsed.delta?.content) {
-                  // Alternative delta format
-                  content = parsed.delta.content;
-                } else if (parsed.content) {
-                  // Direct content format
-                  content = parsed.content;
-                }
-                
-                if (content) {
-                  onChunk(content);
-                }
-              } catch {
-                // Skip invalid JSON chunks
-              }
+              // Pass the full line to the custom parser so it can handle reasoning_content
+              onChunk(line);
             }
           }
         }

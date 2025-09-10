@@ -59,16 +59,38 @@ function parseChunk(chunk) {
       if (data.trim() === '[DONE]' || !data) return '';
       
       const parsed = JSON.parse(data);
-      return parsed.choices?.[0]?.delta?.content || '';
+      const choice = parsed.choices?.[0];
+      
+      if (choice?.delta) {
+        // Regular content
+        const content = choice.delta.content;
+        if (content) {
+          return content;
+        }
+      }
+      
+      return '';
     }
     
     // Format 2: Raw JSON chunks (some APIs)
     if (chunk.trim().startsWith('{') && chunk.trim().endsWith('}')) {
       const parsed = JSON.parse(chunk.trim());
-      // Try multiple possible content paths
-      return parsed.choices?.[0]?.delta?.content || 
-             parsed.delta?.content || 
-             parsed.content || '';
+      const choice = parsed.choices?.[0];
+      
+      if (choice?.delta) {
+        // Grok thinking content (reasoning)
+        const reasoning = choice.delta.reasoning_content;
+        if (reasoning) {
+          return '💭 ' + reasoning;
+        }
+        
+        // Try multiple possible content paths
+        return choice.delta.content || 
+               parsed.delta?.content || 
+               parsed.content || '';
+      }
+      
+      return '';
     }
     
     // Format 3: Plain text chunks (Grok, some other APIs)
@@ -110,10 +132,18 @@ function parseChunk(chunk) {
       `);
       const result = func(chunk);
       
+      // Debug log for reasoning content
+      if (chunk.includes('reasoning_content')) {
+        console.log('🎯 Custom parser processing reasoning chunk:', chunk);
+        console.log('🎯 Custom parser result:', result);
+      }
+      
       // Ensure we return a string and handle null/undefined, but don't trim to preserve spaces
       return result ? String(result) : '';
     } catch (error) {
       console.error('Custom parser error:', error);
+      console.log('🚨 Falling back to default parser for chunk:', chunk);
+      
       // Fallback to default parsing
       try {
         // Skip empty chunks in fallback too
@@ -127,8 +157,23 @@ function parseChunk(chunk) {
           if (data === '[DONE]' || !data) return '';
           
           const parsed = JSON.parse(data);
-          const content = parsed.choices?.[0]?.delta?.content || '';
-          return content ? String(content) : '';
+          const choice = parsed.choices?.[0];
+          
+          if (choice?.delta) {
+            // Check for reasoning content first
+            const reasoning = choice.delta.reasoning_content;
+            if (reasoning) {
+              return `💭 ${reasoning}`;
+            }
+            
+            // Then check for regular content
+            const content = choice.delta.content;
+            if (content) {
+              return String(content);
+            }
+          }
+          
+          return '';
         }
         
         // Handle plain text chunks (Grok format) - but be more careful
@@ -138,7 +183,20 @@ function parseChunk(chunk) {
             try {
               // Try to parse as JSON to extract actual content
               const parsed = JSON.parse(chunk.trim());
-              return parsed.choices?.[0]?.delta?.content || parsed.content || '';
+              const choice = parsed.choices?.[0];
+              
+              if (choice?.delta) {
+                // Check for reasoning content first
+                const reasoning = choice.delta.reasoning_content;
+                if (reasoning) {
+                  return `💭 ${reasoning}`;
+                }
+                
+                // Then check for regular content
+                return choice.delta.content || parsed.content || '';
+              }
+              
+              return parsed.content || '';
             } catch {
               // If it's not valid JSON, skip it
               return '';
@@ -252,6 +310,12 @@ function parseChunk(chunk) {
             // Parse chunk using custom parser
             const parsedContent = executeCustomParser(chunk);
             console.log('Parsed content:', parsedContent);
+            
+            // Additional debug logging for Grok reasoning content
+            if (chunk.includes('reasoning_content')) {
+              console.log('🔍 REASONING CHUNK DETECTED:', chunk);
+              console.log('🔍 PARSED REASONING:', parsedContent);
+            }
             
             // Only update if we have meaningful content (not completely empty)
             if (parsedContent) {
