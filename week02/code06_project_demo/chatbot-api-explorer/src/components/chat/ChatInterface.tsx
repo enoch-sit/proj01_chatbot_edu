@@ -48,26 +48,45 @@ export const ChatInterface: React.FC = () => {
 function parseChunk(chunk) {
   // Handle different streaming formats
   try {
+    // Skip only completely empty chunks, but allow whitespace as it might be intentional
+    if (!chunk) {
+      return '';
+    }
+
     // Format 1: Server-Sent Events (OpenAI standard)
     if (chunk.startsWith('data: ')) {
       const data = chunk.slice(6);
-      if (data === '[DONE]') return null;
+      if (data.trim() === '[DONE]' || !data) return '';
       
       const parsed = JSON.parse(data);
       return parsed.choices?.[0]?.delta?.content || '';
     }
     
-    // Format 2: Plain text chunks (Grok, some other APIs)
-    // If it's not SSE format and not empty, return as-is
-    if (chunk && typeof chunk === 'string' && chunk.trim()) {
-      return chunk;
+    // Format 2: Raw JSON chunks (some APIs)
+    if (chunk.trim().startsWith('{') && chunk.trim().endsWith('}')) {
+      const parsed = JSON.parse(chunk.trim());
+      // Try multiple possible content paths
+      return parsed.choices?.[0]?.delta?.content || 
+             parsed.delta?.content || 
+             parsed.content || '';
+    }
+    
+    // Format 3: Plain text chunks (Grok, some other APIs)
+    // Only return if it's clearly text content, not JSON metadata
+    if (chunk && typeof chunk === 'string' && 
+        !chunk.includes('"object"') && !chunk.includes('"choices"')) {
+      return chunk; // Don't trim here to preserve intentional spaces
     }
     
     return '';
   } catch (e) {
     console.warn('Parse error:', e);
-    // If JSON parsing fails, treat as plain text
-    return chunk && typeof chunk === 'string' ? chunk : '';
+    // If parsing fails and it's not JSON-like, return as plain text
+    if (chunk && typeof chunk === 'string' && 
+        !chunk.trim().startsWith('{') && !chunk.trim().startsWith('[')) {
+      return chunk;
+    }
+    return '';
   }
 }`);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -79,31 +98,58 @@ function parseChunk(chunk) {
   // Custom parser function executor
   const executeCustomParser = (chunk: string): string => {
     try {
+      // Skip empty chunks (but allow whitespace-only chunks as they might be intentional spaces)
+      if (!chunk) {
+        return '';
+      }
+
       // Create a safe function context
       const func = new Function('chunk', `
         ${customParser}
         return parseChunk(chunk);
       `);
-      return func(chunk) || '';
+      const result = func(chunk);
+      
+      // Ensure we return a string and handle null/undefined, but don't trim to preserve spaces
+      return result ? String(result) : '';
     } catch (error) {
       console.error('Custom parser error:', error);
       // Fallback to default parsing
       try {
+        // Skip empty chunks in fallback too
+        if (!chunk) {
+          return '';
+        }
+
         // Handle Server-Sent Events format
         if (chunk.startsWith('data: ')) {
           const data = chunk.slice(6);
-          if (data === '[DONE]') return '';
+          if (data === '[DONE]' || !data) return '';
+          
           const parsed = JSON.parse(data);
-          return parsed.choices?.[0]?.delta?.content || '';
+          const content = parsed.choices?.[0]?.delta?.content || '';
+          return content ? String(content) : '';
         }
-        // Handle plain text chunks (Grok format)
-        if (chunk && typeof chunk === 'string' && chunk.trim()) {
+        
+        // Handle plain text chunks (Grok format) - but be more careful
+        if (chunk && typeof chunk === 'string') {
+          // Don't return JSON-looking content as plain text
+          if (chunk.trim().startsWith('{') && chunk.trim().endsWith('}')) {
+            try {
+              // Try to parse as JSON to extract actual content
+              const parsed = JSON.parse(chunk.trim());
+              return parsed.choices?.[0]?.delta?.content || parsed.content || '';
+            } catch {
+              // If it's not valid JSON, skip it
+              return '';
+            }
+          }
           return chunk;
         }
         return '';
       } catch {
-        // If all else fails, return as plain text
-        return chunk && typeof chunk === 'string' ? chunk : '';
+        // If all else fails, return empty string instead of raw chunk
+        return '';
       }
     }
   };
@@ -166,6 +212,9 @@ function parseChunk(chunk) {
     setRawChunks([]); // Clear previous raw chunks
 
     try {
+      // Clear any previous raw chunks and reset state
+      setRawChunks([]);
+      
       // Check if this is a custom API that only supports streaming
       const forceStreaming = selectedProvider === 'custom' || isStreaming;
       
@@ -195,13 +244,16 @@ function parseChunk(chunk) {
           (chunk: string) => {
             console.log('Raw streaming chunk received:', chunk);
             
-            // Store raw chunk
-            setRawChunks(prev => [...prev, chunk]);
+            // Store raw chunk for debugging (only when show raw chunks is enabled)
+            if (showRawChunks) {
+              setRawChunks(prev => [...prev, chunk]);
+            }
             
             // Parse chunk using custom parser
             const parsedContent = executeCustomParser(chunk);
             console.log('Parsed content:', parsedContent);
             
+            // Only update if we have meaningful content (not completely empty)
             if (parsedContent) {
               accumulatedContent += parsedContent;
               // Update the assistant message with accumulated content
@@ -292,7 +344,10 @@ function parseChunk(chunk) {
             variant="soft"
             color="danger"
             size="sm"
-            onClick={clearMessages}
+            onClick={() => {
+              clearMessages();
+              setRawChunks([]); // Clear raw chunks when clearing messages
+            }}
           >
             Clear Chat
           </Button>

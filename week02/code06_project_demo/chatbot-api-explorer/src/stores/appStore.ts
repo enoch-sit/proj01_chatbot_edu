@@ -57,7 +57,11 @@ export const useAppStore = create<AppState>()(
       
       setRequestBody: (body: object) => set({ requestBody: body }),
       
-      setStreaming: (streaming: boolean) => set({ isStreaming: streaming }),
+      setStreaming: (streaming: boolean) => {
+        set({ isStreaming: streaming });
+        // Update the request body to reflect the new streaming setting
+        get().updateRequestBodyFromMessages();
+      },
       
       setHttpMethod: (method: 'GET' | 'POST' | 'PUT' | 'DELETE') => set({ httpMethod: method }),
       
