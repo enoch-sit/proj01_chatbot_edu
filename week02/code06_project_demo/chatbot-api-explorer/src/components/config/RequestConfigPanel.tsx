@@ -240,14 +240,6 @@ export const RequestConfigPanel: React.FC = () => {
         </Alert>
       )}
 
-      {/* Chat History Configuration */}
-      <Card variant="outlined" sx={{ mb: 3, p: 2 }}>
-        <Typography level="title-sm" sx={{ mb: 2 }}>
-          Chat History Management
-        </Typography>
-        
-      </Card>
-
       {/* Headers Editor */}
       <Box sx={{ mb: 3 }}>
         <Typography level="title-sm" sx={{ mb: 1 }}>
