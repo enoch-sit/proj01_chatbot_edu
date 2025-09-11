@@ -15,7 +15,7 @@ By the end of this workshop, you will:
 - Basic knowledge of JSON format
 - Understanding of HTTP requests
 - Familiarity with JavaScript functions
-- Access to at least one API key (OpenAI, Anthropic, etc.) OR a local API endpoint
+- Access to at least one API key (Hugging Face, Grok/X.AI) OR knowledge of the available providers
 
 ## 🚀 Workshop Exercises
 
@@ -34,11 +34,6 @@ By the end of this workshop, you will:
    - Request Configuration Panel (bottom-left)
    - Chat Interface (right side)
 
-**Questions to Answer:**
-- What are the two main panels in the application?
-- Where would you configure your API key?
-- Where would you type a message to send to the chatbot?
-
 ---
 
 ### **Exercise 2: API Provider Configuration**
@@ -49,18 +44,18 @@ By the end of this workshop, you will:
 
 1. **In the API Configuration Panel:**
    - Click on the **Provider** dropdown
-   - Explore the available options (OpenAI, Anthropic, Grok, Custom)
-   - Select **OpenAI** (or your preferred provider)
+   - Explore the available options (Hugging Face, Grok)
+   - Select **Hugging Face** (or your preferred provider)
 
 2. **Configure Authentication:**
-   - Enter your API key in the **API Key** field
+   - Enter your API key in the **API Key** field (note: API key is automatically cleared when switching providers)
    - Click the eye icon (😊/🫣) to toggle visibility
    - Observe how the endpoint URL auto-populates
 
 3. **Model Selection:**
-   - Check the **"Use custom model name"** checkbox
-   - Try entering: `gpt-4` or `gpt-3.5-turbo`
-   - Uncheck the box and select from the dropdown
+   - Notice that **"Use custom model name"** is checked by default
+   - Default models: `meta-llama/Llama-3.1-8B-Instruct:cerebras` (Hugging Face) or `grok-3-mini` (Grok)
+   - Try entering a different model name or uncheck to use dropdown
 
 4. **Provider Information:**
    - Note the colored badges showing:
@@ -70,6 +65,7 @@ By the end of this workshop, you will:
 
 **✅ Checkpoint Questions:**
 - What happens to the endpoint URL when you change providers?
+- What happens to the API key when you switch providers?
 - Which providers require authentication?
 - What's the difference between standard and custom model selection?
 
@@ -255,42 +251,38 @@ Try adding these headers and see what happens:
 
 ---
 
-### **Exercise 7: Custom API Integration**
+### **Exercise 7: Provider Comparison**
 
-**Objective:** Connect to a non-standard API endpoint
+**Objective:** Compare different API providers and their characteristics
 
 **Steps:**
 
-1. **Switch to Custom Provider:**
-   - Change provider to **"Custom API"**
-   - Notice how the interface changes
+1. **Configure Hugging Face:**
+   - Set provider to **"Hugging Face"**
+   - Enter your Hugging Face API key
+   - Note the default model: `meta-llama/Llama-3.1-8B-Instruct:cerebras`
+   - Send a test message: "Explain machine learning in simple terms"
 
-2. **Configure Custom Endpoint:**
-   - Enter a custom endpoint URL (use a test API like `httpbin.org`):
-   ```
-   https://httpbin.org/post
-   ```
+2. **Configure Grok:**
+   - Switch provider to **"Grok (X.AI)"**
+   - Enter your Grok/X.AI API key (note: previous API key is cleared)
+   - Note the default model: `grok-3-mini`
+   - Send the same message: "Explain machine learning in simple terms"
 
-3. **Customize Request Format:**
-   - Modify the request body to match your API:
-   ```json
-   {
-     "prompt": "Hello, custom API!",
-     "user_id": "workshop_user",
-     "timestamp": "2024-01-01T00:00:00Z"
-   }
-   ```
+3. **Compare Responses:**
+   - Notice differences in response style and content
+   - Check the endpoint URLs for each provider
+   - Compare the raw chunks if streaming is enabled
 
-4. **Test the Integration:**
-   - Send a test message
-   - Examine the response in the chat interface
-   - Check raw chunks if streaming is enabled
+4. **Custom Model Testing:**
+   - Try custom model names for each provider
+   - Test with different model variations if available
 
 **🔧 Troubleshooting Tips:**
-- Check the browser console for errors
-- Verify your endpoint URL is correct
-- Ensure CORS is properly configured for external APIs
-- Test with simple requests first
+- Each provider requires its own API key
+- API keys are automatically cleared when switching providers for security
+- Endpoint URLs are automatically configured per provider
+- Both providers support streaming responses
 
 ---
 
@@ -346,9 +338,9 @@ Try adding these headers and see what happens:
    - Switch back to POST and try again
 
 4. **Provider Comparison:**
-   - Configure multiple providers (if you have keys)
-   - Send the same message to different providers
-   - Compare response styles and speeds
+   - Compare Hugging Face and Grok providers (if you have keys for both)
+   - Send the same message to both providers
+   - Compare response styles, speeds, and capabilities
 
 ---
 
@@ -366,10 +358,10 @@ Try adding these headers and see what happens:
 2. Set system prompt: "You are a coding assistant. Provide clear, concise code examples."
 3. Ask for code examples and explanations
 
-**Scenario C: API Development**
-1. Use custom API mode
-2. Test your own API endpoints
-3. Debug request/response format issues
+**Scenario C: Provider Testing**
+1. Test both Hugging Face and Grok providers
+2. Compare their different model capabilities
+3. Analyze response characteristics and performance
 
 ---
 
@@ -385,7 +377,6 @@ Try adding these headers and see what happens:
 
 ### **Best Practices Learned:**
 
-- Always validate JSON before saving
 - Use appropriate temperature settings for your use case
 - Monitor token usage with max_tokens parameter
 - Test with simple requests before complex integrations
@@ -393,10 +384,10 @@ Try adding these headers and see what happens:
 
 ### **Next Steps:**
 
-1. **Experiment** with different API providers
-2. **Build** custom chunk parsers for specific APIs
-3. **Integrate** with your own applications
-4. **Share** interesting configurations with others
+1. **Experiment** with different provider-specific features
+2. **Build** custom chunk parsers for Hugging Face and Grok formats  
+3. **Compare** model capabilities between providers
+4. **Share** interesting configurations and results
 
 ### **Troubleshooting Checklist:**
 
@@ -409,8 +400,8 @@ Try adding these headers and see what happens:
 
 ### **Resources for Further Learning:**
 
-- OpenAI API Documentation
-- Anthropic Claude API docs
+- Hugging Face API Documentation
+- Grok/X.AI API Documentation  
 - MDN Web Docs for HTTP methods
 - JSON specification and validation tools
 

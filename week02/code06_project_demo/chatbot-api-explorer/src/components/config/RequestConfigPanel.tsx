@@ -43,6 +43,18 @@ export const RequestConfigPanel: React.FC = () => {
 
   const currentProvider = API_PROVIDERS[selectedProvider];
 
+  // Safety check: if the selected provider doesn't exist, return early
+  if (!currentProvider) {
+    return (
+      <Card variant="outlined" sx={{ p: 3 }}>
+        <Typography level="h3" sx={{ mb: 3 }}>
+          Request Configuration
+        </Typography>
+        <Typography level="body-sm">Loading provider configuration...</Typography>
+      </Card>
+    );
+  }
+
   // Compute actual request headers and body that will be sent
   useEffect(() => {
     if (!isEditingHeaders && !hasUnsavedHeaderChanges) {
@@ -52,7 +64,7 @@ export const RequestConfigPanel: React.FC = () => {
       };
       setActualHeadersText(JSON.stringify(actualHeaders, null, 2));
     }
-  }, [headers, isEditingHeaders, hasUnsavedHeaderChanges]);
+  }, [headers, selectedProvider, isEditingHeaders, hasUnsavedHeaderChanges]);
 
   useEffect(() => {
     if (!isEditingBody && !hasUnsavedBodyChanges) {
@@ -81,7 +93,7 @@ export const RequestConfigPanel: React.FC = () => {
         setActualBodyText(JSON.stringify(initialBody, null, 2));
       }
     }
-  }, [requestBody, isEditingBody, hasUnsavedBodyChanges]);
+  }, [requestBody, selectedProvider, model, isStreaming, isEditingBody, hasUnsavedBodyChanges]);
 
   const handleHeadersChange = (value: string) => {
     setIsEditingHeaders(true);
@@ -127,6 +139,8 @@ export const RequestConfigPanel: React.FC = () => {
   };
 
   const resetToDefaults = () => {
+    if (!currentProvider) return;
+    
     const defaultHeaders = {
       ...currentProvider.defaultHeaders,
     };
@@ -217,7 +231,7 @@ export const RequestConfigPanel: React.FC = () => {
       </FormControl>
 
       {/* Streaming Toggle */}
-      {currentProvider.supportsStreaming && (
+      {currentProvider?.supportsStreaming && (
         <FormControl sx={{ mb: 3 }}>
           <Checkbox
             checked={isStreaming}

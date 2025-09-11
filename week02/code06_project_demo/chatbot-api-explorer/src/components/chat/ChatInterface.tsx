@@ -62,6 +62,12 @@ function parseChunk(chunk) {
       const choice = parsed.choices?.[0];
       
       if (choice?.delta) {
+        // Skip Grok thinking content (reasoning)
+        const reasoning = choice.delta.reasoning_content;
+        if (reasoning) {
+          return ''; // Don't return thinking content
+        }
+        
         // Regular content
         const content = choice.delta.content;
         if (content) {
@@ -78,10 +84,10 @@ function parseChunk(chunk) {
       const choice = parsed.choices?.[0];
       
       if (choice?.delta) {
-        // Grok thinking content (reasoning)
+        // Skip Grok thinking content (reasoning)
         const reasoning = choice.delta.reasoning_content;
         if (reasoning) {
-          return '💭 ' + reasoning;
+          return ''; // Don't return thinking content
         }
         
         // Try multiple possible content paths

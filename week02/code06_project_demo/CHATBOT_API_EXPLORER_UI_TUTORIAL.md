@@ -14,7 +14,7 @@ The app follows a **two-panel layout**:
 ┌─────────────────────────────────────────────────────────────┐
 │                     App Container                           │
 │  ┌─────────────────┐ ┌───────────────────────────────────┐  │
-│  │   Left Panel    │ │         Main Chat Area           │  │
+│  │   Left Panel    │ │         Main Chat Area            │  │
 │  │  (Config)       │ │                                   │  │
 │  │                 │ │                                   │  │
 │  └─────────────────┘ └───────────────────────────────────┘  │
@@ -28,13 +28,13 @@ The app follows a **two-panel layout**:
 This panel handles the setup of API providers and authentication.
 
 #### Features:
-- **Provider Selection**: Dropdown with pre-configured providers (OpenAI, Anthropic, Grok, etc.)
-- **API Key Management**: Secure input field with show/hide toggle
+- **Provider Selection**: Dropdown with pre-configured providers (Hugging Face, Grok)
+- **API Key Management**: Secure input field with show/hide toggle (automatically cleared when switching providers)
 - **Model Configuration**: 
   - Dropdown for standard models
-  - Custom model name input
+  - Custom model name input (enabled by default)
   - Toggle between standard and custom models
-- **Endpoint Management**: Auto-populated for known providers, manual for custom APIs
+- **Endpoint Management**: Auto-populated for all providers
 
 #### Key UI Elements:
 ```typescript
@@ -57,6 +57,17 @@ This panel handles the setup of API providers and authentication.
   {showApiKey ? "😊" : "🫣"}
 </IconButton>
 ```
+
+### Default Custom Model Names
+Each provider has a default custom model that gets automatically set:
+
+**Hugging Face:**
+- Default: `meta-llama/Llama-3.1-8B-Instruct:cerebras`
+- Endpoint: `https://router.huggingface.co/v1/chat/completions`
+
+**Grok (X.AI):**
+- Default: `grok-3-mini` 
+- Endpoint: `https://api.x.ai/v1/chat/completions`
 
 #### Provider Information Display:
 - **Streaming Support**: Visual indicator
@@ -227,6 +238,13 @@ interface AppState {
 }
 ```
 
+### Provider Switching Security Feature
+**Important Security Enhancement:** When switching between providers, the API key is automatically cleared to prevent accidental cross-provider key usage. This ensures:
+- No accidental key leakage between providers
+- Each provider requires its own valid API key
+- Headers are reset to provider defaults (without auth until new key is entered)
+- Model defaults are applied for the new provider
+
 ### Message Flow:
 1. **User Input** → Added to messages array
 2. **API Request** → Built from configuration panels
@@ -307,9 +325,9 @@ Users can completely customize the request body:
 ## 🌊 Streaming Chunks Handling
 
 ### Streaming Architecture
-The app supports two streaming modes:
-1. **Optional Streaming**: Toggle on/off for supported providers
-2. **Forced Streaming**: Always on for custom APIs
+The app supports streaming for both providers:
+1. **Hugging Face**: Full streaming support with SSE format
+2. **Grok**: Full streaming support with custom reasoning content
 
 ### Chunk Processing Pipeline:
 ```
@@ -390,11 +408,11 @@ The app uses Material-UI Joy for consistent design:
 5. Experiment with parsing different chunk formats
 
 ### Exercise 4: Provider Comparison
-1. Configure OpenAI with your API key
+1. Configure Hugging Face with your API key
 2. Send a test message and note the response format
-3. Switch to "Custom API" provider
-4. Configure a different endpoint (like a local server)
-5. Compare the request/response structures
+3. Switch to "Grok" provider
+4. Configure with a Grok API key
+5. Compare the request/response structures between providers
 
 ## 💡 Advanced Tips
 
@@ -411,11 +429,11 @@ The app uses Material-UI Joy for consistent design:
 4. Monitor request body size
 
 ### Custom API Integration:
-1. Start with "Custom API" provider
-2. Set up endpoint URL completely
-3. Configure headers for authentication
-4. Customize request body structure
-5. Write appropriate chunk parser
+1. Note: Custom API provider has been removed in current version
+2. Use Hugging Face provider for custom models via their router
+3. Grok provider for X.AI API access
+4. Both providers support custom model names
+5. Write appropriate chunk parser for provider-specific formats
 
 ## 📚 Component Reference
 

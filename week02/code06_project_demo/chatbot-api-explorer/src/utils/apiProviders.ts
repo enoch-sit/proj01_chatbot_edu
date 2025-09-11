@@ -27,18 +27,6 @@ export const API_PROVIDERS: Record<string, ApiProvider> = {
     requiresAuth: true,
     supportsStreaming: true,
   },
-  custom: {
-    id: 'custom',
-    name: 'Custom API',
-    baseUrl: '',
-    defaultHeaders: {
-      'Content-Type': 'application/json',
-    },
-    defaultModel: '',
-    models: [],
-    requiresAuth: false,
-    supportsStreaming: true,
-  },
 };
 
 export const getProviderEndpoint = (providerId: string): string => {
@@ -53,17 +41,11 @@ export const getProviderEndpoint = (providerId: string): string => {
       return `${provider.baseUrl}/chat/completions`;
     case 'huggingface':
       return `${provider.baseUrl}/chat/completions`;
-    case 'custom':
-      return '';
     default:
       return provider.baseUrl;
   }
 };
 
-export const getAuthHeader = (providerId: string, apiKey: string): Record<string, string> => {
-  switch (providerId) {
-    case 'custom':
-    default:
-      return { Authorization: `Bearer ${apiKey}` };
-  }
+export const getAuthHeader = (_providerId: string, apiKey: string): Record<string, string> => {
+  return { Authorization: `Bearer ${apiKey}` };
 };
