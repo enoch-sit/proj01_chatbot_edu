@@ -1,0 +1,308 @@
+{
+  "vocabulary": [
+    {
+      "word": "inquire",
+      "definition": "to seek information by asking a question",
+      "example_sentence": "I decided to inquire about his well-being.",
+      "synonyms": [
+        "ask",
+        "question"
+      ]
+    },
+    {
+      "word": "salutation",
+      "definition": "a gesture or utterance made as a greeting or acknowledgment of another's arrival or departure",
+      "example_sentence": "The letter began with a warm salutation.",
+      "synonyms": [
+        "greeting",
+        "welcome"
+      ]
+    },
+    {
+      "word": "amicable",
+      "definition": "characterized by friendliness and absence of discord",
+      "example_sentence": "Their conversation remained amicable despite their past disagreements.",
+      "synonyms": [
+        "friendly",
+        "cordial"
+      ]
+    },
+    {
+      "word": "verify",
+      "definition": "to make sure or demonstrate that something is true, accurate, or justified",
+      "example_sentence": "We need to verify the results of the experiment before publishing them.",
+      "synonyms": [
+        "confirm",
+        "validate"
+      ]
+    },
+    {
+      "word": "functionality",
+      "definition": "the quality of being suited to serve a purpose well; practicality",
+      "example_sentence": "The new software update improved the functionality of the application.",
+      "synonyms": [
+        "usability",
+        "performance"
+      ]
+    },
+    {
+      "word": "operational",
+      "definition": "in or ready for use",
+      "example_sentence": "The machinery is fully operational after the maintenance.",
+      "synonyms": [
+        "functional",
+        "working"
+      ]
+    },
+    {
+      "word": "commute",
+      "definition": "to travel some distance between one's home and place of work on a regular basis.",
+      "example_sentence": "I commute to school every day by bus.",
+      "synonyms": [
+        "travel",
+        "journey"
+      ]
+    },
+    {
+      "word": "transportation",
+      "definition": "the action of transporting someone or something or the process of being transported.",
+      "example_sentence": "Public transportation is commonly used by students.",
+      "synonyms": [
+        "conveyance",
+        "transit"
+      ]
+    },
+    {
+      "word": "infrastructure",
+      "definition": "the basic physical and organizational structures and facilities needed for the operation of a society or enterprise.",
+      "example_sentence": "The city's infrastructure supports various modes of transportation.",
+      "synonyms": [
+        "framework",
+        "foundation"
+      ]
+    },
+    {
+      "word": "esoteric",
+      "definition": "intended for or likely to be understood by only a small number of people with a specialized knowledge or interest.",
+      "example_sentence": "The professor's lecture was filled with esoteric references that only a few students could grasp.",
+      "synonyms": [
+        "arcane",
+        "cryptic"
+      ]
+    },
+    {
+      "word": "ubiquitous",
+      "definition": "present, appearing, or found everywhere.",
+      "example_sentence": "Smartphones have become ubiquitous in modern society.",
+      "synonyms": [
+        "omnipresent",
+        "ever-present"
+      ]
+    },
+    {
+      "word": "quintessential",
+      "definition": "representing the most perfect or typical example of a quality or class.",
+      "example_sentence": "She is the quintessential student, always eager to learn and help others.",
+      "synonyms": [
+        "typical",
+        "ideal"
+      ]
+    },
+    {
+      "word": "gratitude",
+      "definition": "the quality of being thankful; readiness to show appreciation for and to return kindness.",
+      "example_sentence": "Her gratitude was evident in the way she thanked everyone who helped her.",
+      "synonyms": [
+        "thankfulness",
+        "appreciation"
+      ]
+    },
+    {
+      "word": "beloved",
+      "definition": "dearly loved.",
+      "example_sentence": "She wrote a heartfelt letter to her beloved mentor.",
+      "synonyms": [
+        "cherished",
+        "dear"
+      ]
+    },
+    {
+      "word": "express",
+      "definition": "to convey (a thought or feeling) in words or by gestures and conduct.",
+      "example_sentence": "He found it difficult to express his feelings in front of others.",
+      "synonyms": [
+        "articulate",
+        "communicate"
+      ]
+    }
+  ],
+  "idioms": [
+    {
+      "idiom": "hit it off",
+      "meaning": "to get along well with someone from the start",
+      "example": "They met at the party and immediately hit it off."
+    },
+    {
+      "idiom": "break the ice",
+      "meaning": "to do or say something to relieve tension or get conversation going in a social setting",
+      "example": "She told a joke to break the ice at the meeting."
+    },
+    {
+      "idiom": "get off on the right foot",
+      "meaning": "to start a relationship or activity positively",
+      "example": "I want to get off on the right foot with my new boss."
+    },
+    {
+      "idiom": "up and running",
+      "meaning": "to be functioning properly",
+      "example": "The website is up and running after the server maintenance."
+    },
+    {
+      "idiom": "put to the test",
+      "meaning": "to try something out or to see how effective it is",
+      "example": "The new policy was put to the test during the busy season."
+    },
+    {
+      "idiom": "in the works",
+      "meaning": "in the process of being planned or developed",
+      "example": "A new design is in the works for the upcoming product launch."
+    },
+    {
+      "idiom": "hit the road",
+      "meaning": "to begin a journey",
+      "example": "I usually hit the road around 7 AM to get to school on time."
+    },
+    {
+      "idiom": "on the right track",
+      "meaning": "to be doing something correctly or well",
+      "example": "Using the bus to get to school means you're on the right track for eco-friendly commuting."
+    },
+    {
+      "idiom": "miss the bus",
+      "meaning": "to miss an opportunity",
+      "example": "If you don't plan your morning well, you might miss the bus to school."
+    },
+    {
+      "idiom": "hit the books",
+      "meaning": "to study hard.",
+      "example": "I have a big exam next week, so I need to hit the books this weekend."
+    },
+    {
+      "idiom": "the ball is in your court",
+      "meaning": "it is up to you to make the next decision or take action.",
+      "example": "Iâve given you all the information; now the ball is in your court."
+    },
+    {
+      "idiom": "a penny for your thoughts",
+      "meaning": "to ask someone what they are thinking.",
+      "example": "Youâve been quiet for a while; a penny for your thoughts?"
+    },
+    {
+      "idiom": "a debt of gratitude",
+      "meaning": "a feeling of being grateful to someone for their help or support.",
+      "example": "I feel I have a debt of gratitude to my teachers for their unwavering support."
+    },
+    {
+      "idiom": "show one's appreciation",
+      "meaning": "to demonstrate gratitude or thanks to someone.",
+      "example": "It's important to show your appreciation to those who help you."
+    },
+    {
+      "idiom": "from the bottom of my heart",
+      "meaning": "to express sincere feelings.",
+      "example": "I thank you from the bottom of my heart for your assistance."
+    }
+  ],
+  "grammar": [
+    {
+      "concept": "Question formation",
+      "explanation": "In English, questions are typically formed by inverting the subject and auxiliary verb.",
+      "example_correct": "How are you?",
+      "example_incorrect": "You are how?"
+    },
+    {
+      "concept": "Punctuation in questions",
+      "explanation": "Questions in English end with a question mark (?) to indicate that an answer is expected.",
+      "example_correct": "How are you?",
+      "example_incorrect": "How are you."
+    },
+    {
+      "concept": "Subject-verb agreement",
+      "explanation": "In questions, ensure the subject and verb agree in number and person.",
+      "example_correct": "Are you happy?",
+      "example_incorrect": "Is you happy?"
+    },
+    {
+      "concept": "Present Simple Tense",
+      "explanation": "Used to express habitual actions, general truths, or facts.",
+      "example_correct": "The API works properly most of the time.",
+      "example_incorrect": "The API working properly most of the time."
+    },
+    {
+      "concept": "Infinitive of Purpose",
+      "explanation": "Use 'to' followed by the base form of the verb to express purpose.",
+      "example_correct": "to check if the API is working properly",
+      "example_incorrect": "for checking if the API is working properly"
+    },
+    {
+      "concept": "Comma Usage",
+      "explanation": "Use a comma to separate the introductory word or phrase from the rest of the sentence.",
+      "example_correct": "Hello, this is a test message.",
+      "example_incorrect": "Hello this is a test message."
+    },
+    {
+      "concept": "Capitalization",
+      "explanation": "The first word of a sentence and proper nouns should be capitalized.",
+      "example_correct": "Hi, I go to school by bus.",
+      "example_incorrect": "hi I go to school by bux"
+    },
+    {
+      "concept": "Spelling",
+      "explanation": "Ensure all words are spelled correctly. 'Bux' is a misspelling of 'bus'.",
+      "example_correct": "I go to school by bus.",
+      "example_incorrect": "I go to school by bux."
+    },
+    {
+      "concept": "Prepositions of place",
+      "explanation": "Use the correct preposition to indicate means of transport. 'By' is correct for modes of transport.",
+      "example_correct": "I go to school by bus.",
+      "example_incorrect": "I go to school on bus."
+    },
+    {
+      "concept": "subject-verb agreement",
+      "explanation": "The subject of a sentence must agree with its verb in number (singular or plural).",
+      "example_correct": "The dog barks loudly.",
+      "example_incorrect": "The dog bark loudly."
+    },
+    {
+      "concept": "use of the subjunctive mood",
+      "explanation": "The subjunctive mood is used to express wishes, hypotheticals, or conditions contrary to fact.",
+      "example_correct": "If I were you, I would study more.",
+      "example_incorrect": "If I was you, I would study more."
+    },
+    {
+      "concept": "proper use of commas",
+      "explanation": "Commas are used to separate elements in a series, after introductory elements, and before conjunctions in compound sentences.",
+      "example_correct": "After dinner, we went for a walk.",
+      "example_incorrect": "After dinner we went for a walk."
+    },
+    {
+      "concept": "Polite Requests",
+      "explanation": "Using 'would like' is a polite way to make requests or express desires.",
+      "example_correct": "I would like to order a coffee.",
+      "example_incorrect": "I want a coffee."
+    },
+    {
+      "concept": "Noun Phrases",
+      "explanation": "A noun phrase can include determiners, adjectives, and nouns.",
+      "example_correct": "My beloved parents were always supportive.",
+      "example_incorrect": "Beloved parents supportive."
+    },
+    {
+      "concept": "Subject-Verb Agreement",
+      "explanation": "The subject must agree in number with the verb.",
+      "example_correct": "My parents express their love.",
+      "example_incorrect": "My parents expresses their love."
+    }
+  ]
+}
