@@ -4,19 +4,16 @@ export const API_PROVIDERS: Record<string, ApiProvider> = {
   huggingface: {
     id: 'huggingface',
     name: 'Hugging Face',
-    baseUrl: 'https://api-inference.huggingface.co/models',
+    baseUrl: 'https://router.huggingface.co/v1',
     defaultHeaders: {
       'Content-Type': 'application/json',
     },
-    defaultModel: 'microsoft/DialoGPT-medium',
+    defaultModel: 'meta-llama/Llama-3.1-8B-Instruct:cerebras',
     models: [
-      'microsoft/DialoGPT-medium',
-      'microsoft/DialoGPT-large',
-      'facebook/blenderbot-400M-distill',
-      'google/flan-t5-large',
+      'meta-llama/Llama-3.1-8B-Instruct:cerebras',
     ],
     requiresAuth: true,
-    supportsStreaming: false,
+    supportsStreaming: true,
   },
   grok: {
     id: 'grok',
@@ -25,44 +22,30 @@ export const API_PROVIDERS: Record<string, ApiProvider> = {
     defaultHeaders: {
       'Content-Type': 'application/json',
     },
-    defaultModel: 'grok-beta',
-    models: ['grok-beta'],
+    defaultModel: 'grok-3-mini',
+    models: ['grok-3-mini'],
     requiresAuth: true,
-    supportsStreaming: true,
-  },
-  custom: {
-    id: 'custom',
-    name: 'Custom API',
-    baseUrl: '',
-    defaultHeaders: {
-      'Content-Type': 'application/json',
-    },
-    defaultModel: '',
-    models: [],
-    requiresAuth: false,
     supportsStreaming: true,
   },
 };
 
-export const getProviderEndpoint = (providerId: string, model?: string): string => {
+export const getProviderEndpoint = (providerId: string): string => {
   const provider = API_PROVIDERS[providerId];
+  
+  if (!provider) {
+    return '';
+  }
   
   switch (providerId) {
     case 'grok':
       return `${provider.baseUrl}/chat/completions`;
     case 'huggingface':
-      return `${provider.baseUrl}/${model || provider.defaultModel}`;
-    case 'custom':
-      return '';
+      return `${provider.baseUrl}/chat/completions`;
     default:
       return provider.baseUrl;
   }
 };
 
-export const getAuthHeader = (providerId: string, apiKey: string): Record<string, string> => {
-  switch (providerId) {
-    case 'custom':
-    default:
-      return { Authorization: `Bearer ${apiKey}` };
-  }
+export const getAuthHeader = (_providerId: string, apiKey: string): Record<string, string> => {
+  return { Authorization: `Bearer ${apiKey}` };
 };

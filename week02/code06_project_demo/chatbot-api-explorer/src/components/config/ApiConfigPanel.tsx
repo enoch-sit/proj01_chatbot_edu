@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Card, 
   Typography, 
@@ -9,14 +9,16 @@ import {
   Input, 
   Box,
   Chip,
-  Checkbox
+  Checkbox,
+  IconButton
 } from '@mui/joy';
 import { useAppStore } from '../../stores/appStore';
 import { API_PROVIDERS, getProviderEndpoint, getAuthHeader } from '../../utils/apiProviders';
 
 export const ApiConfigPanel: React.FC = () => {
   const [useCustomModel, setUseCustomModel] = useState(true); // Default to true
-  const [customModelName, setCustomModelName] = useState('grok-3-mini'); // Default custom model
+  const [customModelName, setCustomModelName] = useState(''); // Will be set based on provider
+  const [showApiKey, setShowApiKey] = useState(false); // State for showing/hiding API key
   const {
     selectedProvider,
     apiKey,
@@ -32,20 +34,77 @@ export const ApiConfigPanel: React.FC = () => {
 
   const currentProvider = API_PROVIDERS[selectedProvider];
 
+  // Safety check: if the selected provider doesn't exist, fallback to grok
+  useEffect(() => {
+    if (!currentProvider && selectedProvider) {
+      console.warn(`Provider '${selectedProvider}' not found, falling back to 'grok'`);
+      setProvider('grok');
+    }
+  }, [selectedProvider, currentProvider, setProvider]);
+
+  // Initialize custom model name based on current provider on mount
+  useEffect(() => {
+    if (!customModelName && selectedProvider && currentProvider) {
+      const defaultCustomModel = getDefaultCustomModel(selectedProvider);
+      setCustomModelName(defaultCustomModel);
+    }
+  }, []); // Run only on mount
+
+  // Get default custom model based on provider
+  const getDefaultCustomModel = (providerId: string): string => {
+    switch (providerId) {
+      case 'grok':
+        return 'grok-3-mini';
+      case 'huggingface':
+        return 'meta-llama/Llama-3.1-8B-Instruct:cerebras';
+      default:
+        return '';
+    }
+  };
+
+  // Ensure provider configuration is up to date on mount
+  useEffect(() => {
+    if (selectedProvider && currentProvider) {
+      // Set custom model name based on provider if not already set
+      if (!customModelName) {
+        const defaultCustomModel = getDefaultCustomModel(selectedProvider);
+        setCustomModelName(defaultCustomModel);
+      }
+      
+      // Update endpoint to current provider configuration
+      const currentEndpoint = getProviderEndpoint(selectedProvider);
+      if (endpoint !== currentEndpoint) {
+        setEndpoint(currentEndpoint);
+      }
+      
+      // Update model to current provider default if not using custom
+      if (!useCustomModel && currentProvider && model !== currentProvider.defaultModel) {
+        setModel(currentProvider.defaultModel);
+      }
+    }
+  }, [selectedProvider, currentProvider, model, useCustomModel, customModelName, setEndpoint, setModel]);
+
   const handleProviderChange = (providerId: string) => {
     setProvider(providerId);
     const provider = API_PROVIDERS[providerId];
-    setEndpoint(getProviderEndpoint(providerId, provider.defaultModel));
-    setModel(provider.defaultModel);
+    
+    // Clear API key when switching providers since each provider needs different keys
+    setApiKey('');
+    
+    // Set endpoint and model for all providers
+    setEndpoint(getProviderEndpoint(providerId));
+    
+    // Set the custom model name based on the new provider
+    const defaultCustomModel = getDefaultCustomModel(providerId);
+    setCustomModelName(defaultCustomModel);
+    setModel(defaultCustomModel);
     
     // Keep custom model state as default
     setUseCustomModel(true);
     
-    // Update headers with provider defaults and auth
-    const authHeaders = apiKey ? getAuthHeader(providerId, apiKey) : {};
+    // Update headers with provider defaults (no auth headers since key is cleared)
     setHeaders({
       ...provider.defaultHeaders,
-      ...authHeaders,
     });
   };
 
@@ -70,7 +129,7 @@ export const ApiConfigPanel: React.FC = () => {
 
   const handleModelChange = (selectedModel: string) => {
     setModel(selectedModel);
-    setEndpoint(getProviderEndpoint(selectedProvider, selectedModel));
+    setEndpoint(getProviderEndpoint(selectedProvider));
     setUseCustomModel(false); // Reset custom model when selecting from dropdown
   };
 
@@ -82,13 +141,13 @@ export const ApiConfigPanel: React.FC = () => {
       // When enabling custom model, clear the current model or set to custom name
       if (customModelName) {
         setModel(customModelName);
-        setEndpoint(getProviderEndpoint(selectedProvider, customModelName));
+        setEndpoint(getProviderEndpoint(selectedProvider));
       }
     } else {
       // When disabling custom model, revert to default model
-      const defaultModel = currentProvider.defaultModel;
+      const defaultModel = currentProvider?.defaultModel || '';
       setModel(defaultModel);
-      setEndpoint(getProviderEndpoint(selectedProvider, defaultModel));
+      setEndpoint(getProviderEndpoint(selectedProvider));
     }
   };
 
@@ -96,9 +155,21 @@ export const ApiConfigPanel: React.FC = () => {
     setCustomModelName(name);
     if (useCustomModel) {
       setModel(name);
-      setEndpoint(getProviderEndpoint(selectedProvider, name));
+      setEndpoint(getProviderEndpoint(selectedProvider));
     }
   };
+
+  // Early return if currentProvider is not available (during loading/fallback)
+  if (!currentProvider) {
+    return (
+      <Card variant="outlined" sx={{ p: 3 }}>
+        <Typography level="h3" sx={{ mb: 3 }}>
+          API Configuration
+        </Typography>
+        <Typography level="body-sm">Loading provider configuration...</Typography>
+      </Card>
+    );
+  }
 
   return (
     <Card variant="outlined" sx={{ p: 3 }}>
@@ -122,15 +193,26 @@ export const ApiConfigPanel: React.FC = () => {
       </FormControl>
 
       {/* API Key */}
-      {currentProvider.requiresAuth && (
+      {currentProvider?.requiresAuth && (
         <FormControl sx={{ mb: 2 }}>
           <FormLabel>API Key</FormLabel>
-          <Input
-            type="password"
-            value={apiKey}
-            onChange={(e) => handleApiKeyChange(e.target.value)}
-            placeholder="Enter your API key"
-          />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Input
+              type={showApiKey ? "text" : "password"}
+              value={apiKey}
+              onChange={(e) => handleApiKeyChange(e.target.value)}
+              placeholder="Enter your API key"
+              sx={{ flex: 1 }}
+            />
+            <IconButton
+              variant="outlined"
+              size="sm"
+              onClick={() => setShowApiKey(!showApiKey)}
+              title={showApiKey ? "Hide API key" : "Show API key"}
+            >
+              {showApiKey ? "😊" : "🫣"}
+            </IconButton>
+          </Box>
         </FormControl>
       )}
 
@@ -162,11 +244,11 @@ export const ApiConfigPanel: React.FC = () => {
               value={model}
               onChange={(_, value) => value && handleModelChange(value)}
             >
-              {currentProvider.models.map((modelName) => (
+              {currentProvider?.models?.map((modelName) => (
                 <Option key={modelName} value={modelName}>
                   {modelName}
                 </Option>
-              ))}
+              )) || []}
             </Select>
           </FormControl>
         )}
@@ -186,13 +268,10 @@ export const ApiConfigPanel: React.FC = () => {
           value={endpoint}
           onChange={(e) => setEndpoint(e.target.value)}
           placeholder="API endpoint URL"
-          readOnly={selectedProvider !== 'custom'}
+          readOnly
         />
         <Typography level="body-xs" sx={{ mt: 1, color: 'text.tertiary' }}>
-          {selectedProvider === 'custom' 
-            ? 'Enter your custom API endpoint' 
-            : 'Endpoint is automatically set based on provider and model'
-          }
+          Endpoint is automatically set based on provider and model
         </Typography>
       </FormControl>
 
@@ -208,19 +287,19 @@ export const ApiConfigPanel: React.FC = () => {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography level="body-sm">Streaming Support:</Typography>
           <Chip 
-            color={currentProvider.supportsStreaming ? 'success' : 'danger'} 
+            color={currentProvider?.supportsStreaming ? 'success' : 'danger'} 
             size="sm"
           >
-            {currentProvider.supportsStreaming ? 'Yes' : 'No'}
+            {currentProvider?.supportsStreaming ? 'Yes' : 'No'}
           </Chip>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography level="body-sm">Authentication:</Typography>
           <Chip 
-            color={currentProvider.requiresAuth ? 'warning' : 'neutral'} 
+            color={currentProvider?.requiresAuth ? 'warning' : 'neutral'} 
             size="sm"
           >
-            {currentProvider.requiresAuth ? 'Required' : 'Optional'}
+            {currentProvider?.requiresAuth ? 'Required' : 'Optional'}
           </Chip>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

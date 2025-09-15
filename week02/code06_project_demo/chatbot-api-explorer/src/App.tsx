@@ -23,7 +23,7 @@ function App() {
       
       {/* Left Panel - Configuration Section */}
       <Box sx={{ 
-        width: '450px',
+        width: '500px',
         bgcolor: 'background.surface',
         borderRight: 1,
         borderColor: 'divider',

@@ -7,10 +7,15 @@ import {
   Box, 
   Avatar, 
   Alert,
-  CircularProgress
+  CircularProgress,
+  Checkbox,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary
 } from '@mui/joy';
 import { useAppStore } from '../../stores/appStore';
 import { ApiService } from '../../services/apiService';
+import { RequestBodyModal } from '../modals/RequestBodyModal';
 import type { Message } from '../../types';
 
 export const ChatInterface: React.FC = () => {
@@ -23,6 +28,9 @@ export const ChatInterface: React.FC = () => {
     headers,
     model,
     isStreaming,
+    requestBody,
+    httpMethod,
+    selectedProvider,
     addMessage,
     updateMessage,
     clearMessages,
@@ -33,15 +41,218 @@ export const ChatInterface: React.FC = () => {
   } = useAppStore();
 
   const [inputMessage, setInputMessage] = useState('');
+  const [showRawChunks, setShowRawChunks] = useState(false);
+  const [rawChunks, setRawChunks] = useState<string[]>([]);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [customParser, setCustomParser] = useState(`// Default parser function
+function parseChunk(chunk) {
+  // Handle different streaming formats
+  try {
+    // Skip only completely empty chunks, but allow whitespace as it might be intentional
+    if (!chunk) {
+      return '';
+    }
+
+    // Format 1: Server-Sent Events (OpenAI standard)
+    if (chunk.startsWith('data: ')) {
+      const data = chunk.slice(6);
+      if (data.trim() === '[DONE]' || !data) return '';
+      
+      const parsed = JSON.parse(data);
+      const choice = parsed.choices?.[0];
+      
+      if (choice?.delta) {
+        // Skip Grok thinking content (reasoning)
+        const reasoning = choice.delta.reasoning_content;
+        if (reasoning) {
+          return ''; // Don't return thinking content
+        }
+        
+        // Regular content
+        const content = choice.delta.content;
+        if (content) {
+          return content;
+        }
+      }
+      
+      return '';
+    }
+    
+    // Format 2: Raw JSON chunks (some APIs)
+    if (chunk.trim().startsWith('{') && chunk.trim().endsWith('}')) {
+      const parsed = JSON.parse(chunk.trim());
+      const choice = parsed.choices?.[0];
+      
+      if (choice?.delta) {
+        // Skip Grok thinking content (reasoning)
+        const reasoning = choice.delta.reasoning_content;
+        if (reasoning) {
+          return ''; // Don't return thinking content
+        }
+        
+        // Try multiple possible content paths
+        return choice.delta.content || 
+               parsed.delta?.content || 
+               parsed.content || '';
+      }
+      
+      return '';
+    }
+    
+    // Format 3: Plain text chunks (Grok, some other APIs)
+    // Only return if it's clearly text content, not JSON metadata
+    if (chunk && typeof chunk === 'string' && 
+        !chunk.includes('"object"') && !chunk.includes('"choices"')) {
+      return chunk; // Don't trim here to preserve intentional spaces
+    }
+    
+    return '';
+  } catch (e) {
+    console.warn('Parse error:', e);
+    // If parsing fails and it's not JSON-like, return as plain text
+    if (chunk && typeof chunk === 'string' && 
+        !chunk.trim().startsWith('{') && !chunk.trim().startsWith('[')) {
+      return chunk;
+    }
+    return '';
+  }
+}`);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Custom parser function executor
+  const executeCustomParser = (chunk: string): string => {
+    try {
+      // Skip empty chunks (but allow whitespace-only chunks as they might be intentional spaces)
+      if (!chunk) {
+        return '';
+      }
+
+      // Create a safe function context
+      const func = new Function('chunk', `
+        ${customParser}
+        return parseChunk(chunk);
+      `);
+      const result = func(chunk);
+      
+      // Debug log for reasoning content
+      if (chunk.includes('reasoning_content')) {
+        console.log('🎯 Custom parser processing reasoning chunk:', chunk);
+        console.log('🎯 Custom parser result:', result);
+      }
+      
+      // Ensure we return a string and handle null/undefined, but don't trim to preserve spaces
+      return result ? String(result) : '';
+    } catch (error) {
+      console.error('Custom parser error:', error);
+      console.log('🚨 Falling back to default parser for chunk:', chunk);
+      
+      // Fallback to default parsing
+      try {
+        // Skip empty chunks in fallback too
+        if (!chunk) {
+          return '';
+        }
+
+        // Handle Server-Sent Events format
+        if (chunk.startsWith('data: ')) {
+          const data = chunk.slice(6);
+          if (data === '[DONE]' || !data) return '';
+          
+          const parsed = JSON.parse(data);
+          const choice = parsed.choices?.[0];
+          
+          if (choice?.delta) {
+            // Check for reasoning content first
+            const reasoning = choice.delta.reasoning_content;
+            if (reasoning) {
+              return `💭 ${reasoning}`;
+            }
+            
+            // Then check for regular content
+            const content = choice.delta.content;
+            if (content) {
+              return String(content);
+            }
+          }
+          
+          return '';
+        }
+        
+        // Handle plain text chunks (Grok format) - but be more careful
+        if (chunk && typeof chunk === 'string') {
+          // Don't return JSON-looking content as plain text
+          if (chunk.trim().startsWith('{') && chunk.trim().endsWith('}')) {
+            try {
+              // Try to parse as JSON to extract actual content
+              const parsed = JSON.parse(chunk.trim());
+              const choice = parsed.choices?.[0];
+              
+              if (choice?.delta) {
+                // Check for reasoning content first
+                const reasoning = choice.delta.reasoning_content;
+                if (reasoning) {
+                  return `💭 ${reasoning}`;
+                }
+                
+                // Then check for regular content
+                return choice.delta.content || parsed.content || '';
+              }
+              
+              return parsed.content || '';
+            } catch {
+              // If it's not valid JSON, skip it
+              return '';
+            }
+          }
+          return chunk;
+        }
+        return '';
+      } catch {
+        // If all else fails, return empty string instead of raw chunk
+        return '';
+      }
+    }
+  };
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Generate preview request body including the current input
+  const generatePreviewRequest = () => {
+    const requestMessages = [];
+    if (systemPrompt && systemPrompt.trim()) {
+      requestMessages.push({ role: 'system', content: systemPrompt });
+    }
+    
+    // Add existing messages
+    messages.forEach(msg => {
+      requestMessages.push({
+        role: msg.role,
+        content: msg.content
+      });
+    });
+
+    // Add current input as user message if it exists
+    if (inputMessage.trim()) {
+      requestMessages.push({
+        role: 'user',
+        content: inputMessage.trim()
+      });
+    }
+
+    return {
+      model: model || 'gpt-3.5-turbo',
+      messages: requestMessages,
+      stream: isStreaming,
+      temperature: 0.7,
+      max_tokens: 1000,
+    };
+  };
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -62,9 +273,16 @@ export const ChatInterface: React.FC = () => {
     setInputMessage('');
     setLoading(true);
     setError(null);
+    setRawChunks([]); // Clear previous raw chunks
 
     try {
-      if (isStreaming) {
+      // Clear any previous raw chunks and reset state
+      setRawChunks([]);
+      
+      // Check if this is a custom API that only supports streaming
+      const forceStreaming = selectedProvider === 'custom' || isStreaming;
+      
+      if (forceStreaming) {
         console.log('Starting streaming response...');
         
         // Create assistant message placeholder for streaming
@@ -88,10 +306,29 @@ export const ChatInterface: React.FC = () => {
           systemPrompt,
           model,
           (chunk: string) => {
-            console.log('Streaming chunk received:', chunk);
-            accumulatedContent += chunk;
-            // Update the assistant message with accumulated content
-            updateMessage(assistantMessageId, accumulatedContent);
+            console.log('Raw streaming chunk received:', chunk);
+            
+            // Store raw chunk for debugging (only when show raw chunks is enabled)
+            if (showRawChunks) {
+              setRawChunks(prev => [...prev, chunk]);
+            }
+            
+            // Parse chunk using custom parser
+            const parsedContent = executeCustomParser(chunk);
+            console.log('Parsed content:', parsedContent);
+            
+            // Additional debug logging for Grok reasoning content
+            if (chunk.includes('reasoning_content')) {
+              console.log('🔍 REASONING CHUNK DETECTED:', chunk);
+              console.log('🔍 PARSED REASONING:', parsedContent);
+            }
+            
+            // Only update if we have meaningful content (not completely empty)
+            if (parsedContent) {
+              accumulatedContent += parsedContent;
+              // Update the assistant message with accumulated content
+              updateMessage(assistantMessageId, accumulatedContent);
+            }
           },
           (apiResponse) => {
             console.log('Streaming completed. Final content:', accumulatedContent);
@@ -105,7 +342,9 @@ export const ChatInterface: React.FC = () => {
             setError(error);
             setLastApiResponse(apiResponse);
             setLoading(false);
-          }
+          },
+          requestBody,
+          httpMethod
         );
       } else {
         console.log('Starting non-streaming response...');
@@ -117,7 +356,9 @@ export const ChatInterface: React.FC = () => {
           messages.concat(userMessage), // Include the user message we just added
           systemPrompt,
           model,
-          false
+          false,
+          requestBody,
+          httpMethod
         );
 
         console.log('Non-streaming response received:', content);
@@ -173,14 +414,17 @@ export const ChatInterface: React.FC = () => {
             variant="soft"
             color="danger"
             size="sm"
-            onClick={clearMessages}
+            onClick={() => {
+              clearMessages();
+              setRawChunks([]); // Clear raw chunks when clearing messages
+            }}
           >
             Clear Chat
           </Button>
         </Box>
         
         {/* System Prompt */}
-        <Box>
+        <Box sx={{ mb: 2 }}>
           <Typography level="title-sm" sx={{ mb: 1 }}>
             System Prompt
           </Typography>
@@ -192,6 +436,36 @@ export const ChatInterface: React.FC = () => {
             maxRows={3}
           />
         </Box>
+
+        {/* Raw Chunks & Custom Parser Controls */}
+        <Box sx={{ mb: 1 }}>
+          <Checkbox
+            checked={showRawChunks}
+            onChange={(e) => setShowRawChunks(e.target.checked)}
+            label="Show raw streaming chunks"
+            size="sm"
+          />
+        </Box>
+
+        {/* Custom Parser */}
+        <Accordion>
+          <AccordionSummary>
+            <Typography level="title-sm">Custom Chunk Parser</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography level="body-xs" sx={{ mb: 1, color: 'text.secondary' }}>
+              Write a JavaScript function to parse streaming chunks. The function should be named 'parseChunk' and return the text content to display.
+            </Typography>
+            <Textarea
+              value={customParser}
+              onChange={(e) => setCustomParser(e.target.value)}
+              placeholder="function parseChunk(chunk) { ... }"
+              minRows={8}
+              maxRows={15}
+              sx={{ fontFamily: 'monospace', fontSize: '12px' }}
+            />
+          </AccordionDetails>
+        </Accordion>
       </Box>
 
       {/* Messages Area - flex-1 overflow-y-auto (grows and scrolls) */}
@@ -248,7 +522,9 @@ export const ChatInterface: React.FC = () => {
                       {message.content}
                     </Typography>
                     <Typography level="body-xs" sx={{ mt: 1, color: 'text.tertiary' }}>
-                      {message.timestamp.toLocaleTimeString()}
+                      {message.timestamp instanceof Date 
+                        ? message.timestamp.toLocaleTimeString() 
+                        : new Date(message.timestamp).toLocaleTimeString()}
                     </Typography>
                   </Box>
                 </Box>
@@ -262,6 +538,42 @@ export const ChatInterface: React.FC = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1.5, bgcolor: 'neutral.50', borderRadius: 'md' }}>
                 <CircularProgress size="sm" />
                 <Typography level="body-sm">Thinking...</Typography>
+              </Box>
+            </Box>
+          )}
+
+          {/* Raw Chunks Display */}
+          {showRawChunks && rawChunks.length > 0 && (
+            <Box sx={{ 
+              mt: 2, 
+              p: 2, 
+              bgcolor: 'background.level1', 
+              borderRadius: 'md',
+              border: 1,
+              borderColor: 'divider'
+            }}>
+              <Typography level="title-sm" sx={{ mb: 1, color: 'warning.600' }}>
+                Raw Streaming Chunks ({rawChunks.length})
+              </Typography>
+              <Box sx={{ 
+                maxHeight: '200px', 
+                overflowY: 'auto',
+                fontFamily: 'monospace',
+                fontSize: '11px',
+                bgcolor: 'background.surface',
+                p: 1,
+                borderRadius: 'sm'
+              }}>
+                {rawChunks.map((chunk, index) => (
+                  <Box key={index} sx={{ mb: 1, borderBottom: index < rawChunks.length - 1 ? 1 : 0, borderColor: 'divider', pb: 1 }}>
+                    <Typography level="body-xs" sx={{ color: 'text.tertiary' }}>
+                      Chunk {index + 1}:
+                    </Typography>
+                    <Typography component="pre" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                      {chunk}
+                    </Typography>
+                  </Box>
+                ))}
               </Box>
             </Box>
           )}
@@ -299,19 +611,39 @@ export const ChatInterface: React.FC = () => {
             disabled={isLoading}
             sx={{ flex: 1 }}
           />
-          <Button
-            onClick={handleSendMessage}
-            disabled={isLoading || !inputMessage.trim()}
-            variant="solid"
-            sx={{ alignSelf: 'flex-end' }}
-          >
-            Send
-          </Button>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Button
+              variant="soft"
+              color="neutral"
+              size="sm"
+              onClick={() => setPreviewModalOpen(true)}
+              disabled={isLoading}
+            >
+              Preview
+            </Button>
+            <Button
+              onClick={handleSendMessage}
+              disabled={isLoading || !inputMessage.trim()}
+              variant="solid"
+            >
+              Send
+            </Button>
+          </Box>
         </Box>
         <Typography level="body-xs" sx={{ mt: 1, color: 'text.tertiary' }}>
           Press Enter to send, Shift+Enter for new line
         </Typography>
       </Box>
+
+      {/* Preview Request Modal */}
+      <RequestBodyModal
+        open={previewModalOpen}
+        onClose={() => setPreviewModalOpen(false)}
+        requestBody={generatePreviewRequest()}
+        headers={headers}
+        endpoint={endpoint}
+        method="POST"
+      />
     </Card>
   );
 };

@@ -1,0 +1,23 @@
+You are an expert AI prompt engineer and chatbot developer. Your task is to create a fully functional educational chatbot script using Python, leveraging the OpenRouter API for natural language processing and generation. The user has provided their OpenRouter API key: [insert your OpenRouter API key here, but replace this placeholder with the actual key when running the script].
+
+The chatbot should focus on helping users improve their vocabulary and grammar skills through interactive conversations. Key features:
+
+1. **Analysis of User Inputs**: For every user message or prompt, analyze the text to dynamically generate:
+   - 3 new vocabulary words (uncommon or advanced words related to the user's input theme, with definitions, example sentences, and synonyms).
+   - 3 idioms (relevant idioms that could enhance the user's expression, with explanations and examples).
+   - 3 grammar concepts (identify potential grammar issues in the user's input or suggest improvements, such as tense usage, sentence structure, or punctuation rules, with explanations and corrected examples).
+
+   Use the OpenRouter API to call a suitable language model (e.g., via the 'openai/gpt-4o' endpoint or similar) for this analysis. Make the analysis contextual to the user's message to make it educational and personalized.
+
+2. **Interactive Learning Mode**: The chatbot should engage in a conversation where it responds to the user's query, then presents the 3 vocab words, 3 idioms, and 3 grammar concepts derived from the analysis. It should quiz the user on them optionally (e.g., ask for definitions or usages) to reinforce learning.
+
+3. **Review Space**: Maintain a persistent review section or "notebook" in memory (using a dictionary or list in the script) that stores all previously generated vocab, idioms, and grammar concepts across the session. Allow users to command "review" or "show notebook" to display a summarized list of all items learned so far, grouped by category. Include options to quiz on past items or export the notebook as a text file.
+
+4. **General Behavior**:
+   - Be friendly, encouraging, and adaptive to user proficiency levels (infer from inputs).
+   - Handle edge cases like short inputs by prompting for more details.
+   - Use simple console-based input/output for the chatbot interface (no GUI required).
+   - Ensure the script is self-contained, imports necessary libraries (e.g., requests for API calls), and runs in a loop until the user types "exit".
+   - For API calls: Use the OpenRouter base URL 'https://openrouter.ai/api/v1', authenticate with the provided API key, and select a model that excels at language tasks. Keep prompts concise to minimize token usage.
+
+Output the complete Python script for this chatbot. Include comments for clarity, and ensure it's ready to run after inserting the API key. Do not add any extra explanations outside the script.
