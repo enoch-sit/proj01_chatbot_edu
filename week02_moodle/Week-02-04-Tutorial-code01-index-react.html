@@ -1,0 +1,169 @@
+<!DOCTYPE html> <!-- Declares HTML5 document type -->
+<html lang="en"> <!-- Root HTML element with English language attribute -->
+<head> <!-- Contains metadata and page configuration -->
+    <meta charset="UTF-8"> <!-- Sets character encoding to UTF-8 for proper text display -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Makes page responsive on mobile devices -->
+    <title>Simple Chatbot - React Version</title> <!-- Sets the browser tab title -->
+    
+    <!-- React CDN - Load React library from CDN for easy setup -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel - Transform JSX to JavaScript in the browser (for development only) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        /* Paste the CSS from styles.css here */
+        /* Body styling: sets font, background, and centers content */
+        body { font-family: Arial, sans-serif; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        /* Main chat container: white background with rounded corners and shadow */
+        .chat-container { background-color: white; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); width: 400px; height: 500px; display: flex; flex-direction: column; }
+        /* Messages area: scrollable area that takes up remaining space */
+        .chat-messages { flex: 1; padding: 10px; overflow-y: auto; border-bottom: 1px solid #ddd; }
+        /* Individual message styling: rounded bubbles with spacing */
+        .message { margin: 10px 0; padding: 8px 12px; border-radius: 20px; max-width: 80%; }
+        /* User messages: blue background, white text, aligned to right */
+        .user-message { background-color: #007bff; color: white; align-self: flex-end; margin-left: auto; }
+        /* Bot messages: gray background, black text, aligned to left */
+        .bot-message { background-color: #e0e0e0; color: black; align-self: flex-start; margin-right: auto; }
+        /* Input area container: horizontal layout with padding */
+        .input-container { display: flex; padding: 10px; }
+        /* Text input field: takes up most space with border and padding */
+        #user-input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin-right: 10px; }
+        /* Send button: blue background with white text and hover effect */
+        #send-button { padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        /* Send button hover state: darker blue background */
+        #send-button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body> <!-- Main content area of the page -->
+    <div id="root"></div> <!-- React will render the app here -->
+    
+    <!-- Babel will transform this JSX code -->
+    <script type="text/babel"> 
+        // Destructure React hooks for easier use
+        const { useState, useEffect, useRef } = React;
+
+        // Main Chatbot component - this replaces all the vanilla JS code
+        function Chatbot() {
+            // STATE MANAGEMENT: React handles state changes automatically
+            // useState replaces our manual 'messages' array
+            const [messages, setMessages] = useState([
+                { text: "Bot says: How can I help?", sender: "bot" } // Initial bot greeting
+            ]);
+            
+            // useState for input field - replaces manual DOM value management
+            const [input, setInput] = useState("");
+            
+            // useRef for DOM access when needed (like auto-scrolling)
+            const messagesRef = useRef(null);
+
+            // LIFECYCLE: useEffect replaces manual event setup
+            // Auto-scroll when messages change - replaces manual scrollTop calls
+            useEffect(() => {
+                if (messagesRef.current) {
+                    messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+                }
+            }, [messages]); // Only run when messages array changes
+
+            // EVENT HANDLERS: Functions to handle user interactions
+            const handleSend = () => {
+                if (input.trim() === "") return; // Don't send empty messages
+                
+                // Add user message to state
+                const newUserMessage = { text: input, sender: "user" };
+                setMessages(prevMessages => [...prevMessages, newUserMessage]); // Immutable state update
+                
+                // Clear input field
+                setInput("");
+                
+                // Simulate bot response with delay
+                setTimeout(() => {
+                    const botReply = { 
+                        text: `Bot says: You typed "${input}"! How can I help?`, 
+                        sender: "bot" 
+                    };
+                    setMessages(prevMessages => [...prevMessages, botReply]); // Add bot response
+                }, 1000);
+            };
+
+            // Handle Enter key press
+            const handleKeyPress = (event) => {
+                if (event.key === "Enter") {
+                    handleSend();
+                }
+            };
+
+            // RENDER: JSX describes what the UI should look like
+            // This replaces all the manual DOM manipulation
+            return (
+                <div className="chat-container"> {/* Same structure as HTML */}
+                    <div className="chat-messages" ref={messagesRef}> {/* Ref for scrolling */}
+                        {/* DYNAMIC RENDERING: map over messages array */}
+                        {messages.map((message, index) => (
+                            <div
+                                key={index} // React needs unique keys for list items
+                                className={`message ${message.sender === "user" ? "user-message" : "bot-message"}`}
+                            >
+                                {message.text} {/* Display message text */}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="input-container">
+                        {/* CONTROLLED COMPONENT: React controls the input value */}
+                        <input
+                            type="text"
+                            id="user-input"
+                            value={input} // Value controlled by React state
+                            onChange={(e) => setInput(e.target.value)} // Update state on change
+                            onKeyPress={handleKeyPress} // Handle Enter key
+                            placeholder="Type your message..."
+                        />
+                        <button id="send-button" onClick={handleSend}>Send</button> {/* onClick handler */}
+                    </div>
+                </div>
+            );
+        }
+
+        // COMPARISON NOTES FOR STUDENTS:
+        /*
+        VANILLA JS vs REACT COMPARISON:
+
+        1. STATE MANAGEMENT:
+           Vanilla JS: let messages = []; (manual array manipulation)
+           React: const [messages, setMessages] = useState([]); (automatic re-rendering)
+
+        2. DOM MANIPULATION:
+           Vanilla JS: document.createElement(), appendChild(), innerHTML = ''
+           React: JSX describes structure, React handles DOM updates
+
+        3. EVENT HANDLING:
+           Vanilla JS: addEventListener('click', handler)
+           React: onClick={handler} (declarative)
+
+        4. RENDERING:
+           Vanilla JS: Manual renderMessages() function, clear and rebuild DOM
+           React: Automatic re-render when state changes
+
+        5. INPUT MANAGEMENT:
+           Vanilla JS: userInput.value, manual value setting
+           React: Controlled component with value={input} and onChange
+
+        6. CODE ORGANIZATION:
+           Vanilla JS: Scattered across multiple functions and event listeners
+           React: All logic contained in component with clear separation of concerns
+
+        WHY REACT IS BETTER:
+        - Automatic re-rendering when data changes
+        - No manual DOM manipulation
+        - Predictable data flow
+        - Better performance with virtual DOM
+        - Easier to debug and maintain
+        - Component-based architecture for reusability
+        */
+
+        // Render the app - this replaces the HTML structure
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Chatbot />);
+    </script>
+</body>
+</html>

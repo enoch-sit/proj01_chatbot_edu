@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Chatbot - Learn While You Chat!</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-graduation-cap"></i> Educational Chatbot</h1>
+                <p>Learn vocabulary, idioms, and grammar while you chat!</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-item">
+                    <i class="fas fa-book"></i>
+                    <span id="total-items">0</span> items learned
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Chat Section -->
+            <div class="chat-section">
+                <div class="chat-container">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="welcome-message">
+                            <div class="bot-message">
+                                <div class="message-avatar">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="message-content">
+                                    <p>👋 Hello! I'm your Educational Chatbot. Send me a message and I'll help you learn new vocabulary, idioms, and grammar concepts!</p>
+                                    <p><strong>Tips:</strong></p>
+                                    <ul>
+                                        <li>Write detailed messages (at least 3 words) for better learning content</li>
+                                        <li>Check your notebook to review what you've learned</li>
+                                        <li>Take quizzes to test your knowledge</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-container">
+                        <div class="input-wrapper">
+                            <input type="text" id="chat-input" placeholder="Type your message here..." maxlength="500">
+                            <button id="send-button" class="send-button">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="input-info">
+                            <span id="char-count">0</span>/500 characters
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-tabs">
+                    <button class="tab-button active" data-tab="notebook">
+                        <i class="fas fa-notebook"></i> Notebook
+                    </button>
+                    <button class="tab-button" data-tab="quiz">
+                        <i class="fas fa-question-circle"></i> Quiz
+                    </button>
+                </div>
+
+                <!-- Notebook Tab -->
+                <div class="tab-content active" id="notebook-tab">
+                    <div class="notebook-header">
+                        <h3><i class="fas fa-book-open"></i> Learning Notebook</h3>
+                        <button id="export-btn" class="btn-secondary">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                    
+                    <div class="notebook-content" id="notebook-content">
+                        <div class="empty-notebook">
+                            <i class="fas fa-book-open"></i>
+                            <p>Your notebook is empty. Start chatting to learn!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Tab -->
+                <div class="tab-content" id="quiz-tab">
+                    <div class="quiz-header">
+                        <h3><i class="fas fa-brain"></i> Quiz Time</h3>
+                        <button id="start-quiz-btn" class="btn-primary">
+                            <i class="fas fa-play"></i> Start Quiz
+                        </button>
+                    </div>
+                    
+                    <div class="quiz-content" id="quiz-content">
+                        <div class="quiz-info">
+                            <i class="fas fa-lightbulb"></i>
+                            <p>Test your knowledge with questions from your learned content!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-overlay" id="loading">
+        <div class="spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Analyzing your message...</p>
+        </div>
+    </div>
+
+    <!-- Educational Content Modal -->
+    <div class="modal" id="content-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-graduation-cap"></i> Your Learning Content</h2>
+                <button class="close-btn" id="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Educational content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
