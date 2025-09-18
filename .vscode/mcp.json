@@ -4,6 +4,10 @@
       "type": "stdio",
       "command": "npx",
       "args": ["@playwright/mcp@latest", "--config", "./playwright-config.json"]
+    },
+     "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
     }
   },
   "inputs": []
