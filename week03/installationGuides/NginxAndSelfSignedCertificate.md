@@ -1,117 +1,106 @@
-# Complete Guide to Installing NGINX and Configuring a Self-Signed SSL Certificate on Ubuntu
+# Complete Guide to Installing NGINX, Configuring a Self-Signed SSL Certificate, and Testing on Ubuntu
 
-This guide provides step-by-step instructions for installing NGINX on an Ubuntu system and setting up a self-signed SSL certificate to enable HTTPS. It is tailored for Ubuntu 20.04 LTS or later, but the steps are generally applicable to other recent Ubuntu versions.
+This guide compiles all the steps discussed for installing NGINX on Ubuntu, configuring it with a self-signed SSL certificate, verifying setups, troubleshooting common issues, and using essential tools like `nano` and `netstat`. It's tailored for Ubuntu 20.04 LTS or later (tested on a setup as of September 17, 2025), assuming a server like `project-1-12.eduhk.hk` with IP `192.168.56.182`.
 
 ## Prerequisites
 
-Before you begin, ensure you have:
+- Ubuntu server (20.04 LTS or later).
+- User with `sudo` privileges.
+- Terminal access.
+- Internet connection.
+- Basic command-line knowledge.
 
-- An Ubuntu server (20.04 LTS or later recommended)
-- A user account with `sudo` privileges
-- Terminal access
-- Basic command-line knowledge
-- An internet connection for downloading packages
+## Using Nano Text Editor
+
+`nano` is a simple terminal-based editor used for editing NGINX configs and files. Key shortcuts (especially for the ones mentioned):
+
+- **Open a file**: `sudo nano /path/to/file` (e.g., `sudo nano /etc/nginx/sites-available/default`).
+- **Remove all lines (clear content)**: Press `Ctrl + K` repeatedly to cut (delete) lines one by one, or hold it to clear faster.
+- **Paste content**: Right-click in the terminal to paste (or use `Ctrl + U` to uncut/paste previously cut text).
+- **Save and exit**: Press `Ctrl + X`, then `Y` (yes) to confirm saving changes.
+- **Other useful shortcuts**:
+  - `Ctrl + O`: Save without exiting.
+  - `Ctrl + W`: Search.
+  - `Ctrl + G`: View all shortcuts.
+
+Always test configs after editing (e.g., `sudo nginx -t`).
 
 ## Part 1: Installing NGINX
 
-NGINX is a high-performance web server that can also serve as a reverse proxy, load balancer, or HTTP cache. Follow these steps to install it.
-
-### Step 1: Update the Package Index
-
-Ensure you have the latest package information:
-
+### Step 1: Update Package Index
 ```bash
 sudo apt update
 ```
 
 ### Step 2: Install NGINX
-
-Install NGINX and its dependencies:
-
 ```bash
 sudo apt install nginx
 ```
 
-### Step 3: Verify NGINX Installation
-
-Check if NGINX is running:
-
+### Step 3: Verify and Start NGINX
 ```bash
 sudo systemctl status nginx
+sudo systemctl start nginx  # If not running
+sudo systemctl enable nginx  # Start on boot
 ```
 
-You should see `active (running)` in the output. If NGINX is not running, start it:
-
+### Step 4: Test Basic Installation
+Find your server IP:
 ```bash
-sudo systemctl start nginx
+ip addr show | grep inet  # Shows all IPs; look for e.g., 192.168.56.182 under ens33
+# Or shorter: hostname -I
+# Public IP (if needed): curl ifconfig.me
 ```
 
-Enable NGINX to start on boot:
+Visit `http://<your_ip>` (e.g., `http://192.168.56.182`) in a browser. You should see the NGINX welcome page.
 
-```bash
-sudo systemctl enable nginx
-```
-
-### Step 4: Test NGINX
-
-Open a web browser and navigate to `http://your_server_ip`. To find your server’s IP address, run:
-
-```bash
-ip addr show | grep inet
-```
-
-You should see the default NGINX welcome page, confirming the installation.
-
-## Part 2: Configuring a Self-Signed SSL Certificate
-
-A self-signed SSL certificate enables HTTPS but will trigger browser warnings since it’s not signed by a trusted Certificate Authority (CA). This is suitable for testing or internal use.
-
-### Step 1: Install OpenSSL
-
-OpenSSL is required to generate the certificate. It’s typically pre-installed, but verify with:
-
+## Part 2: Installing OpenSSL (for Certificates)
 ```bash
 sudo apt install openssl
 ```
 
-### Step 2: Generate the Self-Signed Certificate
+## Part 3: Generating a Self-Signed SSL Certificate
 
-Create a directory for the certificate and key:
-
+### Step 1: Create SSL Directory
 ```bash
 sudo mkdir /etc/nginx/ssl
 ```
 
-Generate a self-signed certificate and private key (replace `example.com` with your domain or server IP):
-
+### Step 2: Generate Certificate
 ```bash
 sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt
 ```
 
-You’ll be prompted for certificate details (e.g., country, organization). For the **Common Name (CN)**, enter your domain (e.g., `example.com`) or server IP. Press `Enter` to skip optional fields.
+During prompts (Distinguished Name fields):
+- **Country Name (2 letter code) [AU]**: `HK` (for Hong Kong; press Enter for defaults otherwise).
+- **State or Province Name (full name) [Some-State]**: `Hong Kong` (or `.` to leave blank).
+- **Locality Name (e.g., city) []**: `Hong Kong` (or `.`).
+- **Organization Name (e.g., company) []**: `YourOrg` (or `.`).
+- **Organizational Unit Name (e.g., section) []**: `IT` (or `.`).
+- **Common Name (e.g., server FQDN) []**: `project-1-12.eduhk.hk` (use your domain/FQDN; verify with `ping project-1-12.eduhk.hk`).
+- **Email Address []**: `admin@eduhk.hk` (or `.`).
 
-- `-x509`: Creates a self-signed certificate
-- `-nodes`: Skips passphrase for the private key
-- `-days 365`: Sets certificate validity to 1 year
-- `-newkey rsa:2048`: Generates a 2048-bit RSA key
-- `-keyout`: Specifies the private key file
-- `-out`: Specifies the certificate file
+This creates a 1-year valid, 2048-bit RSA self-signed cert. Secure files:
+```bash
+sudo chmod 600 /etc/nginx/ssl/nginx.key
+sudo chmod 644 /etc/nginx/ssl/nginx.crt
+```
 
-### Step 3: Configure NGINX for HTTPS
+## Part 4: Configuring NGINX for HTTPS
 
-Edit the NGINX configuration file (typically `/etc/nginx/sites-available/default`):
-
+### Step 1: Edit Configuration
 ```bash
 sudo nano /etc/nginx/sites-available/default
 ```
 
-Replace the default server block with:
+Use `Ctrl + K` to clear existing content if needed, paste the new config (right-click to paste), then `Ctrl + X` > `Y` to save/exit.
 
+Replace with:
 ```nginx
 server {
     listen 80;
     listen [::]:80;
-    server_name example.com www.example.com;
+    server_name project-1-12.eduhk.hk;
 
     # Redirect HTTP to HTTPS
     return 301 https://$host$request_uri;
@@ -120,138 +109,110 @@ server {
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
-    server_name example.com www.example.com;
+    server_name project-1-12.eduhk.hk;
 
     ssl_certificate /etc/nginx/ssl/nginx.crt;
     ssl_certificate_key /etc/nginx/ssl/nginx.key;
 
-    root /var/www/html;
-    index index.html index.htm;
+    root /var/www/html;  # Default root; not /var/www/root
+    index index.html index.htm index.nginx-debian.html;
 
     location / {
         try_files $uri $uri/ /index.html;
     }
 }
 ```
+- Replace `project-1-12.eduhk.hk` with your domain/IP if needed.
+- Root is `/var/www/html` by default (verify: `cat /etc/nginx/sites-available/default | grep root`).
 
-- Replace `example.com www.example.com` with your domain or server IP.
-- The first block redirects HTTP (port 80) to HTTPS (port 443).
-- The second block enables HTTPS with the self-signed certificate.
-
-Save and exit (`Ctrl+O`, `Enter`, `Ctrl+X` in `nano`).
-
-### Step 4: Test NGINX Configuration
-
-Verify the configuration:
-
+### Step 2: Test and Reload
 ```bash
-sudo nginx -t
-```
-
-Expected output:
-
-```
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-```
-
-Fix any errors reported before proceeding.
-
-### Step 5: Reload NGINX
-
-Apply the changes:
-
-```bash
+sudo nginx -t  # Check syntax
 sudo systemctl reload nginx
 ```
 
-### Step 6: Adjust Firewall (if applicable)
-
-If using `ufw`, allow HTTPS traffic:
-
+### Step 3: Firewall (if using UFW)
 ```bash
-sudo ufw allow 'Nginx HTTPS'
-```
-
-Check the firewall status:
-
-```bash
+sudo ufw allow 'Nginx Full'  # Allows 80 and 443
 sudo ufw status
 ```
 
-### Step 7: Test HTTPS
+## Part 5: Creating Test Content
 
-Visit `https://your_server_ip` or `https://your_domain` in a browser. Expect a warning about the self-signed certificate (e.g., “Your connection is not private”). Click “Advanced” and proceed.
-
-Verify the certificate from the terminal:
+Default root: `/var/www/html` (not `/var/www/root`—that's non-standard).
 
 ```bash
-openssl s_client -connect your_server_ip:443
-```
-
-Press `Ctrl+C` to exit after viewing certificate details.
-
-## Part 3: Security Considerations
-
-- **Self-Signed Certificate Limitations**: Browsers will display warnings. For production, use a trusted CA like Let’s Encrypt.
-- **File Permissions**: Secure the certificate and key:
-
-```bash
-sudo chmod 600 /etc/nginx/ssl/nginx.key
-sudo chmod 644 /etc/nginx/ssl/nginx.crt
-```
-
-- **Regular Updates**: Keep NGINX and OpenSSL updated:
-
-```bash
-sudo apt update && sudo apt upgrade
-```
-
-- **Backup Certificates**: Store `/etc/nginx/ssl/nginx.key` and `/etc/nginx/ssl/nginx.crt` securely.
-
-## Part 4: Troubleshooting
-
-- **NGINX Fails to Start**: Check status (`sudo systemctl status nginx`) and logs (`sudo journalctl -u nginx`).
-- **Certificate Issues**: Verify file paths in the NGINX configuration.
-- **Browser Warnings**: Normal for self-signed certificates.
-- **Port Conflicts**: Check for services using ports 80 or 443:
-
-```bash
-sudo netstat -tuln | grep ':80\|:443'
-```
-
-## Part 5: Optional - Serving a Sample HTTPS Page
-
-Create a test HTML page:
-
-```bash
-sudo nano /var/www/html/index.html
-```
-
-Add:
-
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Welcome to NGINX with HTTPS</title>
-</head>
-<body>
-    <h1>Success! Your NGINX server is running with HTTPS.</h1>
-</body>
-</html>
-```
-
-Save, exit, and reload NGINX:
-
-```bash
+ls -l /var/www/html  # Check contents
+echo "<h1>Hello from project-1-12.eduhk.hk with HTTPS!</h1>" | sudo tee /var/www/html/index.html
+sudo chown www-data:www-data /var/www/html/index.html
 sudo systemctl reload nginx
 ```
 
-Visit `https://your_server_ip` to view the page.
+## Part 6: Testing the Setup
+
+### Step 1: Check Listening Ports
+Install `netstat` if missing:
+```bash
+sudo apt install net-tools
+```
+
+Then:
+```bash
+sudo netstat -tuln | grep ':80\|:443'
+# Alternative (no install): sudo ss -tuln | grep ':80\|:443'
+```
+
+Expected:
+```
+tcp 0 0 0.0.0.0:80  0.0.0.0:* LISTEN
+tcp 0 0 0.0.0.0:443 0.0.0.0:* LISTEN
+tcp6 0 0 :::80 :::* LISTEN
+tcp6 0 0 :::443 :::* LISTEN
+```
+
+### Step 2: Test SSL with OpenSSL
+Basic connection:
+```bash
+openssl s_client -connect 192.168.56.182:443  # Use your IP
+```
+
+Full HTTP test:
+```bash
+echo -e "GET / HTTP/1.1\r\nHost: project-1-12.eduhk.hk\r\nConnection: close\r\n\r\n" | openssl s_client -connect 192.168.56.182:443 -servername project-1-12.eduhk.hk
+```
+
+Expected: `HTTP/1.1 200 OK` with your `<h1>` content. Self-signed warning (`verify error:num=18`) is normal.
+
+### Step 3: Browser Test
+- Visit `https://project-1-12.eduhk.hk` or `https://192.168.56.182`.
+- Accept "not private" warning (self-signed).
+- Should show your test page.
+
+## Part 7: Troubleshooting
+
+| Issue | Possible Cause | Solution |
+|-------|----------------|----------|
+| `netstat: command not found` | Not installed | `sudo apt install net-tools` or use `ss`. |
+| No HTTP response in OpenSSL | Empty `/var/www/html` or bad config | Create `index.html`; check `sudo nginx -t`. |
+| 400 Bad Request | Incomplete request in basic `openssl s_client` | Use full GET command; normal for partial requests. |
+| Port not listening | Config error or NGINX down | `sudo systemctl status nginx`; reload. |
+| Browser mismatch warning | CN doesn't match access method | Use domain in browser; regenerate cert if using IP. |
+| Certificate fields wrong (e.g., C=AU) | Default prompts | Regenerate with correct inputs (e.g., HK). |
+
+### Logs
+```bash
+sudo tail -f /var/log/nginx/error.log  # Errors
+sudo tail -f /var/log/nginx/access.log  # Access
+sudo journalctl -u nginx  # System logs
+```
+
+## Part 8: Security and Best Practices
+
+- **Self-Signed Limits**: Warnings in browsers; use Let's Encrypt for production.
+- **Updates**: `sudo apt update && sudo apt upgrade`.
+- **Backup**: Copy `/etc/nginx/ssl/*` securely.
+- **Trust Cert Locally** (testing): `sudo cp /etc/nginx/ssl/nginx.crt /usr/local/share/ca-certificates/nginx.crt && sudo update-ca-certificates`.
 
 ## Conclusion
 
-You’ve installed NGINX on Ubuntu and configured a self-signed SSL certificate for HTTPS. This setup is ideal for testing or internal applications. For production, consider a trusted certificate to avoid browser warnings. Refer to the [NGINX documentation](https://nginx.org/en/docs/) for advanced configurations.
-
-</xaiArtifact>
+This covers installing NGINX, SSL setup, testing, and tools like `nano` and `netstat`. Your setup on `project-1-12.eduhk.hk` (IP: 192.168.56.182) should now serve HTTPS content. For advanced topics, see [NGINX Docs](https://nginx.org/en/docs/).
