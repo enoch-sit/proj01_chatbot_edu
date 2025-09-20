@@ -1,14 +1,54 @@
 # Complete Guide to Installing NGINX, Configuring a Self-Signed SSL Certificate, and Testing on Ubuntu
 
-This guide compiles all the steps discussed for installing NGINX on Ubuntu, configuring it with a self-signed SSL certificate, verifying setups, troubleshooting common issues, and using essential tools like `nano` and `netstat`. It's tailored for Ubuntu 20.04 LTS or later (tested on a setup as of September 17, 2025), assuming a server like `project-1-12.eduhk.hk` with IP `192.168.56.182`.
+Installation Guide on a server like `project-1-12.eduhk.hk`. Your project domain should be `project-1-XX.eduhk.hk`
 
-## Prerequisites
+## Basic Linux Command Line
 
-- Ubuntu server (20.04 LTS or later).
-- User with `sudo` privileges.
-- Terminal access.
-- Internet connection.
-- Basic command-line knowledge.
+Before starting with NGINX installation, here are essential Linux commands you'll need:
+
+### Navigation and File Operations
+
+- **Show current directory**: `pwd` (print working directory)
+- **List files and folders**: `ls` (basic) or `ls -la` (detailed with hidden files)
+- **Change directory**: `cd /path/to/directory` or `cd ~` (home directory)
+- **Create directory**: `mkdir directory_name`
+- **Remove files**: `rm filename` or `rm -rf directory_name` (recursive/force)
+- **Copy files**: `cp source destination`
+- **Move/rename**: `mv old_name new_name`
+
+### File Content Operations
+
+- **View file content**: `cat filename` (entire file) or `less filename` (paginated)
+- **Edit files**: `nano filename` (beginner-friendly) or `vim filename` (advanced)
+- **Create/edit file**: `touch filename` (create empty) or `echo "content" > filename`
+- **Search in files**: `grep "search_term" filename`
+
+### System and Process Management
+
+- **Check running processes**: `ps aux` or `top` (interactive)
+- **Kill process**: `kill process_id` or `killall process_name`
+- **Check disk usage**: `df -h` (disk space) or `du -sh directory` (directory size)
+- **Check system info**: `uname -a` (system info) or `whoami` (current user)
+
+### Permissions and Ownership
+
+- **Change permissions**: `chmod 755 filename` (read/write/execute permissions)
+- **Change ownership**: `chown user:group filename`
+- **Run as administrator**: `sudo command` (requires admin privileges)
+
+### Network and System Status
+
+- **Check network**: `ping google.com` or `wget http://example.com`
+- **Check listening ports**: `netstat -tuln` or `ss -tuln`
+- **Check system services**: `systemctl status service_name`
+
+### Tips for Beginners
+
+- Use **Tab** to auto-complete commands and file names
+- Use **Up/Down arrows** to navigate command history
+- Use `Ctrl + C` to cancel/interrupt running commands
+- Use `man command_name` to view manual/help for any command
+- Always be careful with `rm` and `sudo` commands
 
 ## Using Nano Text Editor
 
@@ -72,13 +112,14 @@ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/
 ```
 
 During prompts (Distinguished Name fields):
-- **Country Name (2 letter code) [AU]**: `HK` (for Hong Kong; press Enter for defaults otherwise).
-- **State or Province Name (full name) [Some-State]**: `Hong Kong` (or `.` to leave blank).
-- **Locality Name (e.g., city) []**: `Hong Kong` (or `.`).
-- **Organization Name (e.g., company) []**: `YourOrg` (or `.`).
-- **Organizational Unit Name (e.g., section) []**: `IT` (or `.`).
+
+- **Country Name (2 letter code)**: press Enter for defaults
+- **State or Province Name (full name) [Some-State]**: `.`
+- **Locality Name (e.g., city) []**: `.`
+- **Organization Name (e.g., company) []**: `.`
+- **Organizational Unit Name (e.g., section) []**: `.`
 - **Common Name (e.g., server FQDN) []**: `project-1-12.eduhk.hk` (use your domain/FQDN; verify with `ping project-1-12.eduhk.hk`).
-- **Email Address []**: `admin@eduhk.hk` (or `.`).
+- **Email Address []**: `.`
 
 This creates a 1-year valid, 2048-bit RSA self-signed cert. Secure files:
 ```bash

@@ -1,8 +1,4 @@
-# Comprehensive Beginner's Guide to Installing nvm, Node.js, npm, and pnpm (Enriched for Windows, macOS, Linux, and Ubuntu)
-
-Welcome back! Based on your request, I've enriched the original guide with more OS-specific details, updated commands to reflect the latest as of September 2025 (e.g., Node.js v22.x as the current LTS), additional prerequisites, step-by-step visuals (text-based), expanded troubleshooting, and Ubuntu-specific tweaks. This ensures smoother setup across platforms.
-
-We'll still follow the same logical order: nvm first (for easy Node management), then Node.js/npm, then optional pnpm. Focus is on native installs where possible, with WSL notes for Windows.
+# Installing guide of nvm, Node.js, npm, and pnpm
 
 **Key Updates (September 2025):**
 
@@ -22,7 +18,7 @@ We'll still follow the same logical order: nvm first (for easy Node management),
 
 ### Windows
 
-- Windows 10/11 (build 19041+ recommended).
+- Windows 10/11 
 - Uninstall any existing Node.js via Settings > Apps (search "Node.js" > Uninstall). Delete `%ProgramFiles%\nodejs`, `%AppData%\npm`, and `%AppData%\Roaming\npm` (back up `.npmrc` configs first).
 - Optional: Install Windows Subsystem for Linux (WSL2) via Microsoft Store for a Unix-like experience—then follow Linux/Ubuntu steps inside WSL.
 - Run terminals as Administrator if prompted (right-click > "Run as administrator").
