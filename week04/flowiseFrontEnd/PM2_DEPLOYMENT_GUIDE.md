@@ -11,7 +11,175 @@
 npm install -g pm2
 ```
 
-### Step 2: Create PM2 Ecosystem File
+### Step 1.5: Scan and Clean Existing PM2 Processes
+
+Before deploying, it's important to check for existing PM2 processes that might conflict with your deployment.
+
+#### Scan Current PM2 Usage
+```bash
+# Check all running PM2 processes
+pm2 list
+
+# Show detailed status with resource usage
+pm2 status
+
+# Monitor real-time resource usage
+pm2 monit
+```
+
+#### Clean Up Existing Processes
+
+**Option A: Stop All PM2 Processes (Nuclear Option)**
+```bash
+# Stop all PM2 processes
+pm2 stop all
+
+# Delete all PM2 processes
+pm2 delete all
+
+# Kill PM2 daemon and restart fresh
+pm2 kill
+```
+
+**Option B: Selective Cleanup (Recommended)**
+```bash
+# List processes to see what's running
+pm2 list
+
+# Stop specific processes by name
+pm2 stop process-name-here
+
+# Delete specific processes by name
+pm2 delete process-name-here
+
+# Or stop/delete by ID
+pm2 stop 0
+pm2 delete 0
+```
+
+#### Check for Port Conflicts
+```bash
+# Windows: Check what's using port 3002
+netstat -ano | findstr :3002
+
+# Kill process by PID (if needed)
+taskkill /PID <PID_NUMBER> /F
+```
+
+```bash
+# Linux/Mac: Check what's using port 3002
+lsof -ti:3002
+
+# Kill process using port 3002
+lsof -ti:3002 | xargs kill -9
+```
+
+#### Clean PM2 Logs and Cache
+```bash
+# Clear all PM2 logs
+pm2 flush
+
+# Reset PM2 configuration
+pm2 save --force
+```
+
+#### Verify Clean State
+```bash
+# Confirm no processes are running
+pm2 list
+
+# Should show "No processes"
+# Now you're ready for fresh deployment
+```
+
+#### Emergency Reset (Complete PM2 Reset)
+```bash
+# If PM2 is acting strange, completely reset it
+pm2 kill
+pm2 resurrect
+pm2 save
+
+# Or remove PM2 data entirely (nuclear option)
+# Windows: rmdir /s %USERPROFILE%\.pm2
+# Linux/Mac: rm -rf ~/.pm2
+```
+
+### Step 2: Configure Environment Variables
+
+Before deploying, you need to set up your `.env` file with your FlowiseAI configuration.
+
+#### Option A: Copy from Example (Recommended)
+```bash
+# Copy the example file
+copy .env.example .env
+```
+
+#### Option B: Create .env Manually
+Create a new file named `.env` in your project root with the following content:
+
+```bash
+# FlowiseAI Configuration
+VITE_FLOWISE_BASE_URL=https://your-flowise-instance.com
+VITE_FLOWISE_CHATFLOW_ID=your-chatflow-id-here
+VITE_FLOWISE_API_KEY=your-api-key-here
+
+# Application Configuration  
+VITE_BASE_PATH=/projectui
+VITE_PORT=3002
+
+# Optional Settings
+VITE_APP_TITLE=FlowiseAI Chat
+VITE_STREAMING_ENABLED=true
+```
+
+#### How to Get Your FlowiseAI Information:
+
+**1. VITE_FLOWISE_BASE_URL:**
+   - This is your FlowiseAI server URL
+   - Example: `https://project-1-13.eduhk.hk`
+   - Example: `https://your-domain.com`
+   - Example: `http://localhost:3000` (for local FlowiseAI)
+
+**2. VITE_FLOWISE_CHATFLOW_ID:**
+   - Log into your FlowiseAI dashboard
+   - Go to your chatflow
+   - Copy the chatflow ID from the URL or settings
+   - Example: `415615d3-ee34-4dac-be19-f8a20910f692`
+
+**3. VITE_FLOWISE_API_KEY:**
+   - In FlowiseAI dashboard, go to Settings → API Keys
+   - Create a new API key or copy existing one
+   - Example: `4jrOiUe8inxQu7JUIs8xdCUPw8X2yq78TstyyT0TOO8`
+   - **Important**: Keep this secure and never commit to version control
+
+**4. VITE_BASE_PATH:**
+   - This is the URL path where your app will be served
+   - Default: `/projectui`
+   - Change if you want different URL: `/my-chat` → `http://localhost:3002/my-chat/`
+
+#### Example Complete .env File:
+```bash
+# FlowiseAI Configuration
+VITE_FLOWISE_BASE_URL=https://project-1-13.eduhk.hk
+VITE_FLOWISE_CHATFLOW_ID=415615d3-ee34-4dac-be19-f8a20910f692
+VITE_FLOWISE_API_KEY=4jrOiUe8inxQu7JUIs8xdCUPw8X2yq78TstyyT0TOO8
+
+# Application Configuration
+VITE_BASE_PATH=/projectui
+VITE_PORT=3002
+
+# Optional Settings
+VITE_APP_TITLE=My AI Assistant
+VITE_STREAMING_ENABLED=true
+```
+
+#### Security Notes:
+- **Never commit .env to version control** (it's in .gitignore)
+- Keep your API key secure
+- Use different API keys for development/production
+- Consider using environment-specific .env files for different deployments
+
+### Step 3: Create PM2 Ecosystem File
 Create `ecosystem.config.js` in your project root:
 
 ```javascript
@@ -41,7 +209,7 @@ module.exports = {
 };
 ```
 
-### Step 3: Deployment Commands
+### Step 4: Deployment Commands
 
 #### Quick Start (One-liner)
 ```bash
@@ -68,7 +236,7 @@ pm2 save
 pm2 startup
 ```
 
-### Step 4: PM2 Management Commands
+### Step 5: PM2 Management Commands
 
 #### Application Control
 ```bash
@@ -121,7 +289,7 @@ pm2 logs
 pm2 flush
 ```
 
-### Step 5: Environment Configuration
+### Step 6: Environment Configuration
 
 Your `.env` file should contain:
 ```bash
@@ -134,7 +302,7 @@ VITE_APP_TITLE=FlowiseAI Chat
 VITE_STREAMING_ENABLED=true
 ```
 
-### Step 6: Nginx Reverse Proxy (Optional)
+### Step 7: Nginx Reverse Proxy (Optional)
 
 If using nginx for reverse proxy:
 
@@ -158,7 +326,7 @@ server {
 }
 ```
 
-### Step 7: Auto-Start on System Boot
+### Step 8: Auto-Start on System Boot
 
 ```bash
 # Generate startup script (run as root/administrator)
@@ -168,7 +336,7 @@ pm2 startup
 pm2 save
 ```
 
-### Step 8: Health Monitoring
+### Step 9: Health Monitoring
 
 Create a simple health check endpoint in your Vite config or add monitoring:
 

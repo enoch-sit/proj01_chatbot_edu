@@ -1,5 +1,21 @@
 # 🚀 Quick Start with PM2
 
+## Configure .env File First
+Before deploying, copy and edit your environment file:
+
+```bash
+copy .env.example .env
+```
+
+Edit `.env` with your FlowiseAI details:
+```bash
+VITE_FLOWISE_BASE_URL=https://your-flowise-instance.com
+VITE_FLOWISE_CHATFLOW_ID=your-chatflow-id
+VITE_FLOWISE_API_KEY=your-api-key
+VITE_BASE_PATH=/projectui
+VITE_PORT=3002
+```
+
 ## One-Command Deployment
 ```bash
 # Install PM2 globally (first time only)
@@ -34,7 +50,7 @@ npm run pm2:stop      # Stop app
 ```
 
 ## Access Your App
-- **URL**: http://localhost:3002/projectui/
+- **URL**: <http://localhost:3002/projectui/>
 - **Monitor**: `pm2 monit`
 - **Logs**: `pm2 logs flowise-frontend`
 
