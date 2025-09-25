@@ -52,7 +52,7 @@ if not exist logs mkdir logs
 
 echo.
 echo 🎯 Starting with PM2...
-pm2 start ecosystem.config.js --env production
+pm2 start ecosystem.config.cjs --env production
 if %errorlevel% neq 0 (
     echo ❌ Failed to start with PM2
     echo 💡 Make sure PM2 is installed: npm install -g pm2

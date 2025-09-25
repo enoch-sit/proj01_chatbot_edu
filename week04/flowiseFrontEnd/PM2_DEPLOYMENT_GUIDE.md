@@ -6,6 +6,44 @@
 - Node.js 18+ installed
 - PM2 installed globally
 
+### Step 0: Install Node.js with NVM (Ubuntu/Linux)
+
+If you don't have Node.js installed, use NVM (Node Version Manager) for easy installation and management:
+
+#### Simple Guide to Install NVM on Ubuntu
+
+1. **Install NVM**:
+   ```bash
+   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+   ```
+
+2. **Reload shell**:
+   Close/reopen terminal or run `source ~/.bashrc` (or `~/.zshrc` if using zsh).
+
+3. **Verify**:
+   ```bash
+   nvm --version  # Should show 0.40.3
+   ```
+
+4. **Install Node.js (includes npm)**:
+   ```bash
+   nvm install node  # Latest version
+   ```
+   Or for LTS: `nvm install 20`
+
+5. **Use it**:
+   ```bash
+   nvm use 20
+   node -v  # Verify
+   npm -v
+   ```
+
+#### For Windows Users
+Use Node.js installer from [nodejs.org](https://nodejs.org/) or install via:
+- **Chocolatey**: `choco install nodejs`
+- **Winget**: `winget install OpenJS.NodeJS`
+- **NVM-Windows**: [github.com/coreybutler/nvm-windows](https://github.com/coreybutler/nvm-windows)
+
 ### Step 1: Install PM2 Globally
 ```bash
 npm install -g pm2
@@ -58,13 +96,6 @@ pm2 delete 0
 ```
 
 #### Check for Port Conflicts
-```bash
-# Windows: Check what's using port 3002
-netstat -ano | findstr :3002
-
-# Kill process by PID (if needed)
-taskkill /PID <PID_NUMBER> /F
-```
 
 ```bash
 # Linux/Mac: Check what's using port 3002
@@ -111,11 +142,27 @@ Before deploying, you need to set up your `.env` file with your FlowiseAI config
 #### Option A: Copy from Example (Recommended)
 ```bash
 # Copy the example file
-copy .env.example .env
+cp .env.example .env
+
+# Edit with nano
+nano .env
 ```
 
+**Nano Editor Tips:**
+- Use arrow keys to navigate
+- Edit the values after the `=` signs
+- `Ctrl+O` to save (write out)
+- `Ctrl+X` to exit
+- `Ctrl+K` to cut a line
+- `Ctrl+U` to paste a line
+
 #### Option B: Create .env Manually
-Create a new file named `.env` in your project root with the following content:
+```bash
+# Create and edit .env file with nano
+nano .env
+```
+
+Then copy and paste this content into nano:
 
 ```bash
 # FlowiseAI Configuration
@@ -179,8 +226,33 @@ VITE_STREAMING_ENABLED=true
 - Use different API keys for development/production
 - Consider using environment-specific .env files for different deployments
 
+#### Quick Edit Commands:
+```bash
+# Edit existing .env file
+nano .env
+
+# View .env file contents (read-only)
+cat .env
+
+# Backup .env file before editing
+cp .env .env.backup
+
+# Check if .env file exists
+ls -la .env
+```
+
+**Advanced nano usage:**
+```bash
+# Open nano with line numbers
+nano -c .env
+
+# Search in nano: Ctrl+W
+# Replace in nano: Ctrl+\
+# Go to line: Ctrl+_ (then enter line number)
+```
+
 ### Step 3: Create PM2 Ecosystem File
-Create `ecosystem.config.js` in your project root:
+Create `ecosystem.config.cjs` in your project root (note the `.cjs` extension for compatibility with ES modules):
 
 ```javascript
 module.exports = {
@@ -214,7 +286,7 @@ module.exports = {
 #### Quick Start (One-liner)
 ```bash
 # Install, build, and start with PM2
-npm install && npm run build && pm2 start ecosystem.config.js --env production
+npm install && npm run build && pm2 start ecosystem.config.cjs --env production
 ```
 
 #### Step-by-step Deployment
@@ -229,7 +301,7 @@ npm run build
 mkdir logs
 
 # 4. Start with PM2
-pm2 start ecosystem.config.js --env production
+pm2 start ecosystem.config.cjs --env production
 
 # 5. Save PM2 configuration (auto-start on reboot)
 pm2 save
@@ -369,7 +441,7 @@ pm2 logs flowise-frontend
 
 # Restart PM2 daemon
 pm2 kill
-pm2 start ecosystem.config.js
+pm2 start ecosystem.config.cjs
 ```
 
 #### Build Errors
@@ -420,7 +492,7 @@ echo 📁 Creating logs directory...
 if not exist logs mkdir logs
 
 echo 🎯 Starting with PM2...
-pm2 start ecosystem.config.js --env production
+pm2 start ecosystem.config.cjs --env production
 
 echo 💾 Saving PM2 configuration...
 pm2 save
@@ -463,7 +535,7 @@ echo "📋 View logs with: pm2 logs flowise-frontend"
 
 ```bash
 # Deploy (first time)
-npm install && npm run build && pm2 start ecosystem.config.js --env production && pm2 save
+npm install && npm run build && pm2 start ecosystem.config.cjs --env production && pm2 save
 
 # Update (redeploy)
 pm2 stop flowise-frontend && npm run build && pm2 restart flowise-frontend
