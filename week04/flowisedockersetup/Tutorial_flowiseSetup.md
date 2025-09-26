@@ -54,6 +54,12 @@ pm2 stop all
 
 # Or, to delete them completely
 pm2 delete all
+
+# Stop all running Docker containers
+sudo docker stop $(sudo docker ps -q)
+
+# Or, if you want to stop and remove all containers
+sudo docker stop $(sudo docker ps -q) && sudo docker rm $(sudo docker ps -aq)
 ```
 
 ## 5. Deploy Flowise
