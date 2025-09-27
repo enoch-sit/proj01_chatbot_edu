@@ -57,15 +57,63 @@ python main.py
 
 The backend will start on `http://localhost:8000`
 
-### 4. Open the Frontend
+### 4. Access the Application
 
-Open `index.html` in your web browser, or serve it through a simple HTTP server:
+**Local Development:**
+- Backend: `http://localhost:8000`
+- Frontend: Open `index.html` directly or via HTTP server
 
-```cmd
-# Python 3
-python -m http.server 3000
+**Production (via Nginx):**
+- Application: `https://project-1-XX.eduhk.hk/chatbot04/`
+- API: `https://project-1-XX.eduhk.hk/chatbot04/chat/completions`
 
-# Then visit http://localhost:3000
+## Nginx Configuration
+
+This project is configured to work with Nginx for production deployment:
+
+```nginx
+# Chatbot 04 - Minimal Configuration
+# Match access without trailing slash
+location = /chatbot04 {
+    return 301 /chatbot04/;
+}
+
+# Match access with trailing slash - serve static files
+location /chatbot04/ {
+    alias /home/proj07/project-1-XX/chatbot_04_MVPPython/;
+    index index.html;
+    try_files $uri $uri/ /chatbot04/index.html;
+}
+
+# Chatbot 04 - Python FastAPI Demo - proxy API requests
+location /chatbot04/chat/completions {
+    proxy_pass http://127.0.0.1:8001/chat/completions;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_redirect off;
+    # Important for streaming responses
+    proxy_buffering off;
+    proxy_cache off;
+    proxy_set_header Connection '';
+    proxy_http_version 1.1;
+    chunked_transfer_encoding off;
+}
+```
+
+### Production Deployment
+
+When deployed behind Nginx:
+- **Static files** (index.html) served directly by Nginx from `/home/proj07/project-1-XX/chatbot_04_MVPPython/`
+- **API requests** proxied to FastAPI backend running on port 8001
+- **SSL termination** handled by Nginx
+- **Streaming responses** properly configured with buffering disabled
+
+**Note**: Make sure to update the backend URL in `index.html` to use the production path:
+```javascript
+const API_BASE_URL = '/chatbot04';  // For production
+// const API_BASE_URL = 'http://localhost:8000';  // For development
 ```
 
 ### 5. Start Chatting

@@ -1,6 +1,18 @@
-# Complete Guide to Installing NGINX, Configuring a Self-Signed SSL Certificate, and Testing on Ubuntu
+# Complete Guide to Installing NGINX, Configuring Multi-Project Setup with SSL Certificate on Ubuntu
 
-Installation Guide on a server like `project-1-12.eduhk.hk`. Your project domain should be `project-1-XX.eduhk.hk`
+Installation Guide for hosting multiple chatbot projects on a server like `project-1-XX.eduhk.hk`.
+
+## Multi-Project Architecture Overview
+
+This guide covers setting up Nginx to serve multiple chatbot projects simultaneously:
+
+- **Chatbot 01**: Node.js full-stack application (Port 3000)
+- **Chatbot 02**: Environment variables demo (Port 3001)  
+- **Chatbot 03**: CORS configuration demo (Port 3002)
+- **Chatbot 04**: Python FastAPI with static files (Port 8001)
+- **Chatbot 05**: React TypeScript + Python backend (Port 8002)
+
+Each project is accessible via: `https://project-1-XX.eduhk.hk/chatbotXX/`
 
 ## Basic Linux Command Line
 
@@ -127,44 +139,147 @@ sudo chmod 600 /etc/nginx/ssl/nginx.key
 sudo chmod 644 /etc/nginx/ssl/nginx.crt
 ```
 
-## Part 4: Configuring NGINX for HTTPS
+## Part 4: Multi-Project NGINX Configuration
 
-### Step 1: Edit Configuration
+### Step 1: Edit Configuration for Multiple Projects
+
 ```bash
-sudo nano /etc/nginx/sites-available/default
+sudo nano /etc/nginx/sites-available/chatbot-projects
 ```
 
 Use `Ctrl + K` to clear existing content if needed, paste the new config (right-click to paste), then `Ctrl + X` > `Y` to save/exit.
 
-Replace with:
+Replace with the complete multi-project configuration:
+
 ```nginx
 server {
     listen 80;
-    listen [::]:80;
-    server_name project-1-12.eduhk.hk;
-
-    # Redirect HTTP to HTTPS
+    server_name project-1-XX.eduhk.hk;
     return 301 https://$host$request_uri;
 }
 
 server {
     listen 443 ssl;
-    listen [::]:443 ssl;
-    server_name project-1-12.eduhk.hk;
+    server_name project-1-XX.eduhk.hk;
 
     ssl_certificate /etc/nginx/ssl/nginx.crt;
     ssl_certificate_key /etc/nginx/ssl/nginx.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers HIGH:!aNULL:!MD5;
 
-    root /var/www/html;  # Default root; not /var/www/root
-    index index.html index.htm index.nginx-debian.html;
-
+    # Default site root
+    root /var/www/html;
+    index index.html index.htm;
     location / {
-        try_files $uri $uri/ /index.html;
+       try_files $uri $uri/ =404;
+    }
+
+    # Chatbot 01 - Configuration (Pure backend service, frontend provided by backend)
+    location /chatbot01/ {
+        proxy_pass http://127.0.0.1:3000/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
+
+    # Handle access without trailing slash
+    location = /chatbot01 {
+        return 301 /chatbot01/;
+    }
+
+    # Chatbot 02 - Environment Variables Demo
+    location /chatbot02/ {
+        proxy_pass http://127.0.0.1:3001/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
+
+    # Chatbot 03 - CORS Configuration Demo
+    location /chatbot03/ {
+        proxy_pass http://127.0.0.1:3002/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+    }
+
+    # Chatbot 04 - Minimal Configuration
+    location = /chatbot04 {
+        return 301 /chatbot04/;
+    }
+
+    location /chatbot04/ {
+        alias /home/proj07/project-1-XX/chatbot_04_MVPPython/;
+        index index.html;
+        try_files $uri $uri/ /chatbot04/index.html;
+    }
+
+    # Chatbot 04 - Python FastAPI Demo
+    location /chatbot04/chat/completions {
+        proxy_pass http://127.0.0.1:8001/chat/completions;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+        # Important for streaming responses
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_set_header Connection '';
+        proxy_http_version 1.1;
+        chunked_transfer_encoding off;
+    }
+
+    # Chatbot 05 - Full-Stack React TypeScript
+    # Resolve resource path issue: redirect root directory /assets requests to chatbot05 assets directory
+    rewrite ^/assets/(.*)$ /chatbot05/assets/$1 last;
+
+    location /chatbot05/ {
+        alias /var/www/html/chatbot05/;
+        try_files $uri $uri/ /chatbot05/index.html;
+        index index.html;
+    }
+
+    # Additional mapping for assets directory (ensure subdirectory files can be accessed)
+    location /chatbot05/assets/ {
+        alias /var/www/html/chatbot05/assets/;
+    }
+
+    # API routes for chatbot 05 backend
+    location /api/v2/ {
+        proxy_pass http://127.0.0.1:8002/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+        # Enable streaming
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_set_header Connection '';
+        proxy_http_version 1.1;
+        chunked_transfer_encoding off;
     }
 }
 ```
-- Replace `project-1-12.eduhk.hk` with your domain/IP if needed.
-- Root is `/var/www/html` by default (verify: `cat /etc/nginx/sites-available/default | grep root`).
+
+**Important**: Replace `project-1-XX.eduhk.hk` with your actual domain and adjust file paths as needed.
+
+### Step 2: Enable Multi-Project Configuration
+
+```bash
+sudo ln -s /etc/nginx/sites-available/chatbot-projects /etc/nginx/sites-enabled/
+sudo rm /etc/nginx/sites-enabled/default  # Remove default site
+sudo nginx -t  # Test configuration
+sudo systemctl reload nginx
+```
 
 ### Step 2: Test and Reload
 ```bash
@@ -189,71 +304,175 @@ sudo chown www-data:www-data /var/www/html/index.html
 sudo systemctl reload nginx
 ```
 
-## Part 6: Testing the Setup
+## Part 6: Testing the Multi-Project Setup
 
-### Step 1: Check Listening Ports
+### Step 1: Check All Project Ports
+
 Install `netstat` if missing:
+
 ```bash
 sudo apt install net-tools
 ```
 
-Then:
+Check that all required ports are listening:
+
 ```bash
-sudo netstat -tuln | grep ':80\|:443'
-# Alternative (no install): sudo ss -tuln | grep ':80\|:443'
+sudo netstat -tuln | grep ':80\|:443\|:3000\|:3001\|:3002\|:8001\|:8002'
 ```
 
-Expected:
-```
+Expected output should show:
+
+```text
 tcp 0 0 0.0.0.0:80  0.0.0.0:* LISTEN
 tcp 0 0 0.0.0.0:443 0.0.0.0:* LISTEN
-tcp6 0 0 :::80 :::* LISTEN
-tcp6 0 0 :::443 :::* LISTEN
+tcp 0 0 127.0.0.1:3000 0.0.0.0:* LISTEN  # Chatbot 01
+tcp 0 0 127.0.0.1:3001 0.0.0.0:* LISTEN  # Chatbot 02
+tcp 0 0 127.0.0.1:3002 0.0.0.0:* LISTEN  # Chatbot 03
+tcp 0 0 127.0.0.1:8001 0.0.0.0:* LISTEN  # Chatbot 04
+tcp 0 0 127.0.0.1:8002 0.0.0.0:* LISTEN  # Chatbot 05
 ```
 
-### Step 2: Test SSL with OpenSSL
-Basic connection:
+### Step 2: Test Individual Project Access
+
+Test each project endpoint:
+
 ```bash
-openssl s_client -connect 192.168.56.182:443  # Use your IP
+# Test main site
+curl -k https://project-1-XX.eduhk.hk/
+
+# Test chatbot projects
+curl -k https://project-1-XX.eduhk.hk/chatbot01/
+curl -k https://project-1-XX.eduhk.hk/chatbot02/
+curl -k https://project-1-XX.eduhk.hk/chatbot03/
+curl -k https://project-1-XX.eduhk.hk/chatbot04/
+curl -k https://project-1-XX.eduhk.hk/chatbot05/
+
+# Test API endpoints
+curl -k https://project-1-XX.eduhk.hk/chatbot04/chat/completions
+curl -k https://project-1-XX.eduhk.hk/api/v2/
 ```
 
-Full HTTP test:
+### Step 3: Browser Testing
+
+Visit each project in your browser:
+
+- `https://project-1-XX.eduhk.hk/chatbot01/` - Node.js full-stack app
+- `https://project-1-XX.eduhk.hk/chatbot02/` - Environment variables demo
+- `https://project-1-XX.eduhk.hk/chatbot03/` - CORS configuration demo  
+- `https://project-1-XX.eduhk.hk/chatbot04/` - Python FastAPI with static files
+- `https://project-1-XX.eduhk.hk/chatbot05/` - React TypeScript frontend
+
+Accept the "not private" warning for self-signed certificates.
+
+### Step 4: Monitor Logs
+
+Monitor access and error logs in separate terminal windows:
+
 ```bash
-echo -e "GET / HTTP/1.1\r\nHost: project-1-12.eduhk.hk\r\nConnection: close\r\n\r\n" | openssl s_client -connect 192.168.56.182:443 -servername project-1-12.eduhk.hk
+# Access logs
+sudo tail -f /var/log/nginx/access.log
+
+# Error logs
+sudo tail -f /var/log/nginx/error.log
 ```
 
-Expected: `HTTP/1.1 200 OK` with your `<h1>` content. Self-signed warning (`verify error:num=18`) is normal.
-
-### Step 3: Browser Test
-- Visit `https://project-1-12.eduhk.hk` or `https://192.168.56.182`.
-- Accept "not private" warning (self-signed).
-- Should show your test page.
-
-## Part 7: Troubleshooting
+## Part 7: Multi-Project Troubleshooting
 
 | Issue | Possible Cause | Solution |
 |-------|----------------|----------|
 | `netstat: command not found` | Not installed | `sudo apt install net-tools` or use `ss`. |
-| No HTTP response in OpenSSL | Empty `/var/www/html` or bad config | Create `index.html`; check `sudo nginx -t`. |
-| 400 Bad Request | Incomplete request in basic `openssl s_client` | Use full GET command; normal for partial requests. |
-| Port not listening | Config error or NGINX down | `sudo systemctl status nginx`; reload. |
-| Browser mismatch warning | CN doesn't match access method | Use domain in browser; regenerate cert if using IP. |
-| Certificate fields wrong (e.g., C=AU) | Default prompts | Regenerate with correct inputs (e.g., HK). |
+| 502 Bad Gateway on /chatbotXX/ | Backend service not running | Check if service is running on correct port with `ps aux \| grep node` or `ps aux \| grep python`. |
+| 404 for static files in chatbot04/05 | Incorrect file paths | Verify file paths exist: `ls -la /home/proj07/project-1-XX/chatbot_04_MVPPython/` |
+| CORS errors | Missing CORS headers in backend | Ensure backend services include proper CORS configuration. |
+| Assets not loading for chatbot05 | Asset path issues | Check rewrite rules and verify `/var/www/html/chatbot05/assets/` exists. |
+| Streaming not working | Proxy buffering enabled | Verify `proxy_buffering off` is set for streaming endpoints. |
+| Port already in use | Service conflict | Find conflicting service: `sudo lsof -i :PORT` and stop it. |
 
-### Logs
+### Service Management Commands
+
+Check if backend services are running:
+
 ```bash
-sudo tail -f /var/log/nginx/error.log  # Errors
-sudo tail -f /var/log/nginx/access.log  # Access
-sudo journalctl -u nginx  # System logs
+# Check Node.js processes
+ps aux | grep node
+
+# Check Python processes  
+ps aux | grep python
+
+# Check specific ports
+sudo lsof -i :3000  # Chatbot 01
+sudo lsof -i :3001  # Chatbot 02
+sudo lsof -i :3002  # Chatbot 03
+sudo lsof -i :8001  # Chatbot 04
+sudo lsof -i :8002  # Chatbot 05
 ```
 
-## Part 8: Security and Best Practices
+### Logs for Debugging
 
-- **Self-Signed Limits**: Warnings in browsers; use Let's Encrypt for production.
-- **Updates**: `sudo apt update && sudo apt upgrade`.
-- **Backup**: Copy `/etc/nginx/ssl/*` securely.
-- **Trust Cert Locally** (testing): `sudo cp /etc/nginx/ssl/nginx.crt /usr/local/share/ca-certificates/nginx.crt && sudo update-ca-certificates`.
+```bash
+# Nginx logs
+sudo tail -f /var/log/nginx/error.log     # Nginx errors
+sudo tail -f /var/log/nginx/access.log    # Access requests
+
+# System logs for services
+sudo journalctl -u nginx -f               # Nginx system logs
+sudo journalctl -f                        # All system logs
+```
+
+## Part 8: Production Deployment Tips
+
+### Security and Best Practices
+
+- **Production Certificates**: Use Let's Encrypt or proper CA certificates instead of self-signed
+- **Regular Updates**: Keep nginx and system packages updated: `sudo apt update && sudo apt upgrade`
+- **Backup Configuration**: Regularly backup `/etc/nginx/` directory
+- **Log Rotation**: Ensure proper log rotation is configured to prevent disk space issues
+- **Firewall**: Configure UFW to only allow necessary ports from specific networks
+
+### Service Management for Production
+
+Create systemd service files for automatic startup:
+
+```bash
+# Example service file for chatbot01
+sudo nano /etc/systemd/system/chatbot01.service
+```
+
+```ini
+[Unit]
+Description=Chatbot 01 Node.js Service
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/home/proj07/project-1-XX/chatbot_01_MVP
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=10
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable chatbot01
+sudo systemctl start chatbot01
+```
 
 ## Conclusion
 
-This covers installing NGINX, SSL setup, testing, and tools like `nano` and `netstat`. Your setup on `project-1-12.eduhk.hk` (IP: 192.168.56.182) should now serve HTTPS content. For advanced topics, see [NGINX Docs](https://nginx.org/en/docs/).
+This multi-project NGINX setup allows you to host multiple chatbot applications on a single server with proper SSL termination and reverse proxy configuration. Each project is accessible via its own URL path while sharing the same domain and SSL certificate.
+
+Key benefits:
+
+- **Scalability**: Easy to add new projects by adding location blocks
+- **Security**: Single SSL certificate for all projects
+- **Performance**: Nginx handles static files efficiently and proxies API requests
+- **Maintenance**: Centralized configuration and logging
+
+For production deployment, ensure all backend services are configured as systemd services for automatic startup and proper monitoring.

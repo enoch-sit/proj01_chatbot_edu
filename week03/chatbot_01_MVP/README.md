@@ -56,8 +56,38 @@ A simple chatbot application using the EDUHK AIDCEC AI API with a clean web inte
    npm run dev
    ```
 
-5. **Open your browser**
-   Navigate to: `http://localhost:3000`
+5. **Access the application**
+   - **Development**: `http://localhost:3000`
+   - **Production (via Nginx)**: `https://project-1-XX.eduhk.hk/chatbot01/`
+
+## Nginx Configuration
+
+This project is designed to work with a multi-project Nginx setup. The following Nginx configuration handles this application:
+
+```nginx
+# Chatbot 01 - Configuration (Pure backend service, frontend provided by backend)
+location /chatbot01/ {
+    proxy_pass http://127.0.0.1:3000/;  # Forward to local port 3000
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_redirect off;
+}
+
+# Handle access without trailing slash
+location = /chatbot01 {
+    return 301 /chatbot01/;
+}
+```
+
+### Production Deployment
+
+When deployed behind Nginx, the application:
+- Runs on port 3000 (localhost only)
+- Serves both frontend and API endpoints
+- Is accessible via `https://project-1-XX.eduhk.hk/chatbot01/`
+- Automatically handles SSL termination through Nginx
 
 ## API Endpoints
 
