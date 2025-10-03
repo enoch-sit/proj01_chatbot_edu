@@ -1,0 +1,418 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# LangChain Tutorial: Key Concepts Explained\n",
+        "\n",
+        "This notebook provides a step-by-step tutorial on the core concepts of LangChain, based on our discussion. We'll cover LCEL (LangChain Expression Language), Runnables, components like prompts/models/parsers, chaining with pipes, execution modes (sync/async, single/batch, non-stream/stream), fallbacks, parallelism, RAG (Retrieval-Augmented Generation), and tool binding (including handling custom endpoints without native support).\n",
+        "\n",
+        "We'll use Azure OpenAI's GPT-4o-mini model via the provided setup code. Make sure to run the setup cell first and have your API key stored in Google Colab's userdata.\n",
+        "\n",
+        "**Prerequisites:**\n",
+        "- Install required packages: `!pip install langchain langchain-openai langchain-community langchain-core docarray hnswlib`\n",
+        "- Store your Azure OpenAI key in Colab secrets as 'eduhkkey'."
+      ],
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install langchain langchain-openai langchain-community langchain-core docarray hnswlib -q"
+      ],
+      "metadata": {},
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Setup: Azure OpenAI Model\n",
+        "\n",
+        "This cell sets up the AzureChatOpenAI model using the provided code. Note: The endpoint URL in the code has a typo ('?Hello='), so we'll correct it to a valid format based on Azure docs. The actual endpoint should be 'https://aai02.eduhk.hk/openai/' or similar—adjust if needed."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import os\n",
+        "from langchain_openai import AzureChatOpenAI\n",
+        "from langchain_core.tools import tool\n",
+        "import requests\n",
+        "from datetime import datetime\n",
+        "import json\n",
+        "from google.colab import userdata\n",
+        "\n",
+        "# Set your Azure OpenAI API key\n",
+        "os.environ[\"AZURE_OPENAI_API_KEY\"] = userdata.get('eduhkkey')\n",
+        "\n",
+        "# Set up the Azure OpenAI model (correcting the endpoint URL)\n",
+        "llm = AzureChatOpenAI(\n",
+        "    azure_endpoint=\"https://aai02.eduhk.hk/openai/\",  # Corrected: Remove invalid query param\n",
+        "    api_version=\"2024-02-15-preview\",\n",
+        "    deployment_name=\"gpt-4o-mini\",\n",
+        "    temperature=0,\n",
+        "    streaming=False,\n",
+        ")\n",
+        "\n",
+        "# Print details for verification\n",
+        "print(f\"Base URL: {llm.client._client._base_url}\")\n",
+        "print(f\"API Version: {llm.openai_api_version}\")\n",
+        "print(f\"Deployment: {llm.deployment_name}\")\n",
+        "print(os.environ[\"AZURE_OPENAI_API_KEY\"])  # This will print the key—remove in production!"
+      ],
+      "metadata": {},
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Section 1: Introduction to LCEL and Runnable Protocol\n",
+        "\n",
+        "LCEL (LangChain Expression Language) is a declarative way to compose chains of components in LangChain. It uses the Runnable Protocol, which defines standardized methods (invoke, stream, batch) and I/O types for compatibility.\n",
+        "\n",
+        "Key: Components like prompts and models are 'Runnables' that can be chained."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_core.prompts import ChatPromptTemplate\n",
+        "from langchain_core.output_parsers import StrOutputParser\n",
+        "\n",
+        "# Simple prompt template (Runnable)\n",
+        "prompt = ChatPromptTemplate.from_template(\"Tell me a joke about {topic}\")\n",
+        "\n",
+        "# Chain with pipe syntax (LCEL)\n",
+        "chain = prompt | llm | StrOutputParser()\n",
+        "\n",
+        "# Invoke (sync, single)\n",
+        "result = chain.invoke({\"topic\": \"cats\"})\n",
+        "print(result)"
+      ],
+      "metadata": {},
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Section 2: Runnable Interface and Methods\n",
+        "\n",
+        "Every Runnable supports:\n",
+        "- invoke/ainvoke: Sync/async single input.\n",
+        "- batch/abatch: Process multiple inputs.\n",
+        "- stream/astream: Incremental output.\n",
+        "- input_schema/output_schema: Define I/O types."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Batch example\n",
+        "inputs = [{\"topic\": \"cats\"}, {\"topic\": \"dogs\"}]\n",
+        "results = chain.batch(inputs)\n",
+        "print(results)\n",
+        "\n",
+        "# Stream example\n",
+        "for chunk in chain.stream({\"topic\": \"birds\"}):\n",
+        "    print(chunk, end=\"\")"
+      ],
+      "metadata": {},
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Section 3: Advanced Features - Fallbacks, Parallelism, Logging\n",
+        "\n",
+        "Fallbacks: Add backups with .with_fallbacks().\n",
+        "Parallelism: Use RunnableParallel/RunnableMap for concurrent steps.\n",
+        "Logging: Built-in to LangSmith (setup required)."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_core.runnables import RunnableParallel\n",
+        "\n",
+        "# Parallel chain\n",
+        "parallel_chain = RunnableParallel(\n",
+        "    joke=chain,\n",
+        "    fact=prompt | llm | StrOutputParser()  # Reuse\n",
+        ")\n",
+        "\n",
+        "result = parallel_chain.invoke({\"topic\": \"space\"})\n",
+        "print(result)\n",
+        "\n",
+        "# Fallback example (using a secondary model if primary fails)\n",
+        "fallback_llm = AzureChatOpenAI(  # Another instance as fallback\n",
+        "    azure_endpoint=\"https://aai02.eduhk.hk/openai/\",\n",
+        "    api_version=\"2024-02-15-preview\",\n",
+        "    deployment_name=\"gpt-4o-mini\",\n",
+        "    temperature=0.5,\n",
+        "    max_retries=0  # Immediate fallback\n",
+        ")\n",
+        "chain_with_fallback = llm.with_fallbacks([fallback_llm])\n",
+        "result = (prompt | chain_with_fallback | StrOutputParser()).invoke({\"topic\": \"fallback test\"})\n",
+        "print(result)"
+      ],
+      "metadata": {},
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Section 4: Pipe Syntax vs. RunnableSequence\n",
+        "\n",
+        "Pipe (`|`) is shorthand for RunnableSequence via operator overloading (__or__). Verbose alternative: Explicitly use RunnableSequence."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_core.runnables import RunnableSequence\n",
+        "\n",
+        "# Pipe syntax\n",
+        "pipe_chain = prompt | llm\n",
+        "\n",
+        "# Verbose equivalent\n",
+        "sequence_chain = RunnableSequence(prompt, llm)\n",
+        "\n",
+        "# Both work the same\n",
+        "print(pipe_chain.invoke({\"topic\": \"verbose\"}))\n",
+        "print(sequence_chain.invoke({\"topic\": \"verbose\"}))"
+      ],
+      "metadata": {},
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Section 5: Data Flow in Chains\n",
+        "\n",
+        "In chains, output of one component becomes input to the next. E.g., Prompt output → Model input → Parser input."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Inspect flow\n",
+        "prompt_output = prompt.invoke({\"topic\": \"flow\"})\n",
+        "print(\"Prompt Output:\", prompt_output)\n",
+        "\n",
+        "model_output = llm.invoke(prompt_output)\n",
+        "print(\"Model Output:\", model_output)\n",
+        "\n",
+        "parser = StrOutputParser()\n",
+        "final_output = parser.invoke(model_output)\n",
+        "print(\"Final Output:\", final_output)"
+      ],
+      "metadata": {},
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Section 6: Switching Execution Modes\n",
+        "\n",
+        "Sync → Async: Use ainvoke/astream/abatch.\n",
+        "Single → Batch: Pass list to batch/abatch.\n",
+        "Non-stream → Streaming: Use stream/astream."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import asyncio\n",
+        "\n",
+        "# Async invoke\n",
+        "async def async_invoke():\n",
+        "    return await chain.ainvoke({\"topic\": \"async\"})\n",
+        "\n",
+        "result = asyncio.run(async_invoke())\n",
+        "print(result)\n",
+        "\n",
+        "# Async stream\n",
+        "async def async_stream():\n",
+        "    async for chunk in chain.astream({\"topic\": \"stream\"}):\n",
+        "        print(chunk, end=\"\")\n",
+        "\n",
+        "asyncio.run(async_stream())"
+      ],
+      "metadata": {},
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Section 7: RAG Example with VectorStore and Retriever\n",
+        "\n",
+        "Build a Retrieval-Augmented Generation chain: Embed docs, retrieve relevant ones, augment prompt."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_community.vectorstores import DocArrayInMemorySearch\n",
+        "from langchain_openai import AzureOpenAIEmbeddings\n",
+        "from langchain_core.runnables import RunnableMap\n",
+        "\n",
+        "# Embeddings (use Azure for consistency)\n",
+        "embeddings = AzureOpenAIEmbeddings(\n",
+        "    azure_endpoint=\"https://aai02.eduhk.hk/openai/\",\n",
+        "    api_version=\"2024-02-15-preview\",\n",
+        "    deployment_name=\"text-embedding-ada-002\"  # Adjust if needed\n",
+        ")\n",
+        "\n",
+        "vectorstore = DocArrayInMemorySearch.from_texts(\n",
+        "    [\"I am a superman\", \"This apple is great\"],\n",
+        "    embedding=embeddings\n",
+        ")\n",
+        "retriever = vectorstore.as_retriever()\n",
+        "\n",
+        "template = \"\"\"Answer the question based only on the following context:\n",
+        "{context}\n",
+        "Question: {question}\n",
+        "\"\"\"\n",
+        "prompt = ChatPromptTemplate.from_template(template)\n",
+        "\n",
+        "chain = RunnableMap({\n",
+        "    \"context\": lambda x: retriever.get_relevant_documents(x[\"question\"]),\n",
+        "    \"question\": lambda x: x[\"question\"]\n",
+        "}) | prompt | llm | StrOutputParser()\n",
+        "\n",
+        "result = chain.invoke({\"question\": \"Who am I?\"})\n",
+        "print(result)"
+      ],
+      "metadata": {},
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Section 8: Tool/Function Binding\n",
+        "\n",
+        "Bind functions/tools to models for structured calls. Use .bind() for OpenAI-compatible APIs."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "functions = [\n",
+        "    {\n",
+        "      \"name\": \"weather_search\",\n",
+        "      \"description\": \"Search for weather given an airport code\",\n",
+        "      \"parameters\": {\n",
+        "        \"type\": \"object\",\n",
+        "        \"properties\": {\n",
+        "          \"airport_code\": {\n",
+        "            \"type\": \"string\",\n",
+        "            \"description\": \"The airport code to get the weather for\"\n",
+        "          },\n",
+        "        },\n",
+        "        \"required\": [\"airport_code\"]\n",
+        "      }\n",
+        "    }\n",
+        "  ]\n",
+        "\n",
+        "prompt = ChatPromptTemplate.from_messages([(\"human\", \"{input}\")])\n",
+        "model_bound = llm.bind(functions=functions)\n",
+        "\n",
+        "chain = prompt | model_bound\n",
+        "result = chain.invoke({\"input\": \"What's the weather at SFO?\"})\n",
+        "print(result)"
+      ],
+      "metadata": {},
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Section 9: Handling Custom Endpoints Without Native Binding\n",
+        "\n",
+        "If the endpoint lacks function binding, use prompt engineering: Instruct the model to output JSON tool calls, parse, and invoke manually."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_core.tools import tool\n",
+        "from langchain_core.output_parsers import JsonOutputParser\n",
+        "from langchain_core.tools import render_text_description\n",
+        "from langchain_core.runnables import RunnableLambda\n",
+        "\n",
+        "@tool\n",
+        "def weather_search(airport_code: str) -> str:\n",
+        "    \"\"\"Search for weather given an airport code.\"\"\"\n",
+        "    return f\"Weather for {airport_code}: Sunny, 75°F\"\n",
+        "\n",
+        "tools = [weather_search]\n",
+        "rendered_tools = render_text_description(tools)\n",
+        "\n",
+        "system_prompt = f\"\"\"You are an assistant with access to tools.\n",
+        "{rendered_tools}\n",
+        "\n",
+        "If relevant, return JSON with 'name' and 'arguments'.\"\"\"\n",
+        "\n",
+        "prompt = ChatPromptTemplate.from_messages([\n",
+        "    (\"system\", system_prompt),\n",
+        "    (\"human\", \"{input}\")\n",
+        "])\n",
+        "\n",
+        "parser = JsonOutputParser()\n",
+        "chain = prompt | llm | parser\n",
+        "\n",
+        "def invoke_tool(tool_call: dict):\n",
+        "    tool_name = tool_call.get(\"name\")\n",
+        "    tool_args = tool_call.get(\"arguments\", {})\n",
+        "    for t in tools:\n",
+        "        if t.name == tool_name:\n",
+        "            return t.invoke(tool_args)\n",
+        "    raise ValueError(\"Tool not found\")\n",
+        "\n",
+        "full_chain = chain | RunnableLambda(invoke_tool)\n",
+        "result = full_chain.invoke({\"input\": \"What's the weather at SFO?\"})\n",
+        "print(result)"
+      ],
+      "metadata": {},
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
