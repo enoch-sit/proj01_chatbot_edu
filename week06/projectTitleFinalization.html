@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>projectTitleFinalization.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h3 id="mid-term-presentation-template-for-int6137-chatbot-project">Mid-Term Presentation Template for INT6137 Chatbot Project</h3>
+<p>This comprehensive and detailed markdown template serves as a verbose guide for structuring your mid-term presentation on the chatbot group project. It is crafted to ensure a thorough, engaging, and well-organized delivery that aligns with Agile and Scrum principles outlined in the course materials. The template is designed for a 15–25-minute oral presentation, including a Q&amp;A session, with visual aids such as slides, demos, and diagrams required for clarity and professionalism. By following this template, you will demonstrate not only the technical and methodological aspects of your project but also your team's collaborative spirit, adaptive planning, and commitment to continuous improvement—core tenets of the Agile Manifesto and Scrum framework. Each section includes extensive explanations, suggested content placeholders, timing recommendations, and tips for execution to make your presentation informative, persuasive, and polished. Total estimated content time is approximately 15 minutes, leaving room for interactive elements like feedback negotiation and questions. Prepare by rehearsing with your team to ensure balanced participation among all members, and submit your presentation materials (e.g., slides in PDF or PPT format) by the specified deadline of 29 November 2025 or 6 December 2025, as per the course rubric.</p>
+<h4 id="project-title-and-overview">Project Title and Overview</h4>
+<ul>
+<li><strong>Detailed Content Explanation</strong>: Begin with a captivating title section that sets the stage for your entire presentation. This part should encapsulate the essence of your chatbot project in a concise yet descriptive manner, providing immediate context about the organizational domain (e.g., healthcare, education, finance, or customer service) and the innovative problem-solving approach you're taking. Include basic logistical details to orient the audience, such as the presentation date and course identifier, to foster a professional atmosphere right from the start.</li>
+<li><strong>Suggested Content Placeholders</strong>:
+<ul>
+<li>Project Title: [Insert a descriptive title, e.g., &quot;Developing an Intelligent Educational Chatbot for Personalized Learning Experiences Using Agile Methodologies&quot;]</li>
+<li>Subtitle: Mid-Term Group Presentation for INT6137</li>
+<li>Group Information: Group Name/ID, Member Names, and Presentation Date (e.g., October 2025)</li>
+</ul>
+</li>
+<li><strong>Time Allocation</strong>: N/A (This is the introductory section; transition smoothly into the next without dwelling).</li>
+<li><strong>Presentation Tips</strong>: Have one team member open the presentation with a welcoming statement, e.g., &quot;Good [morning/afternoon], today our team is excited to share our progress on this chatbot project, grounded in Scrum practices we've learned from the course.&quot;</li>
+</ul>
+<h4 id="introduction-of-yourself-and-your-team-%E2%80%93-what-roles-will-you-be-taking-1-min">Introduction of Yourself and Your Team – What Roles Will You Be Taking? (1 min)</h4>
+<ul>
+<li><strong>Detailed Content Explanation</strong>: This section provides a thorough introduction to the human element behind the project, emphasizing the collaborative nature of Scrum teams as described in course resources like &quot;Understanding Scrum&quot; and &quot;GitHub Collaboration Guide.&quot; Detail each member's background briefly to build credibility, then delve into the Scrum roles, explaining how they align with the project's needs. This demonstrates your understanding of self-organizing, cross-functional teams, a key characteristic from the Agile notes. Highlight that roles can be shared in smaller groups (no more than 4 members per the rubric), and tie this to how it enables effective planning and execution.</li>
+<li><strong>Suggested Content Placeholders</strong>:
+<ul>
+<li>Team Member Introductions: [List each member with a short bio, e.g., &quot;Alice Smith: Background in AI development, passionate about user-centered design; Bob Johnson: Experienced in project management, focusing on efficient workflows.&quot;]</li>
+<li>Scrum Roles Assignment:
+<ul>
+<li>Product Owner: [Name] – Responsible for defining and prioritizing the product backlog to maximize value, ensuring features align with customer needs.</li>
+<li>Scrum Master: [Name] – Acts as a servant-leader, coaching on Scrum principles and removing obstacles for smooth progress.</li>
+<li>Development Team: [Names] – Self-organizing group building the chatbot increment during sprints, delivering high-quality, usable features.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Time Allocation</strong>: 1 minute – Keep it brisk; aim for 15-20 seconds per member to avoid overrunning.</li>
+<li><strong>Presentation Tips</strong>: Each team member should speak about their own role to reflect balanced participation, as per the rubric's emphasis on group involvement. Use this to transition: &quot;With these roles in place, let's dive into our research foundation.&quot;</li>
+</ul>
+<h4 id="research-3-min">Research (3 min)</h4>
+<ul>
+<li><strong>Detailed Content Explanation</strong>: Offer a verbose overview of your foundational research, drawing from Agile principles of adaptive planning and evolutionary development as discussed in &quot;week01_2_Agile_notes.md.&quot; This section should elaborate on how your research informs the project's direction, including industry statistics, domain-specific challenges, and technological insights. Emphasize how this research led to user stories and backlog creation, connecting to documents like &quot;Understanding User Stories for Chatbot Development&quot; and &quot;Agile Metrics and Sprint Closure in Chatbot Development.&quot; Be wordy in explaining methodologies (e.g., web searches, literature reviews) to showcase thorough preparation.</li>
+<li><strong>Suggested Content Placeholders</strong>:
+<ul>
+<li>Key Research Areas: [e.g., &quot;Explored chatbot applications in education: Found that 70% of organizations use Agile for faster delivery (from course stats). Analyzed user pain points like personalized learning gaps.&quot;]</li>
+<li>Methods and Sources: [e.g., &quot;Conducted web searches on AI ethics and integrated findings from 'Backlog Refinement in Scrum' for prioritizing features.&quot;]</li>
+<li>Implications for Project: [e.g., &quot;This research shaped our backlog, ensuring features like adaptive responses align with real-world needs.&quot;]</li>
+</ul>
+</li>
+<li><strong>Time Allocation</strong>: 3 minutes – Allocate 1 minute per sub-topic to maintain depth without rushing.</li>
+<li><strong>Presentation Tips</strong>: Use transitions like &quot;Building on this research, our target customers are...&quot; to flow into the next section. Encourage questions here if time allows.</li>
+</ul>
+<h4 id="target-customers-why-1-min">Target Customers? Why? (1 min)</h4>
+<ul>
+<li><strong>Detailed Content Explanation</strong>: Provide an in-depth profile of your target audience, rooted in customer collaboration from the Agile Manifesto. Explain the 'why' with evidence from research, linking to organizational fit (e.g., domestic or customer service contexts). This section highlights how understanding customers drives backlog prioritization, as per &quot;Assemble Your Product Backlog.&quot;</li>
+<li><strong>Suggested Content Placeholders</strong>:
+<ul>
+<li>Target Customer Profile: [e.g., &quot;Primary users: Students aged 18-24 in online learning platforms, seeking instant query resolution.&quot;]</li>
+<li>Rationale: [e.g., &quot;Chosen because research indicates high engagement rates (77% Scrum adoption in edtech); addresses pain points like time inefficiency.&quot;]</li>
+</ul>
+</li>
+<li><strong>Time Allocation</strong>: 1 minute – Be concise yet explanatory.</li>
+<li><strong>Presentation Tips</strong>: Pose a rhetorical question: &quot;Why these customers? Because they represent the core value we aim to deliver.&quot;</li>
+</ul>
+<h4 id="ui-of-your-chatbot-%E2%80%93-quick-demo-and-explanation-2-min">UI of Your Chatbot – Quick Demo and Explanation (2 min)</h4>
+<ul>
+<li><strong>Detailed Content Explanation</strong>: Dive into a verbose demonstration of your chatbot's user interface, explaining design choices in the context of iterative development from Scrum sprints. Reference how UI flows from user stories and refinements, connecting to rubric criteria for Chatbot Functionality and Design (UI).</li>
+<li><strong>Suggested Content Placeholders</strong>:
+<ul>
+<li>Demo Description: [e.g., &quot;Our UI features intuitive chat windows with responsive elements for seamless interactions.&quot;]</li>
+<li>Explanation: [e.g., &quot;Built iteratively via sprints; demo shows handling of organization-specific inquiries with visual aids.&quot;]</li>
+</ul>
+</li>
+<li><strong>Time Allocation</strong>: 2 minutes – 1 minute for demo, 1 for explanation.</li>
+<li><strong>Presentation Tips</strong>: Interact with the audience: &quot;As you can see in this demo...&quot;</li>
+</ul>
+<h4 id="how-will-you-execute-your-project-2-min">How Will You Execute Your Project? (2 min)</h4>
+<ul>
+<li><strong>Detailed Content Explanation</strong>: Elaborate on your execution strategy using Scrum events and artifacts, drawing from &quot;Sprint Backlogs&quot; and &quot;GitHub Collaboration Guide.&quot; Be wordy about how this ensures value delivery through focused goals.</li>
+<li><strong>Suggested Content Placeholders</strong>:
+<ul>
+<li>Execution Steps: [e.g., &quot;Utilize GitHub for Kanban boards; conduct daily stand-ups and retrospectives.&quot;]</li>
+</ul>
+</li>
+<li><strong>Time Allocation</strong>: 2 minutes.</li>
+<li><strong>Presentation Tips</strong>: Emphasize feasibility.</li>
+</ul>
+<h4 id="what-is-your-time-plan-and-is-this-feasible-2-min">What Is Your Time Plan and Is This Feasible? (2 min)</h4>
+<ul>
+<li><strong>Detailed Content Explanation</strong>: Provide a thorough timeline analysis, assessing feasibility with metrics from &quot;Agile Metrics and Sprint Closure.&quot;</li>
+<li><strong>Suggested Content Placeholders</strong>:
+<ul>
+<li>Timeline: [e.g., &quot;Phase 1: Research (Weeks 1-2); Phase 2: MVP (Weeks 3-4).&quot;]</li>
+<li>Feasibility: [e.g., &quot;Yes, based on team capacity and velocity estimates.&quot;]</li>
+</ul>
+</li>
+<li><strong>Time Allocation</strong>: 2 minutes.</li>
+<li><strong>Presentation Tips</strong>: Address risks briefly.</li>
+</ul>
+<h4 id="potential-challenges-1-min">Potential Challenges (1 min)</h4>
+<ul>
+<li><strong>Detailed Content Explanation</strong>: Discuss obstacles in detail, with mitigation strategies from Agile adaptability.</li>
+<li><strong>Suggested Content Placeholders</strong>:
+<ul>
+<li>Challenges: [e.g., &quot;Technical integrations; team coordination.&quot;]</li>
+</ul>
+</li>
+<li><strong>Time Allocation</strong>: 1 minute.</li>
+<li><strong>Presentation Tips</strong>: Show resilience.</li>
+</ul>
+<h4 id="getting-feedback-from-your-customers-and-negotiate-3-min">Getting Feedback from Your Customers and Negotiate (3 min)</h4>
+<ul>
+<li><strong>Detailed Content Explanation</strong>: Explain feedback loops extensively, tying to bonus points and customer collaboration.</li>
+<li><strong>Suggested Content Placeholders</strong>:
+<ul>
+<li>Process: [e.g., &quot;Use surveys; negotiate via backlog updates.&quot;]</li>
+</ul>
+</li>
+<li><strong>Time Allocation</strong>: 3 minutes.</li>
+<li><strong>Presentation Tips</strong>: Simulate negotiation.</li>
+</ul>
+<h4 id="conclusion-and-qa">Conclusion and Q&amp;A</h4>
+<ul>
+<li><strong>Detailed Content Explanation</strong>: Summarize key points verbosely, reinforcing Agile benefits.</li>
+<li><strong>Suggested Content Placeholders</strong>:
+<ul>
+<li>Key Takeaways: [e.g., &quot;Our Scrum approach ensures iterative success.&quot;]</li>
+</ul>
+</li>
+<li><strong>Time Allocation</strong>: Remaining time for Q&amp;A.</li>
+<li><strong>Presentation Tips</strong>: End strongly: &quot;We welcome your feedback!&quot;</li>
+</ul>
+
+</body>
+</html>

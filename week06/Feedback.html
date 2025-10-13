@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Feedback.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h3 id="bonus-points-for-feedback-as-%22customers%22">Bonus Points for Feedback as &quot;Customers&quot;</h3>
+<p>As per the course rubric, groups can earn up to 10% bonus points for providing constructive feedback to another group's chatbot project, acting as &quot;customers&quot; to simulate stakeholder involvement in Agile/Scrum (e.g., during product backlog refinement or sprint reviews). The bonus is split into 5% for initial feedback at the project start (e.g., feature requests, survey) and 5% for ongoing feedback after the first MVP (e.g., A/B testing, bug reports, surveys, legal considerations). Points are awarded based on quality: full credit for detailed, actionable, evidence-based input; partial for basic efforts; none for superficial or missing feedback. Submit via a shared platform (e.g., GitHub issues or Google Form) for review.</p>
+<h3 id="feedback-template-for-chatbot-application">Feedback Template for Chatbot Application</h3>
+<p>Use this template to provide feedback. It's structured in phases to align with project stages, with rating scales (1-5: 1 = Poor, 5 = Excellent) and open-ended questions. As a &quot;customer,&quot; focus on user perspective—test the chatbot, reference specific examples, and tie feedback to organizational context (e.g., healthcare, education, finance). Complete after interacting with the other group's demo or prototype.</p>
+<h4 id="feedback-provider-details">Feedback Provider Details</h4>
+<ul>
+<li>Your Group Name/ID:</li>
+<li>Reviewed Group Name/ID:</li>
+<li>Date of Feedback:</li>
+<li>Phase (Beginning or After First MVP):</li>
+</ul>
+<h4 id="at-the-beginning-5-bonus-eligibility">At the Beginning (5% Bonus Eligibility)</h4>
+<ol>
+<li>
+<p>Customer Requests for Features</p>
+<ul>
+<li>List 2-3 specific feature requests based on the organizational context (e.g., &quot;Add voice input for accessibility; integrate calendar API for real-time booking&quot;). Explain the value (e.g., &quot;This would improve user satisfaction by reducing friction&quot;).</li>
+</ul>
+</li>
+<li>
+<p>Fill in Survey (If Provided)</p>
+<ul>
+<li>If the group provides an initial survey, complete it here or attach responses. Rate overall initial concept (1-5):</li>
+<li>Comments: Strengths/weaknesses in early planning (e.g., backlog alignment via user stories)?</li>
+</ul>
+</li>
+</ol>
+<h4 id="after-the-first-mvp-5-bonus-eligibility">After the First MVP (5% Bonus Eligibility)</h4>
+<ol>
+<li>
+<p>Performs A/B Testing for Other Groups (If Provided)</p>
+<ul>
+<li>If A/B variants are available, test and compare (e.g., &quot;Version A (text-only) vs. Version B (with images): B had faster response times but lower accuracy on complex queries&quot;). Rate effectiveness (1-5):</li>
+<li>Comments: Which variant better meets user needs? Suggestions for refinement.</li>
+</ul>
+</li>
+<li>
+<p>Report Bugs (If Provided)</p>
+<ul>
+<li>List any bugs encountered (e.g., &quot;Chatbot crashes on invalid input; error message: 'Undefined variable'&quot;). Include steps to reproduce and screenshots if possible. Rate bug severity (1-5):</li>
+<li>Comments: Impact on user experience? Recommendations for fixes.</li>
+</ul>
+</li>
+<li>
+<p>Filling in Survey (If Provided)</p>
+<ul>
+<li>If a post-MVP survey is provided, complete it here or attach. Rate MVP performance (1-5):</li>
+<li>Comments: How well does it align with initial features/problems? Custom metrics (e.g., task completion rate from your tests).</li>
+</ul>
+</li>
+<li>
+<p>Raising Legal Considerations (If Provided)</p>
+<ul>
+<li>Highlight any legal/ethical issues (e.g., &quot;Privacy concern: Chatbot stores user data without consent prompt—suggest GDPR-compliant opt-in&quot;). Rate handling (1-5):</li>
+<li>Comments: Risks (e.g., biases in responses) and suggestions (e.g., add disclaimers or audits).</li>
+</ul>
+</li>
+</ol>
+<h4 id="overall-satisfaction">Overall Satisfaction</h4>
+<ul>
+<li>Rating (1-5): As a customer, how satisfied are you with the chatbot overall?</li>
+<li>Comments: Does it deliver value in the organizational context? Would you recommend it? Why/why not? (Reference tests or demos.)</li>
+</ul>
+<h4 id="comment-on-user-interface-ui-and-experience">Comment on User Interface (UI) and Experience</h4>
+<ul>
+<li>Rating (1-5): How intuitive and seamless is the UI/experience?</li>
+<li>Comments: Strengths (e.g., responsive design, visual flows)? Weaknesses (e.g., navigation issues)? Suggestions (e.g., &quot;Add multilingual support for broader accessibility&quot;).</li>
+</ul>
+<p>This template promotes iterative feedback, tying into Agile principles like customer collaboration and continuous improvement. Groups can use received feedback for backlog refinement or sprint closures. Completion time: 20-30 minutes per phase.</p>
+
+</body>
+</html>
