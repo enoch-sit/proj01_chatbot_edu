@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chatbot Evaluation Viewer</title>
+  <style>
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      padding: 2rem;
+    }
+    h1 { 
+      margin-bottom: 0.5rem;
+      color: #333;
+      font-size: 2rem;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 2rem;
+      font-size: 1rem;
+    }
+    .file-section {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .file-input {
+      flex: 1;
+      min-width: 300px;
+    }
+    label { 
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #555;
+    }
+    input[type="file"] { 
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: border-color 0.3s;
+    }
+    input[type="file"]:hover {
+      border-color: #667eea;
+    }
+    #meta { 
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      border-left: 4px solid #667eea;
+    }
+    #meta p {
+      margin: 0.5rem 0;
+    }
+    .conversation {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .turn {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .turn-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    .turn-badges {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: white;
+    }
+    .badge-step { background: #6c757d; }
+    .badge-task { background: #4285f4; }
+    .badge-turn { background: #34a853; }
+    .badge-pass { background: #28a745; }
+    .badge-fail { background: #dc3545; }
+    
+    .message-section {
+      margin-bottom: 1.5rem;
+    }
+    .message-label {
+      font-weight: 600;
+      color: #667eea;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .message-content {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 6px;
+      border-left: 3px solid #667eea;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    .message-preview {
+      max-height: 150px;
+      overflow: hidden;
+      position: relative;
+    }
+    .message-preview.expanded {
+      max-height: none;
+    }
+    .message-preview::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40px;
+      background: linear-gradient(transparent, #f8f9fa);
+      pointer-events: none;
+    }
+    .message-preview.expanded::after {
+      display: none;
+    }
+    .expand-btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      transition: background 0.3s;
+    }
+    .expand-btn:hover {
+      background: #764ba2;
+    }
+    .expand-all-section {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+      justify-content: flex-end;
+    }
+    .expand-all-btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+    .expand-all-btn:hover {
+      background: #764ba2;
+    }
+    .raw-data-section {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #fafafa;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+    .raw-data-toggle {
+      cursor: pointer;
+      font-weight: 600;
+      color: #667eea;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .raw-data-toggle:hover {
+      color: #764ba2;
+    }
+    .raw-data-content {
+      display: none;
+      margin-top: 1rem;
+      background: white;
+      padding: 1rem;
+      border-radius: 4px;
+      overflow-x: auto;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .raw-data-content.expanded {
+      display: block;
+    }
+    .raw-data-content pre {
+      margin: 0;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+    .user-message {
+      border-left-color: #4285f4;
+    }
+    .assistant-message {
+      border-left-color: #34a853;
+    }
+    
+    details {
+      background: #fafafa;
+      border: 1px solid #ddd;
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+    }
+    details > summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: #667eea;
+      user-select: none;
+    }
+    details > summary:hover {
+      color: #764ba2;
+    }
+    details pre {
+      margin-top: 0.75rem;
+      background: white;
+      padding: 1rem;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    
+    .judge-section {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      border-radius: 6px;
+    }
+    .judge-result {
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    .judge-pass { color: #28a745; }
+    .judge-fail { color: #dc3545; }
+    .judge-rationale {
+      color: #666;
+      line-height: 1.5;
+    }
+    
+    .no-data {
+      text-align: center;
+      padding: 3rem;
+      color: #999;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🤖 Chatbot Conversation Viewer</h1>
+    <p class="subtitle">View user requests and chatbot responses</p>
+
+    <div class="file-section">
+      <div class="file-input">
+        <label>📄 Conversation Log</label>
+        <input type="file" id="file-input" accept="application/json">
+      </div>
+    </div>
+
+    <section id="meta"></section>
+    <div id="expand-all-container" style="display: none;">
+      <div class="expand-all-section">
+        <button class="expand-all-btn" onclick="expandAllResponses()">📖 Expand All Responses</button>
+        <button class="expand-all-btn" onclick="collapseAllResponses()">📕 Collapse All Responses</button>
+        <button class="expand-all-btn" onclick="expandAllRawData()">🔍 Expand All Raw Data</button>
+        <button class="expand-all-btn" onclick="collapseAllRawData()">🔒 Collapse All Raw Data</button>
+      </div>
+    </div>
+    <section id="conversation-container"></section>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('file-input');
+    const meta = document.getElementById('meta');
+    const conversationContainer = document.getElementById('conversation-container');
+
+    let currentLogData = null;
+    let currentTurns = [];
+
+    fileInput.addEventListener('change', async (event) => {
+      const file = event.target.files?.[0];
+      if (!file) {
+        currentLogData = null;
+        currentTurns = [];
+        updateMeta();
+        renderConversation();
+        return;
+      }
+
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        currentLogData = data;
+        currentTurns = data.turns || [];
+        updateMeta();
+        renderConversation();
+      } catch (error) {
+        currentLogData = null;
+        currentTurns = [];
+        updateMeta('<p class="badge-fail">Failed to parse JSON.</p>');
+        renderConversation();
+        console.error('Failed to load log file', error);
+      }
+    });
+
+    function updateMeta(errorHtml) {
+      if (!currentLogData) {
+        meta.innerHTML = errorHtml || '';
+        return;
+      }
+
+      const { session_id, created_at, total_turns, conversation_type, max_turns_per_task, tasks_completed, azure_model } = currentLogData;
+
+      let html = `
+        <p><strong>Session:</strong> ${session_id || 'unknown'}</p>
+        <p><strong>Created At:</strong> ${created_at || 'unknown'}</p>
+        <p><strong>Total Turns:</strong> ${total_turns || 0}</p>
+      `;
+
+      if (conversation_type === 'dynamic_llm_driven') {
+        const dynDetails = [];
+        if (max_turns_per_task) dynDetails.push(`${max_turns_per_task} turns/task`);
+        if (tasks_completed !== undefined) dynDetails.push(`${tasks_completed}/5 tasks`);
+        if (azure_model) dynDetails.push(`${azure_model}`);
+        if (dynDetails.length) {
+          html += `<p><strong>Dynamic Config:</strong> ${dynDetails.join(' · ')}</p>`;
+        }
+      }
+
+      meta.innerHTML = html;
+    }
+
+    function renderConversation() {
+      if (!currentTurns.length) {
+        conversationContainer.innerHTML = '<div class="no-data">📂 Load a conversation log to view the chat</div>';
+        document.getElementById('expand-all-container').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('expand-all-container').style.display = 'block';
+
+      const turns = currentTurns.map((turn, index) => {
+        const assistantText = escapeHtml(turn.assistant || '');
+        const needsExpand = assistantText.length > 500;
+        const hasRawData = turn.full_response !== undefined;
+        
+        return `
+          <div class="turn">
+            <div class="turn-header">
+              <div class="turn-badges">
+                <span class="badge badge-step">Step ${turn.step}</span>
+                ${turn.task !== undefined ? `<span class="badge badge-task">Task ${turn.task}</span>` : ''}
+                ${turn.turn_in_task !== undefined ? `<span class="badge badge-turn">Turn ${turn.turn_in_task}/${currentLogData?.max_turns_per_task || 10}</span>` : ''}
+              </div>
+            </div>
+            
+            <div class="message-section">
+              <div class="message-label">👤 User Request</div>
+              <div class="message-content user-message">${escapeHtml(turn.user || '')}</div>
+            </div>
+            
+            <div class="message-section">
+              <div class="message-label">🤖 Chatbot Response</div>
+              <div class="message-content assistant-message ${needsExpand ? 'message-preview' : ''}" id="msg-${index}">
+                ${assistantText}
+              </div>
+              ${needsExpand ? `<button class="expand-btn" onclick="toggleExpand(${index})">📖 Expand Full Response</button>` : ''}
+            </div>
+            
+            ${hasRawData ? formatRawData(turn.full_response, index) : ''}
+            ${formatMetadata(turn)}
+          </div>
+        `;
+      }).join('');
+
+      conversationContainer.innerHTML = `<div class="conversation">${turns}</div>`;
+    }
+
+    function formatMetadata(turn) {
+      const sections = [];
+      
+      // Show task context and timestamp
+      if (turn.task_context || turn.timestamp) {
+        let metaHtml = '';
+        if (turn.task_context) {
+          metaHtml += `<p><strong>Task Context:</strong> ${escapeHtml(turn.task_context)}</p>`;
+        }
+        if (turn.timestamp) {
+          metaHtml += `<p><strong>Timestamp:</strong> ${escapeHtml(turn.timestamp)}</p>`;
+        }
+        if (metaHtml) {
+          sections.push(`<details><summary>📋 Metadata</summary>${metaHtml}</details>`);
+        }
+      }
+      
+      return sections.join('');
+    }
+
+    function formatRawData(rawData, index) {
+      if (!rawData) return '';
+      
+      const jsonStr = JSON.stringify(rawData, null, 2);
+      
+      return `
+        <div class="raw-data-section">
+          <div class="raw-data-toggle" onclick="toggleRawData(${index})">
+            <span id="raw-icon-${index}">▶</span>
+            <span>🔍 Raw Response Data (Click to expand)</span>
+          </div>
+          <div class="raw-data-content" id="raw-${index}">
+            <pre>${escapeHtml(jsonStr)}</pre>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleRawData(index) {
+      const content = document.getElementById(`raw-${index}`);
+      const icon = document.getElementById(`raw-icon-${index}`);
+      
+      if (content.classList.contains('expanded')) {
+        content.classList.remove('expanded');
+        icon.textContent = '▶';
+      } else {
+        content.classList.add('expanded');
+        icon.textContent = '▼';
+      }
+    }
+
+    function toggleExpand(index) {
+      const msgDiv = document.getElementById(`msg-${index}`);
+      const btn = msgDiv.nextElementSibling;
+      
+      if (msgDiv.classList.contains('expanded')) {
+        msgDiv.classList.remove('expanded');
+        btn.textContent = '📖 Expand Full Response';
+      } else {
+        msgDiv.classList.add('expanded');
+        btn.textContent = '📕 Collapse Response';
+      }
+    }
+
+    function expandAllResponses() {
+      document.querySelectorAll('.message-preview').forEach((msg, index) => {
+        if (!msg.classList.contains('expanded')) {
+          msg.classList.add('expanded');
+          const btn = msg.nextElementSibling;
+          if (btn && btn.classList.contains('expand-btn')) {
+            btn.textContent = '📕 Collapse Response';
+          }
+        }
+      });
+    }
+
+    function collapseAllResponses() {
+      document.querySelectorAll('.message-preview').forEach((msg, index) => {
+        if (msg.classList.contains('expanded')) {
+          msg.classList.remove('expanded');
+          const btn = msg.nextElementSibling;
+          if (btn && btn.classList.contains('expand-btn')) {
+            btn.textContent = '📖 Expand Full Response';
+          }
+        }
+      });
+    }
+
+    function expandAllRawData() {
+      document.querySelectorAll('.raw-data-content').forEach((content, index) => {
+        if (!content.classList.contains('expanded')) {
+          content.classList.add('expanded');
+          const icon = content.previousElementSibling?.querySelector('[id^="raw-icon-"]');
+          if (icon) icon.textContent = '▼';
+        }
+      });
+    }
+
+    function collapseAllRawData() {
+      document.querySelectorAll('.raw-data-content').forEach((content, index) => {
+        if (content.classList.contains('expanded')) {
+          content.classList.remove('expanded');
+          const icon = content.previousElementSibling?.querySelector('[id^="raw-icon-"]');
+          if (icon) icon.textContent = '▶';
+        }
+      });
+    }
+
+    function escapeHtml(value) {
+      if (!value) return '';
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+  </script>
+</body>
+</html>
