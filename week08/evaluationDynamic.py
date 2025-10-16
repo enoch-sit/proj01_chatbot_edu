@@ -48,8 +48,9 @@ def load_map_base64(image_path: Path) -> str:
 
 
 # Configuration
-FLOWISE_API_URL = "https://aiagent.qefmoodle.com/api/v1/prediction/23cb0684-1a5a-4492-8a7e-832dab5a22b4"
-
+# FLOWISE_API_URL = "https://aiagent.qefmoodle.com/api/v1/prediction/23cb0684-1a5a-4492-8a7e-832dab5a22b4"
+#FLOWISE_API_URL = "https://aiagent.qefmoodle.com/api/v1/prediction/16fee693-5871-4362-918b-6109fe48d939"
+FLOWISE_API_URL = "https://aiagent.qefmoodle.com/api/v1/prediction/a60fe525-0ba0-4292-a3c6-d5f05ab560a4"
 # Azure OpenAI for user simulation
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT")
 AZURE_API_KEY = os.environ.get("AZURE_OPENAI_API_KEY")
@@ -98,8 +99,11 @@ CURRENT TASK: {current_task}
 CONVERSATION HISTORY:
 """
     for entry in conversation_history[-6:]:  # Last 6 exchanges for context
-        context += f"Student: {entry.get('user', '')}\n"
-        context += f"Chatbot: {entry.get('assistant', '')[:200]}...\n\n"
+        assistant_text = entry.get('assistant', '').strip()
+        # Skip entries with empty or error responses
+        if assistant_text and not assistant_text.startswith('{'):
+            context += f"Student: {entry.get('user', '')}\n"
+            context += f"Chatbot: {assistant_text[:200]}...\n\n"
     
     context += """
 Generate the NEXT student input following these rules:
@@ -220,6 +224,26 @@ def run_dynamic_evaluation(max_turns_per_task: int = 10):
                 break
             
             assistant_text = response.get("text", "")
+            
+            # Check for content filter or empty response
+            if not assistant_text or assistant_text.strip().startswith('{'):
+                print(f"⚠️  Content filtered or empty response. Skipping this turn.")
+                # Don't count this as a valid turn
+                total_step -= 1
+                turns_in_current_task -= 1
+                # Retry with a different input
+                try:
+                    user_input = call_azure_for_user_input(
+                        conversation_history, 
+                        current_task, 
+                        interaction_guide
+                    )
+                    print(f"Retrying with: {user_input}")
+                    continue
+                except Exception as e:
+                    print(f"Failed to generate retry input: {e}")
+                    break
+            
             print(f"AI Response: {assistant_text[:200]}...")
             
             # Store turn with full response data
