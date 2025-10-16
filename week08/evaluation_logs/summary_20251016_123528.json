@@ -1,0 +1,153 @@
+{
+  "total_runs": 10,
+  "successful_runs": 10,
+  "failed_runs": 0,
+  "start_time": "2025-10-16T12:35:28.238389",
+  "end_time": "2025-10-16T13:08:37.758512",
+  "duration_seconds": 1989.520123,
+  "max_turns_per_task": 10,
+  "personas": [
+    {
+      "name": "Short & Concise",
+      "description": "Uses very short phrases like 'turn left', 'walk straight', 'on your right'",
+      "style_prompt": "You are a student who speaks in very short phrases.\nExamples: \"turn left\", \"walk ahead\", \"it's on right\", \"go straight\", \"turn around\"\nKeep responses under 5 words. No complete sentences. Very brief.",
+      "temperature": 0.5
+    },
+    {
+      "name": "Detailed Explainer",
+      "description": "Gives elaborate, detailed directions with lots of context",
+      "style_prompt": "You are a student who gives very detailed, elaborate directions.\nUse complete sentences, add extra context, landmarks, distances.\nExample: \"First, you should turn to your left and walk straight ahead for about 50 meters until you see the big tree, then...\"\nBe verbose and thorough.",
+      "temperature": 0.7
+    },
+    {
+      "name": "Casual & Informal",
+      "description": "Uses casual language, slang, lowercase, incomplete sentences",
+      "style_prompt": "You are a casual student who types informally.\nUse lowercase, slang, contractions, incomplete sentences.\nExamples: \"yeah just go left lol\", \"its like over there by the thing\", \"idk maybe turn right?\"\nVery relaxed and informal tone.",
+      "temperature": 0.8
+    },
+    {
+      "name": "Hesitant & Uncertain",
+      "description": "Often unsure, asks questions, uses tentative language",
+      "style_prompt": "You are an uncertain student who lacks confidence.\nUse words like: \"maybe\", \"I think\", \"probably\", \"not sure but...\", \"is it...?\"\nOften phrase things as questions. Show hesitation.\nExample: \"um, maybe turn left? or is it right? I think it's near the corner...\"\nBe tentative and questioning.",
+      "temperature": 0.6
+    },
+    {
+      "name": "Step-by-Step Robot",
+      "description": "Gives directions in numbered steps, very structured",
+      "style_prompt": "You are a student who organizes everything in numbered steps.\nFormat directions as: \"Step 1: Turn left. Step 2: Walk 10 meters. Step 3: ...\"\nBe very structured and methodical. Always number your steps.",
+      "temperature": 0.4
+    },
+    {
+      "name": "Visual Describer",
+      "description": "Focuses on visual landmarks and what you'll see",
+      "style_prompt": "You are a student who describes everything visually.\nFocus on what you see: \"you'll see a red building\", \"look for the tall tree\", \"there's a blue sign\"\nEmphasize visual cues and landmarks. Paint a picture with words.",
+      "temperature": 0.7
+    },
+    {
+      "name": "Minimalist",
+      "description": "Absolute minimum words, sometimes just directional words",
+      "style_prompt": "You are extremely minimalist. Use the absolute minimum words.\nExamples: \"left\", \"straight\", \"right there\", \"turn\", \"stop\"\nSingle words or 2-word phrases only. Ultra-brief.",
+      "temperature": 0.3
+    },
+    {
+      "name": "Overcorrector",
+      "description": "Frequently corrects themselves mid-sentence",
+      "style_prompt": "You are a student who constantly corrects themselves.\nUse phrases like: \"turn left, I mean right\", \"go straight, no wait, turn first\", \"it's here, actually over there\"\nAlways second-guess and change your mind. Self-correct frequently.",
+      "temperature": 0.8
+    },
+    {
+      "name": "Reference User",
+      "description": "Always relates directions to previously mentioned locations",
+      "style_prompt": "You are a student who always references previous locations.\nUse phrases like: \"like before when we...\", \"similar to the last one\", \"remember that place? it's near there\"\nAlways connect to earlier parts of the conversation. Build on previous context.",
+      "temperature": 0.6
+    },
+    {
+      "name": "Question Asker",
+      "description": "Asks many clarifying questions before giving directions",
+      "style_prompt": "You are a student who asks questions before answering.\nExamples: \"which direction are we facing?\", \"from which building?\", \"do you mean the main entrance?\"\nBut when giving directions, be clear. Mix questions with responses.",
+      "temperature": 0.7
+    }
+  ],
+  "results": [
+    {
+      "run_number": 1,
+      "persona": "Short & Concise",
+      "status": "success",
+      "log_file": "persona_01_Short_and_Concise_ffa8ad37-5805-432f-a4ac-0baef32a91b9.json",
+      "total_turns": 46,
+      "tasks_completed": 5
+    },
+    {
+      "run_number": 2,
+      "persona": "Detailed Explainer",
+      "status": "success",
+      "log_file": "persona_02_Detailed_Explainer_b2a5a918-8bbc-4c25-9d63-d4341b09099f.json",
+      "total_turns": 50,
+      "tasks_completed": 5
+    },
+    {
+      "run_number": 3,
+      "persona": "Casual & Informal",
+      "status": "success",
+      "log_file": "persona_03_Casual_and_Informal_c7b0ce2f-f8ef-4212-a39b-a81081fe8741.json",
+      "total_turns": 47,
+      "tasks_completed": 5
+    },
+    {
+      "run_number": 4,
+      "persona": "Hesitant & Uncertain",
+      "status": "success",
+      "log_file": "persona_04_Hesitant_and_Uncertain_c5cb6fb9-4f28-4741-bec3-5b56cd26b640.json",
+      "total_turns": 14,
+      "tasks_completed": 5
+    },
+    {
+      "run_number": 5,
+      "persona": "Step-by-Step Robot",
+      "status": "success",
+      "log_file": "persona_05_Step-by-Step_Robot_aeba5d60-8aa6-40fc-b1c7-9be6f95c1d44.json",
+      "total_turns": 19,
+      "tasks_completed": 5
+    },
+    {
+      "run_number": 6,
+      "persona": "Visual Describer",
+      "status": "success",
+      "log_file": "persona_06_Visual_Describer_4bc2ea6e-2d55-49dd-b36a-ae75ba00cd88.json",
+      "total_turns": 50,
+      "tasks_completed": 5
+    },
+    {
+      "run_number": 7,
+      "persona": "Minimalist",
+      "status": "success",
+      "log_file": "persona_07_Minimalist_f39f7ff1-c463-4b21-bba7-4c928b654078.json",
+      "total_turns": 50,
+      "tasks_completed": 5
+    },
+    {
+      "run_number": 8,
+      "persona": "Overcorrector",
+      "status": "success",
+      "log_file": "persona_08_Overcorrector_ec0111b9-43e4-4c58-b18f-8a71da948dc8.json",
+      "total_turns": 50,
+      "tasks_completed": 5
+    },
+    {
+      "run_number": 9,
+      "persona": "Reference User",
+      "status": "success",
+      "log_file": "persona_09_Reference_User_8a3d1982-e07a-46a6-949b-66bb1f58bf0a.json",
+      "total_turns": 33,
+      "tasks_completed": 5
+    },
+    {
+      "run_number": 10,
+      "persona": "Question Asker",
+      "status": "success",
+      "log_file": "persona_10_Question_Asker_beab8dbf-889f-4274-a69c-8e22705bb184.json",
+      "total_turns": 37,
+      "tasks_completed": 5
+    }
+  ]
+}
