@@ -1,0 +1,8 @@
+fastmcp
+mcp
+requests
+langgraph
+langchain-aws
+langchain-core
+boto3
+python-dotenv
