@@ -179,6 +179,29 @@ If a user refers to "that station" or "the same line", use context from conversa
         memory = MemorySaver()
         app = workflow.compile(checkpointer=memory)
         
+        # 🎨 VISUALIZATION: Generate graph diagram
+        print("\n📊 GRAPH VISUALIZATION:")
+        print("=" * 60)
+        try:
+            # Method 1: Mermaid diagram (always works)
+            mermaid_code = app.get_graph().draw_mermaid()
+            with open("graph_mermaid.txt", "w", encoding="utf-8") as f:
+                f.write(mermaid_code)
+            print("✓ Mermaid diagram saved to: graph_mermaid.txt")
+            print("  View online: https://mermaid.live/")
+            
+            # Method 2: PNG image (if graphviz installed)
+            try:
+                png_data = app.get_graph().draw_mermaid_png()
+                with open("graph_diagram.png", "wb") as f:
+                    f.write(png_data)
+                print("✓ PNG diagram saved to: graph_diagram.png")
+            except Exception:
+                print("  (PNG generation skipped - install graphviz for PNG output)")
+        except Exception as e:
+            print(f"⚠️  Visualization failed: {e}")
+        print("=" * 60 + "\n")
+        
         # Configuration for the conversation thread
         config = {"configurable": {"thread_id": "demo-conversation"}}
         
