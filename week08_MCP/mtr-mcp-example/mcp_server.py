@@ -4,11 +4,12 @@ from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("mtr_next_train")
 
+
 @mcp.tool()
 def get_next_train_schedule(line: str, sta: str, lang: str = "EN") -> Dict:
     """
     Get the next train arrival schedule for an MTR line and station.
-    
+
     Args:
         line: MTR line code. Valid values:
             - AEL: Airport Express (HOK, KOW, TSY, AIR, AWE)
@@ -23,7 +24,7 @@ def get_next_train_schedule(line: str, sta: str, lang: str = "EN") -> Dict:
             - DRL: Disneyland Resort Line (SUN, DIS)
         sta: Station code for the specified line (must be valid for the line chosen).
         lang: Language - 'EN' for English or 'TC' for Traditional Chinese. Default: 'EN'.
-    
+
     Returns:
         JSON response with train schedule including:
         - sys_time: System timestamp
@@ -32,7 +33,7 @@ def get_next_train_schedule(line: str, sta: str, lang: str = "EN") -> Dict:
         - status: 1 for success, 0 for special message
         - message: Status message
         - isdelay: 'Y' if service delay, 'N' otherwise
-        
+
         Returns error dict if API request fails.
     """
     url = f"https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line={line}&sta={sta}&lang={lang}"
@@ -42,8 +43,18 @@ def get_next_train_schedule(line: str, sta: str, lang: str = "EN") -> Dict:
     else:
         return {"error": f"API request failed with status {response.status_code}"}
 
+
 if __name__ == "__main__":
-    # FastMCP now uses 'sse' transport (HTTP+SSE is default)
-    # It will run on http://localhost:8000 by default
-    # You can set host/port via environment variables or uvicorn config
-    mcp.run(transport='sse')
+    # FastMCP SSE transport configuration
+    # The SSE endpoint will be available at http://localhost:8000/sse
+    # MCP Inspector should connect to: http://127.0.0.1:8000/sse
+
+    print("=" * 60)
+    print("🚀 Starting MCP Server")
+    print("=" * 60)
+    print("📡 SSE Endpoint: http://127.0.0.1:8000/sse")
+    print("🔍 MCP Inspector: Use http://127.0.0.1:8000/sse")
+    print("⚠️  Note: http://127.0.0.1:8000 (without /sse) will give 404")
+    print("=" * 60)
+
+    mcp.run(transport="sse")
