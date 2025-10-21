@@ -17,6 +17,7 @@ Flow:
 import asyncio
 import os
 from typing import Annotated
+from dotenv import load_dotenv
 
 from langchain_aws import ChatBedrock
 from langgraph.graph import StateGraph, END, add_messages
@@ -26,29 +27,45 @@ from mcp import ClientSession
 from mcp.client.sse import sse_client
 from typing import TypedDict, Annotated
 
-# Environment setup (disable LangSmith if you don't have valid API key)
-os.environ["LANGSMITH_TRACING"] = "false"  # Set to "true" if you have valid LangSmith API key
-# os.environ["LANGSMITH_API_KEY"] = "your-api-key-here"
-# os.environ["LANGSMITH_PROJECT"] = "your-project-name"
+# Load environment variables
+load_dotenv()
 
-# AWS Bedrock LLM (with error handling for credentials)
-try:
-    llm = ChatBedrock(
-        model_id="amazon.nova-lite-v1:0",
-        region_name="us-east-1",
-        model_kwargs={
-            "temperature": 0.7,
-            "max_tokens": 5000,
-        }
-    )
-    print("✓ AWS Bedrock LLM initialized")
-except Exception as e:
-    print(f"⚠️  Warning: AWS Bedrock initialization failed: {e}")
-    print("   Make sure your AWS credentials are configured:")
-    print("   - Run: aws configure")
-    print("   - Or set environment variables: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY")
-    print("\n   Continuing anyway to demonstrate MCP features...")
-    llm = None  # Will be handled later
+# Check environment variables first
+def check_environment():
+    """Check if required environment variables are set"""
+    required_vars = ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]
+    missing_vars = [var for var in required_vars if not os.getenv(var)]
+    
+    if missing_vars:
+        print(f"❌ Missing environment variables: {', '.join(missing_vars)}")
+        print("Please create a .env file with AWS credentials or run: aws configure")
+        return False
+    
+    print("✓ Environment variables loaded")
+    print(f"✓ Using model: {os.getenv('BEDROCK_MODEL', 'amazon.nova-lite-v1:0')}")
+    print(f"✓ AWS Region: {os.getenv('AWS_REGION', 'us-east-1')}")
+    return True
+
+# AWS Bedrock LLM (with proper credential validation)
+def create_llm():
+    """Create AWS Bedrock LLM with proper error handling"""
+    if not check_environment():
+        return None
+        
+    try:
+        llm = ChatBedrock(
+            model_id=os.getenv("BEDROCK_MODEL", "amazon.nova-lite-v1:0"),
+            region_name=os.getenv("AWS_REGION", "us-east-1"),
+            model_kwargs={
+                "temperature": 0.7,
+                "max_tokens": 5000,
+            }
+        )
+        print("✓ AWS Bedrock LLM initialized")
+        return llm
+    except Exception as e:
+        print(f"❌ AWS Bedrock initialization failed: {e}")
+        return None
 
 
 class AgentState(TypedDict):
@@ -193,6 +210,8 @@ def create_agent_graph(mcp_tools, resources: dict, tool_functions: dict):
         resources: Dict with station and network resource content
         tool_functions: Dict mapping tool names to actual async functions
     """
+    # Create LLM inside this function
+    llm = create_llm()
     if llm is None:
         print("\n❌ Error: Cannot create agent without AWS Bedrock LLM")
         print("   Please configure AWS credentials and restart")
@@ -236,24 +255,36 @@ Be concise and helpful!"""
         response = await llm_with_tools.ainvoke(messages)
         return {"messages": [response]}
     
-    # Define tool execution node (MANUAL - like working demo)
+    # Define tool execution node (SIMPLIFIED - like working demo)
     async def execute_tools(state: AgentState):
-        """Execute any tool calls from the LLM - MANUAL EXECUTION"""
+        """Execute any tool calls from the LLM - SIMPLIFIED EXECUTION"""
         messages = state["messages"]
         last_message = messages[-1]
         
         tool_results = []
         if hasattr(last_message, 'tool_calls') and last_message.tool_calls:
             for tool_call in last_message.tool_calls:
-                tool_name = tool_call["name"]
-                tool_args = tool_call["args"]
-                
-                # Execute the tool function directly
-                if tool_name in tool_functions:
-                    result = await tool_functions[tool_name](**tool_args)
+                try:
+                    # Execute the tool function directly
+                    if tool_call["name"] in tool_functions:
+                        result = await tool_functions[tool_call["name"]](**tool_call["args"])
+                        tool_results.append(
+                            ToolMessage(
+                                content=str(result),
+                                tool_call_id=tool_call["id"]
+                            )
+                        )
+                    else:
+                        tool_results.append(
+                            ToolMessage(
+                                content=f"Error: Tool {tool_call['name']} not found",
+                                tool_call_id=tool_call["id"]
+                            )
+                        )
+                except Exception as e:
                     tool_results.append(
                         ToolMessage(
-                            content=str(result),
+                            content=f"Error executing tool: {str(e)}",
                             tool_call_id=tool_call["id"]
                         )
                     )
@@ -301,24 +332,13 @@ async def run_full_mcp_demo():
     print("🚇 MTR MCP Demo - Full Feature Showcase")
     print("=" * 70)
     
-    # Start the MCP server in background
-    print("\n🚀 Starting MCP server...")
-    print("   (If server is already running, you can ignore this)")
-    import subprocess
-    server_process = subprocess.Popen(
-        ["python", "mcp_server.py"],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        creationflags=subprocess.CREATE_NEW_CONSOLE if os.name == 'nt' else 0
-    )
-    
-    # Wait for server to initialize
-    print("   ⏳ Waiting 5 seconds for server initialization...")
-    await asyncio.sleep(5)
+    # Connect to existing MCP server
+    print("\n🚀 Connecting to MCP server...")
     print("   ✓ Attempting to connect to http://127.0.0.1:8000/sse")
+    print("   (Make sure mcp_server.py is running in another terminal)")
     
     try:
-        # Connect to MCP server via SSE
+        # Connect to MCP server via SSE  
         async with sse_client("http://127.0.0.1:8000/sse") as (read, write):
             async with ClientSession(read, write) as session:
                 await session.initialize()
@@ -415,11 +435,12 @@ async def run_full_mcp_demo():
                 print("✓ LangGraph: Multi-turn conversation with tool routing")
                 print("\nAll MCP server-side features successfully integrated! 🎉")
     
-    finally:
-        # Clean up server process
-        print("\n🛑 Shutting down MCP server...")
-        server_process.terminate()
-        server_process.wait(timeout=5)
+    except Exception as e:
+        print(f"\n❌ Error during demo: {e}")
+        print("Make sure:")
+        print("   1. MCP server is running: python mcp_server.py")
+        print("   2. AWS credentials are configured")
+        print("   3. Network connection is available")
 
 
 if __name__ == "__main__":
