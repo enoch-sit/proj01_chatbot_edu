@@ -1,17 +1,301 @@
 import requests
 from typing import Dict
 from mcp.server.fastmcp import FastMCP
+from difflib import get_close_matches
 
 mcp = FastMCP("mtr_next_train")
 
 
+# Station name to code mapping (supports both English names and codes)
+STATION_NAMES = {
+    # Tseung Kwan O Line (TKL)
+    "tseung kwan o": "TKO", "tko": "TKO",
+    "lohas park": "LHP", "lhp": "LHP",
+    "hang hau": "HAH", "hah": "HAH",
+    "po lam": "POA", "poa": "POA",
+    "tiu keng leng": "TIK", "tik": "TIK",
+    "yau tong": "YAT", "yat": "YAT",
+    "quarry bay": "QUB", "qub": "QUB",
+    "north point": "NOP", "nop": "NOP",
+    
+    # Airport Express (AEL)
+    "hong kong": "HOK", "hok": "HOK",
+    "kowloon": "KOW", "kow": "KOW",
+    "tsing yi": "TSY", "tsy": "TSY",
+    "airport": "AIR", "air": "AIR",
+    "asiaworld expo": "AWE", "awe": "AWE",
+    
+    # Island Line (ISL)
+    "kennedy town": "KET", "ket": "KET",
+    "hku": "HKU",
+    "sai ying pun": "SYP", "syp": "SYP",
+    "sheung wan": "SHW", "shw": "SHW",
+    "central": "CEN", "cen": "CEN",
+    "admiralty": "ADM", "adm": "ADM",
+    "wan chai": "WAC", "wac": "WAC",
+    "causeway bay": "CAB", "cab": "CAB",
+    "tin hau": "TIH", "tih": "TIH",
+    "fortress hill": "FOH", "foh": "FOH",
+    "tai koo": "TAK", "tak": "TAK",
+    "sai wan ho": "SWH", "swh": "SWH",
+    "shau kei wan": "SKW", "skw": "SKW",
+    "heng fa chuen": "HFC", "hfc": "HFC",
+    "chai wan": "CHW", "chw": "CHW",
+    
+    # Tung Chung Line (TCL)
+    "olympic": "OLY", "oly": "OLY",
+    "nam cheong": "NAC", "nac": "NAC",
+    "lai king": "LAK", "lak": "LAK",
+    "sunny bay": "SUN", "sun": "SUN",
+    "tung chung": "TUC", "tuc": "TUC",
+    
+    # Tuen Ma Line (TML)
+    "wu kai sha": "WKS", "wks": "WKS",
+    "ma on shan": "MOS", "mos": "MOS",
+    "heng on": "HEO", "heo": "HEO",
+    "tai shui hang": "TSH", "tsh": "TSH",
+    "shek mun": "SHM", "shm": "SHM",
+    "city one": "CIO", "cio": "CIO",
+    "sha tin wai": "STW", "stw": "STW",
+    "che kung temple": "CKT", "ckt": "CKT",
+    "tai wai": "TAW", "taw": "TAW",
+    "hik keng": "HIK", "hik": "HIK",
+    "diamond hill": "DIH", "dih": "DIH",
+    "kai tak": "KAT", "kat": "KAT",
+    "sung wong toi": "SUW", "suw": "SUW",
+    "to kwa wan": "TKW", "tkw": "TKW",
+    "ho man tin": "HOM", "hom": "HOM",
+    "hung hom": "HUH", "huh": "HUH",
+    "east tsim sha tsui": "ETS", "ets": "ETS",
+    "austin": "AUS", "aus": "AUS",
+    "mei foo": "MEF", "mef": "MEF",
+    "tsuen wan west": "TWW", "tww": "TWW",
+    "kam sheung road": "KSR", "ksr": "KSR",
+    "yuen long": "YUL", "yul": "YUL",
+    "long ping": "LOP", "lop": "LOP",
+    "tin shui wai": "TIS", "tis": "TIS",
+    "siu hong": "SIH", "sih": "SIH",
+    "tuen mun": "TUM", "tum": "TUM",
+    
+    # East Rail Line (EAL)
+    "exhibition centre": "EXC", "exc": "EXC",
+    "mong kok east": "MKK", "mkk": "MKK",
+    "kowloon tong": "KOT", "kot": "KOT",
+    "sha tin": "SHT", "sht": "SHT",
+    "fo tan": "FOT", "fot": "FOT",
+    "racecourse": "RAC", "rac": "RAC",
+    "university": "UNI", "uni": "UNI",
+    "tai po market": "TAP", "tap": "TAP",
+    "tai wo": "TWO", "two": "TWO",
+    "fanling": "FAN", "fan": "FAN",
+    "sheung shui": "SHS", "shs": "SHS",
+    "lok ma chau": "LMC", "lmc": "LMC",
+    "lo wu": "LOW", "low": "LOW",
+    
+    # South Island Line (SIL)
+    "ocean park": "OCP", "ocp": "OCP",
+    "wong chuk hang": "WCH", "wch": "WCH",
+    "lei tung": "LET", "let": "LET",
+    "south horizons": "SOH", "soh": "SOH",
+    
+    # Tsuen Wan Line (TWL)
+    "tsim sha tsui": "TST", "tst": "TST",
+    "jordan": "JOR", "jor": "JOR",
+    "yau ma tei": "YMT", "ymt": "YMT",
+    "mong kok": "MOK", "mok": "MOK",
+    "prince edward": "PRE", "pre": "PRE",
+    "sham shui po": "SSP", "ssp": "SSP",
+    "cheung sha wan": "CSW", "csw": "CSW",
+    "lai chi kok": "LCK", "lck": "LCK",
+    "kwai fong": "KWF", "kwf": "KWF",
+    "kwai hing": "KWH", "kwh": "KWH",
+    "tai wo hau": "TWH", "twh": "TWH",
+    "tsuen wan": "TSW", "tsw": "TSW",
+    
+    # Kwun Tong Line (KTL)
+    "whampoa": "WHA", "wha": "WHA",
+    "shek kip mei": "SKM", "skm": "SKM",
+    "lok fu": "LOF", "lof": "LOF",
+    "wong tai sin": "WTS", "wts": "WTS",
+    "choi hung": "CHH", "chh": "CHH",
+    "kowloon bay": "KOB", "kob": "KOB",
+    "ngau tau kok": "NTK", "ntk": "NTK",
+    "kwun tong": "KWT", "kwt": "KWT",
+    "lam tin": "LAT", "lat": "LAT",
+    
+    # Disneyland Resort Line (DRL)
+    "disneyland resort": "DIS", "dis": "DIS",
+    "disneyland": "DIS",  # Alternative name
+}
+
+LINE_NAMES = {
+    "airport express": "AEL", "ael": "AEL",
+    "tung chung line": "TCL", "tcl": "TCL",
+    "tuen ma line": "TML", "tml": "TML",
+    "tseung kwan o line": "TKL", "tkl": "TKL",
+    "east rail line": "EAL", "eal": "EAL",
+    "south island line": "SIL", "sil": "SIL",
+    "tsuen wan line": "TWL", "twl": "TWL",
+    "island line": "ISL", "isl": "ISL",
+    "kwun tong line": "KTL", "ktl": "KTL",
+    "disneyland resort line": "DRL", "drl": "DRL",
+}
+
+
+def resolve_station_code(station_input: str) -> str:
+    """
+    Convert station name or code to standard code.
+    Supports fuzzy matching for typos (e.g., "Tseng Kwan O" → "TKO").
+    """
+    normalized = station_input.lower().strip()
+    
+    # Try exact match first
+    if normalized in STATION_NAMES:
+        return STATION_NAMES[normalized]
+    
+    # Try fuzzy matching for typos (80% similarity threshold)
+    matches = get_close_matches(normalized, STATION_NAMES.keys(), n=1, cutoff=0.8)
+    if matches:
+        matched_name = matches[0]
+        return STATION_NAMES[matched_name]
+    
+    # If no match, return uppercase (might be a valid code)
+    return station_input.upper()
+
+
+def resolve_line_code(line_input: str) -> str:
+    """
+    Convert line name or code to standard code.
+    Supports fuzzy matching for typos.
+    """
+    normalized = line_input.lower().strip()
+    
+    # Try exact match first
+    if normalized in LINE_NAMES:
+        return LINE_NAMES[normalized]
+    
+    # Try fuzzy matching for typos (80% similarity threshold)
+    matches = get_close_matches(normalized, LINE_NAMES.keys(), n=1, cutoff=0.8)
+    if matches:
+        matched_name = matches[0]
+        return LINE_NAMES[matched_name]
+    
+    # If no match, return uppercase (might be a valid code)
+    return line_input.upper()
+
+
+def format_train_schedule(data: Dict) -> str:
+    """Convert raw API data into human-readable text."""
+    
+    # Check for API errors (e.g., NT-204: The contents are empty!)
+    if "error" in data:
+        error_code = data.get("error", {}).get("errorCode", "Unknown")
+        error_msg = data.get("error", {}).get("errorMsg", str(data["error"]))
+        
+        # Provide helpful messages for common errors
+        if error_code == "NT-204" or "empty" in error_msg.lower():
+            return (
+                f"⚠️ No Train Data Available\n"
+                f"Station may not have real-time data at this moment.\n"
+                f"Possible reasons:\n"
+                f"  • Station is closed or not in service\n"
+                f"  • Real-time data temporarily unavailable\n"
+                f"  • Station code may be incorrect\n\n"
+                f"API Response: {error_code} - {error_msg}"
+            )
+        else:
+            return f"❌ API Error: {error_code} - {error_msg}"
+    
+    # Check status
+    if data.get("status") == 0:
+        return f"⚠️ Service Alert: {data.get('message', 'Unknown issue')}"
+    
+    # Check for delay
+    delay_notice = ""
+    if data.get("isdelay") == "Y":
+        delay_notice = "\n⚠️ Note: Service is currently delayed\n"
+    
+    # Get station data
+    station_data = data.get("data", {})
+    if not station_data:
+        return "❌ No train data available"
+    
+    # Get the first (and usually only) station key
+    station_key = list(station_data.keys())[0]
+    trains = station_data[station_key]
+    
+    result = []
+    result.append(f"🚇 MTR Train Schedule for {station_key}")
+    result.append(f"🕐 Current Time: {data.get('curr_time', 'Unknown')}")
+    if delay_notice:
+        result.append(delay_notice)
+    result.append("=" * 60)
+    result.append("\nℹ️  Direction Guide:")
+    result.append("   🔼 UPBOUND = Trains heading toward outer/peripheral stations")
+    result.append("   🔽 DOWNBOUND = Trains heading toward central/city stations")
+    result.append("")
+    
+    # Format UP direction trains
+    up_trains = trains.get("UP", [])
+    if up_trains:
+        result.append("\n🔼 UPBOUND Trains:")
+        result.append("-" * 60)
+        for idx, train in enumerate(up_trains[:5], 1):  # Show max 5 trains
+            ttnt = train.get("ttnt", "?")
+            dest = train.get("dest", "Unknown")
+            plat = train.get("plat", "?")
+            time = train.get("time", "Unknown")
+            
+            if ttnt == "0" or ttnt == "-":
+                result.append(f"  {idx}. 🚆 Platform {plat} → {dest} - DEPARTING NOW ⚡")
+            elif ttnt == "1":
+                result.append(f"  {idx}. 🚆 Platform {plat} → {dest} - 1 minute (arrives {time})")
+            else:
+                result.append(f"  {idx}. 🚆 Platform {plat} → {dest} - {ttnt} minutes (arrives {time})")
+    else:
+        result.append("\n🔼 UPBOUND Trains: No trains scheduled")
+    
+    # Format DOWN direction trains
+    down_trains = trains.get("DOWN", [])
+    if down_trains:
+        result.append("\n🔽 DOWNBOUND Trains:")
+        result.append("-" * 60)
+        for idx, train in enumerate(down_trains[:5], 1):  # Show max 5 trains
+            ttnt = train.get("ttnt", "?")
+            dest = train.get("dest", "Unknown")
+            plat = train.get("plat", "?")
+            time = train.get("time", "Unknown")
+            
+            if ttnt == "0" or ttnt == "-":
+                result.append(f"  {idx}. 🚆 Platform {plat} → {dest} - DEPARTING NOW ⚡")
+            elif ttnt == "1":
+                result.append(f"  {idx}. 🚆 Platform {plat} → {dest} - 1 minute (arrives {time})")
+            else:
+                result.append(f"  {idx}. 🚆 Platform {plat} → {dest} - {ttnt} minutes (arrives {time})")
+    else:
+        result.append("\n🔽 DOWNBOUND Trains: No trains scheduled")
+    
+    result.append("\n" + "=" * 60)
+    result.append("✅ Status: Normal operation" if data.get("isdelay") == "N" else "⚠️ Status: Service delay")
+    
+    return "\n".join(result)
+
+
 @mcp.tool()
-def get_next_train_schedule(line: str, sta: str, lang: str = "EN") -> Dict:
+def get_next_train_schedule(line: str, sta: str, lang: str = "EN") -> str:
     """
     Get the next train arrival schedule for an MTR line and station.
+    Returns HUMAN-READABLE formatted text, not raw JSON.
+    
+    Accepts BOTH station names (e.g., "Tseung Kwan O") AND codes (e.g., "TKO").
+    Accepts BOTH line names (e.g., "Tseung Kwan O Line") AND codes (e.g., "TKL").
 
     Args:
-        line: MTR line code. Valid values:
+        line: MTR line name or code. Examples:
+            Names: "Airport Express", "Tseung Kwan O Line", "Island Line"
+            Codes: "AEL", "TKL", "ISL"
+            
+            Valid line codes:
             - AEL: Airport Express (HOK, KOW, TSY, AIR, AWE)
             - TCL: Tung Chung Line (HOK, KOW, OLY, NAC, LAK, TSY, SUN, TUC)
             - TML: Tuen Ma Line (WKS, MOS, HEO, TSH, SHM, CIO, STW, CKT, TAW, HIK, DIH, KAT, SUW, TKW, HOM, HUH, ETS, AUS, NAC, MEF, TWW, KSR, YUL, LOP, TIS, SIH, TUM)
@@ -22,26 +306,186 @@ def get_next_train_schedule(line: str, sta: str, lang: str = "EN") -> Dict:
             - ISL: Island Line (KET, HKU, SYP, SHW, CEN, ADM, WAC, CAB, TIH, FOH, NOP, QUB, TAK, SWH, SKW, HFC, CHW)
             - KTL: Kwun Tong Line (WHA, HOM, YMT, MOK, PRE, SKM, KOT, LOF, WTS, DIH, CHH, KOB, NTK, KWT, LAT, YAT, TIK)
             - DRL: Disneyland Resort Line (SUN, DIS)
-        sta: Station code for the specified line (must be valid for the line chosen).
+            
+        sta: Station name or code. Examples:
+            Names: "Tseung Kwan O", "Hong Kong", "Admiralty"
+            Codes: "TKO", "HOK", "ADM"
+            
         lang: Language - 'EN' for English or 'TC' for Traditional Chinese. Default: 'EN'.
 
     Returns:
-        JSON response with train schedule including:
-        - sys_time: System timestamp
-        - curr_time: Current timestamp
-        - data: Train schedule with UP/DOWN directions
-        - status: 1 for success, 0 for special message
-        - message: Status message
-        - isdelay: 'Y' if service delay, 'N' otherwise
-
-        Returns error dict if API request fails.
+        Human-readable formatted train schedule with:
+        - Current time
+        - Direction guide (what upbound/downbound means)
+        - Upbound trains: Heading toward outer/peripheral stations
+          Examples: TKL up → Po Lam/LOHAS Park, AEL up → Airport/AsiaWorld Expo
+        - Downbound trains: Heading toward central/city stations
+          Examples: TKL down → North Point, AEL down → Hong Kong Station
+        - Platform numbers
+        - Destinations
+        - Minutes until arrival
+        - Arrival times
+        - Service status (normal/delayed)
+        
+    Example output:
+        🚇 MTR Train Schedule for TKL-TKO
+        🕐 Current Time: 2025-10-21 10:15:00
+        ============================================================
+        
+        ℹ️  Direction Guide:
+           🔼 UPBOUND = Trains heading toward outer/peripheral stations
+           🔽 DOWNBOUND = Trains heading toward central/city stations
+        
+        🔼 UPBOUND Trains:
+        ------------------------------------------------------------
+          1. 🚆 Platform 1 → LHP - 2 minutes (arrives 2025-10-21 10:17:00)
+          2. 🚆 Platform 1 → POA - 5 minutes (arrives 2025-10-21 10:20:00)
+        
+        🔽 DOWNBOUND Trains:
+        ------------------------------------------------------------
+          1. 🚆 Platform 2 → NOP - 1 minute (arrives 2025-10-21 10:16:00)
+          2. 🚆 Platform 2 → TIK - 7 minutes (arrives 2025-10-21 10:22:00)
+        
+        ============================================================
+        ✅ Status: Normal operation
     """
-    url = f"https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line={line}&sta={sta}&lang={lang}"
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        return {"error": f"API request failed with status {response.status_code}"}
+    # Convert names to codes if needed
+    line_code = resolve_line_code(line)
+    station_code = resolve_station_code(sta)
+    
+    # Log the resolution for debugging (helpful for users)
+    resolution_info = ""
+    if line.lower() != line_code.lower():
+        resolution_info += f"📝 Resolved line: '{line}' → '{line_code}'\n"
+    if sta.lower() != station_code.lower():
+        resolution_info += f"📝 Resolved station: '{sta}' → '{station_code}'\n"
+    
+    url = f"https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line={line_code}&sta={station_code}&lang={lang}"
+    
+    try:
+        response = requests.get(url, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            
+            # Add resolution info to output if conversions happened
+            result = format_train_schedule(data)
+            if resolution_info and "⚠️" not in result and "❌" not in result:
+                result = resolution_info + "\n" + result
+            elif resolution_info:
+                result = resolution_info + result
+                
+            return result
+        else:
+            return f"❌ Error: API request failed with status {response.status_code}"
+    except requests.exceptions.Timeout:
+        return "❌ Error: Request timed out. Please try again."
+    except Exception as e:
+        return f"❌ Error: {str(e)}"
+
+
+@mcp.tool()
+def get_next_train_structured(line: str, sta: str, lang: str = "EN") -> Dict:
+    """
+    Machine-friendly tool returning structured JSON for programmatic agents.
+
+    Output schema:
+    {
+      "resolved_line": "TKL",
+      "resolved_station": "TKO",
+      "timestamp": "2025-10-21T11:03:35Z",
+      "up": [ {"dest":"POA","ttnt":"2","plat":"1","time":"11:05:35"}, ... ],
+      "down": [ ... ],
+      "raw": { ... },  # original API response
+      "error": null | {"code": "NT-204", "message": "The contents are empty!" },
+      "suggestions": ["Check station name","Try code like TKO","Try again later"]
+    }
+
+    This tool is intended for other agents to parse programmatically. It does NOT return
+    human-friendly text (use `get_next_train_schedule` for that).
+    """
+    line_code = resolve_line_code(line)
+    station_code = resolve_station_code(sta)
+
+    url = f"https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line={line_code}&sta={station_code}&lang={lang}"
+
+    try:
+        response = requests.get(url, timeout=10)
+        if response.status_code != 200:
+            return {
+                "resolved_line": line_code,
+                "resolved_station": station_code,
+                "timestamp": None,
+                "up": [],
+                "down": [],
+                "raw": None,
+                "error": {"code": f"HTTP-{response.status_code}", "message": response.text},
+                "suggestions": ["Check network/API status"]
+            }
+
+        data = response.json()
+
+        # Handle API error wrappers
+        if "error" in data:
+            ec = data.get("error", {})
+            return {
+                "resolved_line": line_code,
+                "resolved_station": station_code,
+                "timestamp": data.get("curr_time"),
+                "up": [],
+                "down": [],
+                "raw": data,
+                "error": {"code": ec.get("errorCode"), "message": ec.get("errorMsg")},
+                "suggestions": [
+                    "Check station name or code",
+                    "Try using the station code (e.g., TKO)",
+                    "Try again later if real-time data is unavailable"
+                ]
+            }
+
+        station_data = data.get("data", {})
+        if not station_data:
+            return {
+                "resolved_line": line_code,
+                "resolved_station": station_code,
+                "timestamp": data.get("curr_time"),
+                "up": [],
+                "down": [],
+                "raw": data,
+                "error": {"code": "NT-204", "message": "The contents are empty!"},
+                "suggestions": ["Station may not have realtime data right now"]
+            }
+
+        station_key = list(station_data.keys())[0]
+        trains = station_data[station_key]
+
+        def normalize_list(arr):
+            out = []
+            for t in arr:
+                out.append({
+                    "dest": t.get("dest"),
+                    "ttnt": t.get("ttnt"),
+                    "plat": t.get("plat"),
+                    "time": t.get("time"),
+                })
+            return out
+
+        up = normalize_list(trains.get("UP", []))
+        down = normalize_list(trains.get("DOWN", []))
+
+        return {
+            "resolved_line": line_code,
+            "resolved_station": station_code,
+            "timestamp": data.get("curr_time"),
+            "up": up,
+            "down": down,
+            "raw": data,
+            "error": None,
+            "suggestions": []
+        }
+    except requests.exceptions.Timeout:
+        return {"resolved_line": line_code, "resolved_station": station_code, "timestamp": None, "up": [], "down": [], "raw": None, "error": {"code": "TIMEOUT", "message": "Request timed out"}, "suggestions": ["Try again"]}
+    except Exception as e:
+        return {"resolved_line": line_code, "resolved_station": station_code, "timestamp": None, "up": [], "down": [], "raw": None, "error": {"code": "EXCEPTION", "message": str(e)}, "suggestions": ["Check server logs"]}
 
 
 if __name__ == "__main__":
