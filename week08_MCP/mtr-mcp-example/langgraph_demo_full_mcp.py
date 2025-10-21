@@ -1,17 +1,26 @@
 """
-LangGraph Demo - Full MCP Feature Showcase
-===========================================
+LangGraph Demo - Full MCP Feature Showcase with Memory
+======================================================
 
-This demo demonstrates ALL MCP features:
+This enhanced demo demonstrates ALL MCP features PLUS conversation memory:
+
+🔧 MCP Features:
 1. Tools (Model-controlled): get_next_train_schedule, get_next_train_structured
-2. Resources (Application-controlled): mtr://stations/list, mtr://lines/map
+2. Resources (Application-controlled): mtr://stations/list, mtr://lines/map  
 3. Prompts (User-controlled): check_next_train, plan_mtr_journey, compare_stations
+
+💾 Memory Features:
+4. Persistent conversation history using MemorySaver
+5. Multi-turn context awareness
+6. Reference to previous queries and stations
 
 Flow:
 - Discovers and loads MCP Resources as context
-- Uses Prompts to guide user interactions
+- Uses Prompts to guide user interactions  
 - Invokes both human-friendly and structured Tools
-- Demonstrates complete journey planning workflow
+- Maintains conversation memory across all turns
+- Demonstrates contextual references like "that station", "previous query"
+- Complete journey planning with historical context
 """
 
 import asyncio
@@ -21,6 +30,7 @@ from dotenv import load_dotenv
 
 from langchain_aws import ChatBedrock
 from langgraph.graph import StateGraph, END, add_messages
+from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage, ToolMessage
 from langchain_core.tools import tool
 from mcp import ClientSession
@@ -240,8 +250,10 @@ When helping users:
    - get_next_train_schedule for direct user responses
    - get_next_train_structured when analyzing data programmatically
 4. Translate user's station names to codes (e.g., "Tseung Kwan O" → "TKO")
+5. Remember context from previous messages in the conversation
+6. When users refer to "that station", "the same line", or "previous query", use conversation history
 
-Be concise and helpful!"""
+Be concise, helpful, and conversational!"""
     
     # Define agent node
     async def call_model(state: AgentState):
@@ -321,7 +333,9 @@ Be concise and helpful!"""
     # After tools, go back to agent
     workflow.add_edge("tools", "agent")
     
-    return workflow.compile()
+    # Compile with memory for conversation history
+    memory = MemorySaver()
+    return workflow.compile(checkpointer=memory)
 
 
 async def run_full_mcp_demo():
@@ -374,66 +388,166 @@ async def run_full_mcp_demo():
                 
                 print("   ✓ Agent ready with Tools, Resources, and Prompts")
                 
-                # Phase 5: Interactive conversation
+                # 🎨 VISUALIZATION: Generate graph diagram with memory
+                print("\n📊 GRAPH VISUALIZATION (With Memory):")
+                print("=" * 70)
+                try:
+                    # Method 1: Mermaid diagram (always works)
+                    mermaid_code = app.get_graph().draw_mermaid()
+                    with open("graph_mermaid_full_mcp.txt", "w", encoding="utf-8") as f:
+                        f.write(mermaid_code)
+                    print("✓ Mermaid diagram saved to: graph_mermaid_full_mcp.txt")
+                    print("  View online: https://mermaid.live/")
+                    
+                    # Method 2: PNG image (if graphviz installed)
+                    try:
+                        png_data = app.get_graph().draw_mermaid_png()
+                        with open("graph_diagram_full_mcp.png", "wb") as f:
+                            f.write(png_data)
+                        print("✓ PNG diagram saved to: graph_diagram_full_mcp.png")
+                    except Exception:
+                        print("  (PNG generation skipped - install graphviz for PNG output)")
+                except Exception as e:
+                    print(f"⚠️  Visualization failed: {e}")
+                print("=" * 70 + "\n")
+                
+                # Configuration for the conversation thread with memory
+                config = {"configurable": {"thread_id": "full-mcp-demo-conversation"}}
+                
+                # Helper function to chat with memory
+                async def chat_with_memory(user_message: str, config: dict):
+                    """Send a message and get response while maintaining history"""
+                    result = await app.ainvoke(
+                        {"messages": [HumanMessage(content=user_message)]},
+                        config=config
+                    )
+                    
+                    # Extract the final AI response (skip messages with tool calls)
+                    for msg in reversed(result["messages"]):
+                        if isinstance(msg, AIMessage):
+                            # Check if this is a tool-calling message
+                            has_tool_calls = (hasattr(msg, 'tool_calls') and msg.tool_calls) or \
+                                           (isinstance(msg.content, list) and 
+                                            any(isinstance(c, dict) and c.get('type') == 'tool_use' for c in msg.content))
+                            
+                            if not has_tool_calls and msg.content:
+                                # Extract text content
+                                if isinstance(msg.content, str):
+                                    return msg.content
+                                elif isinstance(msg.content, list):
+                                    # Nova Lite returns list of content blocks
+                                    text_parts = [c.get('text', '') for c in msg.content if isinstance(c, dict) and c.get('type') == 'text']
+                                    return ''.join(text_parts) if text_parts else str(msg.content)
+                    
+                    return "No response generated"
+                
+                # Phase 5: Interactive conversation with memory
                 print("\n" + "=" * 70)
-                print("💬 Starting Interactive Conversation")
+                print("💬 Starting Multi-turn Conversation with Memory")
                 print("=" * 70)
                 
-                # Initialize state - Resources are embedded in system prompt, not stored in state
-                state: AgentState = {
-                    "messages": []
-                }
+                # Multi-turn conversation scenarios demonstrating memory and context
+                print("\n🔄 Turn 1: Initial Query (MCP Resources + Tools)")
+                print("-" * 70)
+                print("👤 User: What's the next train from Tseung Kwan O to Hong Kong?")
+                response = await chat_with_memory(
+                    "What's the next train from Tseung Kwan O to Hong Kong?",
+                    config
+                )
+                print(f"🤖 Assistant: {response}")
                 
-                # Conversation scenarios demonstrating different features
-                scenarios = [
-                    {
-                        "user": "What's the next train from Tseung Kwan O to Hong Kong?",
-                        "demonstrates": "Human-friendly tool usage"
-                    },
-                    {
-                        "user": "Compare the next 3 trains at Tseung Kwan O, North Point, and Admiralty. Which station has the soonest train?",
-                        "demonstrates": "Structured tool for programmatic comparison"
-                    },
-                    {
-                        "user": "Plan my journey from TKO to Central",
-                        "demonstrates": "Multi-step planning with resources"
-                    }
-                ]
+                print("\n\n🔄 Turn 2: Context Reference (Memory)")
+                print("-" * 70)
+                print("👤 User: What about trains going the other direction?")
+                response = await chat_with_memory(
+                    "What about trains going the other direction?",
+                    config
+                )
+                print(f"🤖 Assistant: {response}")
                 
-                for i, scenario in enumerate(scenarios, 1):
-                    print(f"\n{'─' * 70}")
-                    print(f"Scenario {i}: {scenario['demonstrates']}")
-                    print(f"{'─' * 70}")
-                    print(f"👤 User: {scenario['user']}")
-                    
-                    # Add user message
-                    state["messages"].append(HumanMessage(content=scenario['user']))
-                    
-                    # Get agent response
-                    result = await app.ainvoke(state)
-                    state = result
-                    
-                    # Print assistant response
-                    last_message = state["messages"][-1]
-                    if isinstance(last_message, AIMessage):
-                        print(f"\n🤖 Assistant: {last_message.content}")
-                    
-                    # Show tool calls if any
-                    for msg in state["messages"][-3:]:  # Check last few messages
-                        if hasattr(msg, "tool_calls") and msg.tool_calls:
-                            for tc in msg.tool_calls:
-                                print(f"\n   🔧 Tool Called: {tc['name']}")
-                                print(f"      Args: {tc['args']}")
+                print("\n\n🔄 Turn 3: Different Station (Structured Tool)")
+                print("-" * 70)
+                print("👤 User: Now check Airport Express at Hong Kong station - give me structured data")
+                response = await chat_with_memory(
+                    "Now check Airport Express at Hong Kong station - give me structured data",
+                    config
+                )
+                print(f"🤖 Assistant: {response}")
+                
+                print("\n\n🔄 Turn 4: Multi-station Comparison (Using History)")
+                print("-" * 70)
+                print("👤 User: Compare the first station I asked about with the Airport Express station")
+                response = await chat_with_memory(
+                    "Compare the first station I asked about with the Airport Express station",
+                    config
+                )
+                print(f"🤖 Assistant: {response}")
+                
+                print("\n\n🔄 Turn 5: Journey Planning (Resources + Memory)")
+                print("-" * 70)
+                print("👤 User: Plan the best route between those two stations I mentioned")
+                response = await chat_with_memory(
+                    "Plan the best route between those two stations I mentioned",
+                    config
+                )
+                print(f"🤖 Assistant: {response}")
                 
                 print("\n" + "=" * 70)
-                print("✅ Full MCP Demo Complete!")
+                print("✅ Full MCP Demo with Memory Complete!")
                 print("=" * 70)
                 print("\nFeatures Demonstrated:")
                 print("✓ Resources: Loaded station list and network map as context")
                 print("✓ Prompts: Showed check_next_train, plan_mtr_journey, compare_stations")
                 print("✓ Tools: Used both human-friendly and structured tools")
+                print("✓ Memory: Maintained conversation history across all turns")
+                print("✓ Context: Referenced previous queries using memory")
                 print("✓ LangGraph: Multi-turn conversation with tool routing")
-                print("\nAll MCP server-side features successfully integrated! 🎉")
+                
+                # Show conversation history
+                print("\n📜 Full Conversation History:")
+                print("-" * 70)
+                try:
+                    final_state = await app.aget_state(config)
+                    for i, msg in enumerate(final_state.values["messages"], 1):
+                        if isinstance(msg, HumanMessage):
+                            print(f"{i}. 👤 User: {msg.content}")
+                        elif isinstance(msg, AIMessage) and msg.content and not (hasattr(msg, 'tool_calls') and msg.tool_calls):
+                            # Show only final responses, not tool-calling messages
+                            content_preview = str(msg.content)[:100] + "..." if len(str(msg.content)) > 100 else str(msg.content)
+                            print(f"{i}. 🤖 Agent: {content_preview}")
+                        elif isinstance(msg, SystemMessage):
+                            print(f"{i}. ⚙️ System: [MCP Resources & System prompt loaded]")
+                except Exception as e:
+                    print(f"   Could not retrieve conversation history: {e}")
+                
+                print("\n" + "=" * 70)
+                print("🎉 All MCP Features + Memory Successfully Integrated!")
+                print("=" * 70)
+                print("✨ This demo now combines:")
+                print("   • Complete MCP Protocol (Tools, Resources, Prompts)")
+                print("   • Persistent Memory & Multi-turn Context")
+                print("   • LangGraph State Management")
+                print("   • AWS Bedrock Nova Lite Integration")
+                
+                # LangSmith tracing info
+                if os.getenv("LANGCHAIN_TRACING_V2") == "true":
+                    print("\n" + "=" * 70)
+                    print("📊 LangSmith Tracing Enabled!")
+                    print("=" * 70)
+                    print("View detailed traces at: https://smith.langchain.com/")
+                    print("\nYou can see:")
+                    print("  • Every LLM call (Nova Lite) with token usage and cost")
+                    print("  • Tool invocations with MCP server calls")
+                    print("  • Memory operations and state persistence")
+                    print("  • Multi-turn conversation flow")
+                    print("  • Latency breakdown per step")
+                    print("=" * 70)
+                else:
+                    print("\nℹ️  Enable LangSmith tracing for detailed observability:")
+                    print("   set LANGCHAIN_TRACING_V2=true")
+                    print("   set LANGCHAIN_API_KEY=your-api-key")
+                
+                print("=" * 70)
     
     except Exception as e:
         print(f"\n❌ Error during demo: {e}")
@@ -443,5 +557,41 @@ async def run_full_mcp_demo():
         print("   3. Network connection is available")
 
 
-if __name__ == "__main__":
+def main():
+    """Main entry point"""
+    print("\n🚀 Starting Full MCP Demo with Memory & Multi-turn Context...\n")
+    
+    # Check environment variables
+    required_vars = ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]
+    missing_vars = [var for var in required_vars if not os.getenv(var)]
+    
+    if missing_vars:
+        print(f"❌ Missing environment variables: {', '.join(missing_vars)}")
+        print("Please create a .env file based on .env.example")
+        print("Note: MCP features will still be demonstrated without AWS credentials")
+        print()
+    else:
+        print("✓ Environment variables loaded")
+        print(f"✓ Using model: {os.getenv('BEDROCK_MODEL', 'amazon.nova-lite-v1:0')}")
+        print(f"✓ AWS Region: {os.getenv('AWS_REGION', 'us-east-1')}")
+    
+    # Check LangSmith tracing status
+    if os.getenv("LANGCHAIN_TRACING_V2") == "true":
+        api_key = os.getenv("LANGCHAIN_API_KEY", "")
+        if api_key:
+            print(f"✓ LangSmith tracing enabled")
+            print(f"  API Key: {api_key[:15]}...{api_key[-4:]}")
+            print(f"  View traces at: https://smith.langchain.com/")
+        else:
+            print("⚠️  LANGCHAIN_TRACING_V2=true but no API key found")
+    else:
+        print("ℹ️  LangSmith tracing disabled (set LANGCHAIN_TRACING_V2=true to enable)")
+    
+    print()
+    
+    # Run the async demo
     asyncio.run(run_full_mcp_demo())
+
+
+if __name__ == "__main__":
+    main()
