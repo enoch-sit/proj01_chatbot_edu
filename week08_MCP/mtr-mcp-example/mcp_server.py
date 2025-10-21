@@ -529,23 +529,168 @@ def get_line_map() -> str:
     """
     return """# MTR Line Map & Interchanges
 
-## Major Interchange Stations:
-- **Admiralty (ADM)**: ISL ↔ SIL ↔ TWL
-- **Central (CEN)**: ISL ↔ TWL
-- **Quarry Bay (QUB)**: ISL ↔ TKL
-- **Lai King (LAK)**: TWL ↔ TCL
-- **Nam Cheong (NAC)**: TWL ↔ TML
-- **Hung Hom (HUH)**: EAL ↔ TML
-- **Kowloon Tong (KOT)**: EAL ↔ KTL
-- **Mong Kok (MOK)**: TWL ↔ KTL
-- **Yau Tong (YAT)**: TKL ↔ KTL
+## Complete Interchange Stations (21 stations)
 
-## Line Coverage:
-- **Airport Express (AEL)**: Central → Airport → AsiaWorld Expo
-- **Tseung Kwan O Line (TKL)**: North Point → Tseung Kwan O / Po Lam / LOHAS Park
-- **Island Line (ISL)**: Kennedy Town → Chai Wan
-- **East Rail Line (EAL)**: Admiralty → Lo Wu / Lok Ma Chau
-- **Tuen Ma Line (TML)**: Wu Kai Sha → Tuen Mun
+All stations where multiple MTR lines intersect at the same physical station:
+
+| Station Name | Code | Connecting Lines |
+|--------------|------|------------------|
+| Admiralty | ADM | EAL, ISL, SIL, TWL |
+| Central | CEN | ISL, TWL |
+| Diamond Hill | DIH | KTL, TML |
+| Ho Man Tin | HOM | KTL, TML |
+| Hong Kong | HOK | AEL, TCL |
+| Hung Hom | HUH | EAL, TML |
+| Kowloon | KOW | AEL, TCL |
+| Kowloon Tong | KOT | EAL, KTL |
+| Lai King | LAK | TCL, TWL |
+| Mei Foo | MEF | TML, TWL |
+| Mong Kok | MOK | KTL, TWL |
+| Nam Cheong | NAC | TCL, TML |
+| North Point | NOP | ISL, TKL |
+| Prince Edward | PRE | KTL, TWL |
+| Quarry Bay | QUB | ISL, TKL |
+| Sunny Bay | SUN | DRL, TCL |
+| Tai Wai | TAW | EAL, TML |
+| Tiu Keng Leng | TIK | KTL, TKL |
+| Tsing Yi | TSY | AEL, TCL |
+| Yau Ma Tei | YMT | KTL, TWL |
+| Yau Tong | YAT | KTL, TKL |
+
+**Note:** Some stations have out-of-system transfers via walkways (e.g., Central ↔ Hong Kong, 
+Tsim Sha Tsui ↔ East Tsim Sha Tsui) but these are NOT same-station interchanges.
+
+## Major Interchange Hubs (4+ lines):
+- **Admiralty (ADM)**: 4 lines - EAL, ISL, SIL, TWL (Central hub)
+
+## Line-to-Line Transfer Points:
+
+**Airport Express (AEL) connections:**
+- Hong Kong (HOK): AEL ↔ TCL
+- Kowloon (KOW): AEL ↔ TCL
+- Tsing Yi (TSY): AEL ↔ TCL
+
+**Tseung Kwan O Line (TKL) connections:**
+- North Point (NOP): TKL ↔ ISL
+- Quarry Bay (QUB): TKL ↔ ISL
+- Yau Tong (YAT): TKL ↔ KTL
+- Tiu Keng Leng (TIK): TKL ↔ KTL
+
+**Island Line (ISL) connections:**
+- Admiralty (ADM): ISL ↔ TWL, SIL, EAL
+- Central (CEN): ISL ↔ TWL
+- North Point (NOP): ISL ↔ TKL
+- Quarry Bay (QUB): ISL ↔ TKL
+
+**Tung Chung Line (TCL) connections:**
+- Hong Kong (HOK): TCL ↔ AEL
+- Kowloon (KOW): TCL ↔ AEL
+- Tsing Yi (TSY): TCL ↔ AEL
+- Lai King (LAK): TCL ↔ TWL
+- Nam Cheong (NAC): TCL ↔ TML
+- Sunny Bay (SUN): TCL ↔ DRL
+
+**Tuen Ma Line (TML) connections:**
+- Tai Wai (TAW): TML ↔ EAL
+- Diamond Hill (DIH): TML ↔ KTL
+- Ho Man Tin (HOM): TML ↔ KTL
+- Hung Hom (HUH): TML ↔ EAL
+- Nam Cheong (NAC): TML ↔ TCL
+- Mei Foo (MEF): TML ↔ TWL
+
+**East Rail Line (EAL) connections:**
+- Admiralty (ADM): EAL ↔ ISL, TWL, SIL
+- Hung Hom (HUH): EAL ↔ TML
+- Kowloon Tong (KOT): EAL ↔ KTL
+- Tai Wai (TAW): EAL ↔ TML
+
+**South Island Line (SIL) connections:**
+- Admiralty (ADM): SIL ↔ ISL, TWL, EAL
+
+**Tsuen Wan Line (TWL) connections:**
+- Admiralty (ADM): TWL ↔ ISL, SIL, EAL
+- Central (CEN): TWL ↔ ISL
+- Lai King (LAK): TWL ↔ TCL
+- Mei Foo (MEF): TWL ↔ TML
+- Mong Kok (MOK): TWL ↔ KTL
+- Prince Edward (PRE): TWL ↔ KTL
+- Yau Ma Tei (YMT): TWL ↔ KTL
+
+**Kwun Tong Line (KTL) connections:**
+- Diamond Hill (DIH): KTL ↔ TML
+- Ho Man Tin (HOM): KTL ↔ TML
+- Kowloon Tong (KOT): KTL ↔ EAL
+- Mong Kok (MOK): KTL ↔ TWL
+- Prince Edward (PRE): KTL ↔ TWL
+- Yau Ma Tei (YMT): KTL ↔ TWL
+- Yau Tong (YAT): KTL ↔ TKL
+- Tiu Keng Leng (TIK): KTL ↔ TKL
+
+**Disneyland Resort Line (DRL) connections:**
+- Sunny Bay (SUN): DRL ↔ TCL
+
+## Complete Station Sequences by Line:
+
+### Airport Express (AEL)
+HOK (Hong Kong) → KOW (Kowloon) → TSY (Tsing Yi) → AIR (Airport) → AWE (AsiaWorld Expo)
+- 5 stations total
+- Express service (limited stops)
+
+### Tseung Kwan O Line (TKL)
+**Main Branch:** NOP (North Point) → QUB (Quarry Bay) → YAT (Yau Tong) → TIK (Tiu Keng Leng)
+**Branch to LOHAS Park:** TIK → TKO (Tseung Kwan O) → HAH (Hang Hau) → LHP (LOHAS Park)
+**Branch to Po Lam:** TIK → TKO (Tseung Kwan O) → HAH (Hang Hau) → POA (Po Lam)
+- 8 stations total, 3 branches
+
+### Island Line (ISL)
+KET (Kennedy Town) → HKU → SYP (Sai Ying Pun) → SHW (Sheung Wan) → CEN (Central) → ADM (Admiralty) → WAC (Wan Chai) → CAB (Causeway Bay) → TIH (Tin Hau) → FOH (Fortress Hill) → NOP (North Point) → QUB (Quarry Bay) → TAK (Tai Koo) → SWH (Sai Wan Ho) → SKW (Shau Kei Wan) → HFC (Heng Fa Chuen) → CHW (Chai Wan)
+- 17 stations total
+
+### Tung Chung Line (TCL)
+HOK (Hong Kong) → KOW (Kowloon) → OLY (Olympic) → NAC (Nam Cheong) → LAK (Lai King) → TSY (Tsing Yi) → SUN (Sunny Bay) → TUC (Tung Chung)
+- 8 stations total
+
+### Tuen Ma Line (TML)
+WKS (Wu Kai Sha) → MOS (Ma On Shan) → HEO (Heng On) → TSH (Tai Shui Hang) → SHM (Shek Mun) → CIO (City One) → STW (Sha Tin Wai) → CKT (Che Kung Temple) → TAW (Tai Wai) → HIK (Hik Keng) → DIH (Diamond Hill) → KAT (Kai Tak) → SUW (Sung Wong Toi) → TKW (To Kwa Wan) → HOM (Ho Man Tin) → HUH (Hung Hom) → ETS (East Tsim Sha Tsui) → AUS (Austin) → NAC (Nam Cheong) → MEF (Mei Foo) → TWW (Tsuen Wan West) → KSR (Kam Sheung Road) → YUL (Yuen Long) → LOP (Long Ping) → TIS (Tin Shui Wai) → SIH (Siu Hong) → TUM (Tuen Mun)
+- 27 stations total
+
+### East Rail Line (EAL)
+ADM (Admiralty) → EXC (Exhibition Centre) → HUH (Hung Hom) → MKK (Mong Kok East) → KOT (Kowloon Tong) → TAW (Tai Wai) → SHT (Sha Tin) → FOT (Fo Tan) → UNI (University) → TAP (Tai Po Market) → TWO (Tai Wo) → FAN (Fanling) → SHS (Sheung Shui)
+**Branch to Lo Wu:** SHS → LOW (Lo Wu)
+**Branch to Lok Ma Chau:** SHS → LMC (Lok Ma Chau)
+- 16 stations total (including branches)
+- Note: RAC (Racecourse) is a special station, operates only on race days
+
+### South Island Line (SIL)
+ADM (Admiralty) → OCP (Ocean Park) → WCH (Wong Chuk Hang) → LET (Lei Tung) → SOH (South Horizons)
+- 5 stations total
+
+### Tsuen Wan Line (TWL)
+CEN (Central) → ADM (Admiralty) → TST (Tsim Sha Tsui) → JOR (Jordan) → YMT (Yau Ma Tei) → MOK (Mong Kok) → PRE (Prince Edward) → SSP (Sham Shui Po) → CSW (Cheung Sha Wan) → LCK (Lai Chi Kok) → MEF (Mei Foo) → LAK (Lai King) → KWF (Kwai Fong) → KWH (Kwai Hing) → TWH (Tai Wo Hau) → TSW (Tsuen Wan)
+- 16 stations total
+
+### Kwun Tong Line (KTL)
+WHA (Whampoa) → HOM (Ho Man Tin) → YMT (Yau Ma Tei) → MOK (Mong Kok) → PRE (Prince Edward) → SKM (Shek Kip Mei) → KOT (Kowloon Tong) → LOF (Lok Fu) → WTS (Wong Tai Sin) → DIH (Diamond Hill) → CHH (Choi Hung) → KOB (Kowloon Bay) → NTK (Ngau Tau Kok) → KWT (Kwun Tong) → LAT (Lam Tin) → YAT (Yau Tong) → TIK (Tiu Keng Leng)
+- 17 stations total
+
+### Disneyland Resort Line (DRL)
+SUN (Sunny Bay) → DIS (Disneyland Resort)
+- 2 stations total
+
+## Total Network Statistics:
+- **10 lines** covering Hong Kong
+- **93 stations** (some shared across lines)
+- **21 interchange stations** for transfers
+- **Longest line:** Tuen Ma Line (27 stations)
+- **Shortest line:** Disneyland Resort Line (2 stations)
+
+## Route Planning Tips:
+1. Use Admiralty (ADM) for transfers between ISL, TWL, SIL, and EAL
+2. Use Quarry Bay (QUB) or North Point (NOP) for ISL ↔ TKL transfers
+3. Use Lai King (LAK) for TCL ↔ TWL transfers
+4. Use Nam Cheong (NAC) for TCL ↔ TML transfers
+5. Airport Express connects at Hong Kong, Kowloon, and Tsing Yi stations
+6. Disneyland Resort Line only connects at Sunny Bay (TCL interchange)
 """
 
 
