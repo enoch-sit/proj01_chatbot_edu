@@ -488,6 +488,138 @@ def get_next_train_structured(line: str, sta: str, lang: str = "EN") -> Dict:
         return {"resolved_line": line_code, "resolved_station": station_code, "timestamp": None, "up": [], "down": [], "raw": None, "error": {"code": "EXCEPTION", "message": str(e)}, "suggestions": ["Check server logs"]}
 
 
+@mcp.resource("mtr://stations/list")
+def get_station_list() -> str:
+    """
+    Resource: Complete list of all MTR stations with codes.
+    Provides read-only reference data for station codes and names.
+    
+    This resource is Application-controlled - clients can include it as context.
+    """
+    result = ["# MTR Station Reference\n"]
+    result.append("Complete list of all 80+ MTR stations across 10 lines:\n\n")
+    
+    lines = {
+        "TKL - Tseung Kwan O Line": ["TKO", "LHP", "HAH", "POA", "TIK", "YAT", "QUB", "NOP"],
+        "AEL - Airport Express": ["HOK", "KOW", "TSY", "AIR", "AWE"],
+        "ISL - Island Line": ["KET", "HKU", "SYP", "SHW", "CEN", "ADM", "WAC", "CAB", "TIH", "FOH", "NOP", "QUB", "TAK", "SWH", "SKW", "HFC", "CHW"],
+        "TCL - Tung Chung Line": ["OLY", "NAC", "LAK", "SUN", "TUC"],
+        "TML - Tuen Ma Line": ["WKS", "MOS", "HEO", "TSH", "SHM", "CIO", "STW", "CKT", "TAW", "HIK", "DIH", "KAT", "SUW", "TKW", "HOM", "HUH", "ETS", "AUS", "MEF", "TWW", "KSR", "YUL", "LOP", "TIS", "SIH", "TUM"],
+        "EAL - East Rail Line": ["EXC", "MKK", "KOT", "SHT", "FOT", "RAC", "UNI", "TAP", "TWO", "FAN", "SHS", "LMC", "LOW"],
+        "SIL - South Island Line": ["OCP", "WCH", "LET", "SOH"],
+        "TWL - Tsuen Wan Line": ["TST", "JOR", "YMT", "MOK", "PRE", "SSP", "CSW", "LCK", "KWF", "KWH", "TWH", "TSW"],
+        "KTL - Kwun Tong Line": ["WHA", "SKM", "LOF", "WTS", "CHH", "KOB", "NTK", "KWT", "LAT"],
+        "DRL - Disneyland Resort Line": ["SUN", "DIS"]
+    }
+    
+    for line_name, stations in lines.items():
+        result.append(f"## {line_name}")
+        result.append(f"Stations: {', '.join(stations)}\n")
+    
+    return "\n".join(result)
+
+
+@mcp.resource("mtr://lines/map")
+def get_line_map() -> str:
+    """
+    Resource: MTR line connectivity and interchange information.
+    Provides read-only data about line connections and interchange stations.
+    
+    This resource is Application-controlled - helps AI understand MTR network.
+    """
+    return """# MTR Line Map & Interchanges
+
+## Major Interchange Stations:
+- **Admiralty (ADM)**: ISL ↔ SIL ↔ TWL
+- **Central (CEN)**: ISL ↔ TWL
+- **Quarry Bay (QUB)**: ISL ↔ TKL
+- **Lai King (LAK)**: TWL ↔ TCL
+- **Nam Cheong (NAC)**: TWL ↔ TML
+- **Hung Hom (HUH)**: EAL ↔ TML
+- **Kowloon Tong (KOT)**: EAL ↔ KTL
+- **Mong Kok (MOK)**: TWL ↔ KTL
+- **Yau Tong (YAT)**: TKL ↔ KTL
+
+## Line Coverage:
+- **Airport Express (AEL)**: Central → Airport → AsiaWorld Expo
+- **Tseung Kwan O Line (TKL)**: North Point → Tseung Kwan O / Po Lam / LOHAS Park
+- **Island Line (ISL)**: Kennedy Town → Chai Wan
+- **East Rail Line (EAL)**: Admiralty → Lo Wu / Lok Ma Chau
+- **Tuen Ma Line (TML)**: Wu Kai Sha → Tuen Mun
+"""
+
+
+@mcp.prompt()
+def check_next_train(line: str, station: str) -> str:
+    """
+    Prompt: Quick train schedule check.
+    User-controlled template for checking next train arrivals.
+    
+    Args:
+        line: MTR line name or code (e.g., "TKL" or "Tseung Kwan O Line")
+        station: Station name or code (e.g., "TKO" or "Tseung Kwan O")
+    """
+    return f"""Check the next train arrival at {station} station on the {line} line.
+
+Please use the get_next_train_schedule tool to:
+1. Get real-time train schedules
+2. Show both upbound and downbound trains
+3. Highlight the next arriving train
+4. Mention any service delays
+
+Respond in a friendly, conversational way."""
+
+
+@mcp.prompt()
+def plan_mtr_journey(origin: str, destination: str) -> str:
+    """
+    Prompt: Plan MTR journey between two stations.
+    User-controlled template for journey planning.
+    
+    Args:
+        origin: Starting station name or code
+        destination: Ending station name or code
+    """
+    return f"""Help me plan an MTR journey from {origin} to {destination}.
+
+Please:
+1. Use the mtr://lines/map resource to find the route
+2. Check next trains at {origin} using get_next_train_schedule
+3. Identify any interchange stations needed
+4. Estimate total journey time
+5. Provide step-by-step directions
+
+Be helpful and mention the platform numbers and train destinations."""
+
+
+@mcp.prompt()
+def compare_stations(station1: str, station2: str, station3: str = "") -> str:
+    """
+    Prompt: Compare train frequencies at multiple stations.
+    User-controlled template for multi-station analysis.
+    
+    Args:
+        station1: First station to compare
+        station2: Second station to compare
+        station3: Optional third station to compare
+    """
+    stations = [station1, station2]
+    if station3:
+        stations.append(station3)
+    
+    stations_list = ", ".join(stations)
+    
+    return f"""Compare the next train arrivals at these stations: {stations_list}
+
+Please use get_next_train_structured for each station to:
+1. Get structured train data programmatically
+2. Extract wait times for upbound and downbound trains
+3. Compare which station has the soonest train
+4. Recommend the best station based on timing
+
+Present the comparison in a clear table format."""
+
+
 if __name__ == "__main__":
     # FastMCP SSE transport configuration
     # The SSE endpoint will be available at http://localhost:8000/sse
@@ -499,6 +631,11 @@ if __name__ == "__main__":
     print("📡 SSE Endpoint: http://127.0.0.1:8000/sse")
     print("🔍 MCP Inspector: Use http://127.0.0.1:8000/sse")
     print("⚠️  Note: http://127.0.0.1:8000 (without /sse) will give 404")
+    print("=" * 60)
+    print("\n✨ Features:")
+    print("   📦 2 Tools: get_next_train_schedule, get_next_train_structured")
+    print("   📚 2 Resources: mtr://stations/list, mtr://lines/map")
+    print("   📝 3 Prompts: check_next_train, plan_mtr_journey, compare_stations")
     print("=" * 60)
 
     mcp.run(transport="sse")

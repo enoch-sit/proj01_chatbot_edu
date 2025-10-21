@@ -1,17 +1,19 @@
 # MTR MCP Server - Complete Feature Summary
 
 ## 🎯 Overview
-A production-ready Model Context Protocol (MCP) server providing real-time Hong Kong MTR train schedules with both **human-friendly** and **machine-readable** interfaces.
+A production-ready Model Context Protocol (MCP) server providing real-time Hong Kong MTR train schedules with **Tools**, **Resources**, and **Prompts** following MCP specification.
 
 **Server Status:** ✅ Running on `http://127.0.0.1:8000/sse`  
-**Version:** 2.0 (with dual-tool architecture)  
+**Version:** 3.0 (full MCP feature set)  
 **Last Updated:** October 21, 2025
 
 ---
 
 ## ✨ Key Features
 
-### 1. **Dual-Tool Architecture**
+### 1. **Tools** (Model-Controlled)
+AI models decide when to invoke these functions based on user requests.
+
 - 🧑 **Human-Friendly Tool** (`get_next_train_schedule`)
   - Returns formatted text with emojis and explanations
   - Perfect for end-user chatbots and conversational AI

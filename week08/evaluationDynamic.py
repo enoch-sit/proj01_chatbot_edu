@@ -52,9 +52,10 @@ def load_map_base64(image_path: Path) -> str:
 
 
 # Configuration
-FLOWISE_API_URL = "https://aiagent.qefmoodle.com/api/v1/prediction/23cb0684-1a5a-4492-8a7e-832dab5a22b4"
+# FLOWISE_API_URL = "https://aiagent.qefmoodle.com/api/v1/prediction/23cb0684-1a5a-4492-8a7e-832dab5a22b4"
 # FLOWISE_API_URL = "https://aiagent.qefmoodle.com/api/v1/prediction/16fee693-5871-4362-918b-6109fe48d939"
 # FLOWISE_API_URL = "https://aiagent.qefmoodle.com/api/v1/prediction/a60fe525-0ba0-4292-a3c6-d5f05ab560a4"
+FLOWISE_API_URL = "https://aiagent.qefmoodle.com/api/v1/prediction/7ca1d7f3-7559-48df-8f22-749c6ad20901"
 # Azure OpenAI for user simulation
 AZURE_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT")
 AZURE_API_KEY = os.environ.get("AZURE_OPENAI_API_KEY")
