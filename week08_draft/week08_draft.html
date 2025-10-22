@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>week08_draft.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h3 id="key-integration-points">Key Integration Points</h3>
+<ul>
+<li><strong>Holistic System Architecture</strong>: These components form a scalable, real-time chatbot system where LangChain and LangGraph handle AI logic, FastAPI serves as the async backend, NGINX proxies for secure HTTPS access, SSE enables streaming responses, async databases persist data non-blockingly, Docker containerizes everything for deployment, and a UI like Streamlit or React provides the frontend interface.</li>
+<li><strong>Real-Time Capabilities</strong>: HTTPS SSE with FastAPI allows token-by-token streaming of LLM responses, enhancing user experience in chatbots, while async database ops ensure non-blocking storage of sessions or vectors.</li>
+<li><strong>Deployment and Security</strong>: Docker simplifies packaging with dependency caching, and NGINX handles HTTPS termination and SSE proxying, making the stack production-ready.</li>
+<li><strong>Potential Challenges</strong>: Integration requires careful async handling in LangChain/LangGraph to avoid blocking; evidence suggests compatibility is strong but may need custom configs for proxies or DBs.</li>
+</ul>
+<h3 id="core-connections">Core Connections</h3>
+<p>Research indicates these tools interconnect in a layered stack for building AI-driven chatbots. At the core, LangChain provides modular components for LLM chains, embeddings, and retrieval, while LangGraph extends it with stateful graphs for multi-step agent workflows—such as routing queries, retrieving context, and generating responses. FastAPI acts as the API layer, exposing endpoints that asynchronously invoke these workflows, supporting high concurrency. For real-time feedback, HTTPS SSE streams partial responses from LLMs, proxied securely through NGINX, which also manages load balancing and certificates. Asynchronous databases (e.g., via asyncpg or aiosqlite) integrate for storing conversation history or vectors without halting the event loop. Docker encapsulates the entire app, ensuring consistent environments across development and production. Frontends like Streamlit connect via API calls or EventSource for SSE, completing the user-facing loop.</p>
+<h3 id="practical-implementation-flow">Practical Implementation Flow</h3>
+<p>To connect them, start with LangChain/LangGraph for the AI backend logic, wrap in FastAPI async routes, configure NGINX for proxying, add SSE for streaming, use async DB drivers for persistence, and Dockerize. Examples from tutorials show this enabling RAG chatbots where users query documents in real-time.</p>
+<hr>
+<p>The integration of chatbot UI, FastAPI, NGINX, HTTPS SSE, asynchronous database storage, Docker, LangGraph, and LangChain represents a modern, scalable architecture for building real-time AI applications, particularly conversational agents like Retrieval-Augmented Generation (RAG) chatbots. This stack leverages Python's asynchronous capabilities for efficiency, containerization for portability, and specialized tools for AI orchestration. Below, we explore the connections in depth, drawing from practical implementations, architectural patterns, and code examples. We'll cover the role of each component, how they interconnect, potential challenges, and best practices, including Mermaid diagrams for visualization and tables for comparisons.</p>
+<h4 id="foundational-components-langchain-and-langgraph">Foundational Components: LangChain and LangGraph</h4>
+<p>LangChain serves as the backbone for LLM-based applications, providing abstractions for chains (sequences of prompts and model calls), agents (decision-making entities), and tools (e.g., search or math functions). It facilitates RAG by integrating embeddings (e.g., from HuggingFace or OpenAI) with vector stores for context retrieval, ensuring responses are grounded in data rather than hallucinations. LangGraph builds on this by enabling stateful, graph-based workflows—nodes represent actions (e.g., &quot;retrieve documents&quot; or &quot;generate response&quot;), edges define transitions, and memory (e.g., via MemorySaver) persists state across interactions. This is crucial for multi-turn chatbots, where context from prior messages influences future responses.</p>
+<p>In practice, a LangGraph workflow might define a StateGraph with nodes like a &quot;retriever&quot; (using LangChain's RecursiveCharacterTextSplitter for chunking documents) and a &quot;model&quot; (invoking an LLM like Granite-3.2-8B-Instruct). The graph compiles into a runnable object, invocable asynchronously. For example, in a RAG setup, documents are chunked (size=1000, overlap=20), embedded, and stored; queries trigger cosine-similarity retrieval (top_k=2-20) before prompting the LLM with templates like ChatPromptTemplate for structured outputs (e.g., thought_process and answer fields).</p>
+<h4 id="fastapi-as-the-asynchronous-backend">FastAPI as the Asynchronous Backend</h4>
+<p>FastAPI bridges the AI logic to the web, offering high-performance async endpoints that integrate seamlessly with LangChain/LangGraph. Its dependency injection and type hints ensure robust APIs, while async support (via Starlette) handles concurrent requests without blocking—ideal for I/O-bound tasks like LLM calls or DB queries.</p>
+<p>Integration occurs by creating endpoints that invoke LangGraph runnables. For instance, a POST /chat/{thread_id} endpoint receives a State (e.g., {&quot;question&quot;: &quot;What is RAG?&quot;}), uses a shared LLMModelManager for embeddings and inference, and runs the graph async via asyncio or ThreadPoolExecutor (max_workers=12 for concurrency). Responses are returned as JSON, with error handling for failures. FastAPI's LCEL compatibility allows chaining LangChain components async, e.g., await chain.ainvoke(input).</p>
+<h4 id="https-sse-for-real-time-streaming">HTTPS SSE for Real-Time Streaming</h4>
+<p>Server-Sent Events (SSE) over HTTPS enable unidirectional, real-time streaming from server to client, perfect for chatbots where LLM responses (e.g., from OpenAI's gpt-4o-mini) arrive token-by-token. FastAPI implements this with EventSourceResponse and async generators: yield f&quot;data: {token}\n\n&quot; for each chunk, handling disconnections to conserve resources.</p>
+<p>Code snippet for SSE in FastAPI:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> sse_starlette.sse <span class="hljs-keyword">import</span> EventSourceResponse
+<span class="hljs-keyword">from</span> openai <span class="hljs-keyword">import</span> AsyncOpenAI
+
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">stream_response</span><span class="hljs-params">(prompt: str, request: Request)</span>:</span>
+    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">generator</span><span class="hljs-params">()</span>:</span>
+        client = AsyncOpenAI()
+        response = <span class="hljs-keyword">await</span> client.chat.completions.create(
+            model=<span class="hljs-string">"gpt-4o-mini"</span>, messages=[{<span class="hljs-string">"role"</span>: <span class="hljs-string">"user"</span>, <span class="hljs-string">"content"</span>: prompt}], stream=<span class="hljs-literal">True</span>
+        )
+        <span class="hljs-keyword">async</span> <span class="hljs-keyword">for</span> chunk <span class="hljs-keyword">in</span> response:
+            <span class="hljs-keyword">if</span> <span class="hljs-keyword">await</span> request.is_disconnected():
+                <span class="hljs-keyword">break</span>
+            content = chunk.choices[<span class="hljs-number">0</span>].delta.content <span class="hljs-keyword">or</span> <span class="hljs-string">""</span>
+            <span class="hljs-keyword">yield</span> <span class="hljs-string">f"data: <span class="hljs-subst">{content}</span>\n\n"</span>
+        <span class="hljs-keyword">yield</span> <span class="hljs-string">"data: [DONE]\n\n"</span>
+    <span class="hljs-keyword">return</span> EventSourceResponse(generator())
+</div></code></pre>
+<p>This integrates with LangChain by wrapping async chains (e.g., await rag_chain.astream_events()), yielding events for streaming. HTTPS is ensured via NGINX proxying.</p>
+<h4 id="asynchronous-database-storage">Asynchronous Database Storage</h4>
+<p>Async DB integration prevents blocking during storage/retrieval, using drivers like asyncpg (Postgres), aiosqlite (SQLite), or AsyncQdrant (vector stores). In LangChain setups, vector stores like Qdrant handle async embedding and retrieval: await vector_store.aadd_documents(documents), await retriever.ainvoke(query). For sessions, async SQLite fetches history: async with aiosqlite.connect(db) as conn, await conn.execute(query).</p>
+<p>This connects to FastAPI via async dependencies and to LangGraph for state persistence, enabling scalable RAG where documents update in real-time without downtime.</p>
+<h4 id="nginx-as-reverse-proxy">NGINX as Reverse Proxy</h4>
+<p>NGINX proxies requests to FastAPI, handling HTTPS termination (via certbot or self-signed certs) and load balancing. Configure forwarded headers (X-Forwarded-For, -Proto, -Host) and SSE support: proxy_http_version 1.1; proxy_set_header Connection &quot;&quot;;. FastAPI trusts these with --forwarded-allow-ips=&quot;*&quot;. For path prefixes (e.g., /api), use root_path=&quot;/api&quot; in FastAPI.</p>
+<p>Sample NGINX config:</p>
+<pre class="hljs"><code><div>server {
+    listen 443 ssl;
+    server_name example.com;
+    ssl_certificate /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+
+    location / {
+        proxy_pass http://localhost:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Connection &quot;&quot;;
+    }
+}
+</div></code></pre>
+<p>This secures SSE streams and scales FastAPI instances.</p>
+<h4 id="docker-for-containerization">Docker for Containerization</h4>
+<p>Docker packages the app into images for consistent deployment. A Dockerfile starts from python:3.9, copies requirements.txt first for caching, installs deps (pip install -r requirements.txt), copies code, and runs with CMD [&quot;fastapi&quot;, &quot;run&quot;, &quot;main.py&quot;, &quot;--port&quot;, &quot;80&quot;]. LangChain deps (e.g., langchain, qdrant-client) are included in requirements.txt. Multi-container setups (e.g., via docker-compose) separate FastAPI, NGINX, and DB.</p>
+<p>Build: docker build -t chatbot-app .; Run: docker run -d -p 80:80 chatbot-app.</p>
+<h4 id="chatbot-ui-integration">Chatbot UI Integration</h4>
+<p>UIs like Streamlit (simple Python-based) or React (custom) connect to FastAPI. Streamlit uses st.chat_input for queries, sending to /chat and displaying streamed responses via EventSource. React uses new EventSource(&quot;/stream&quot;) with onmessage handlers. Vercel AI SDK or FastUI simplify SSE handling.</p>
+<h4 id="overall-system-flow-mermaid-diagram">Overall System Flow: Mermaid Diagram</h4>
+<pre><code class="language-mermaid"><div class="mermaid">graph TD
+    A[Chatbot UI e.g. React Typescript]
+    B[NGINX Proxy HTTPS]
+    C[FastAPI Async Endpoints]
+    D[LangGraph Stateful Workflow]
+    E[LangChain Chains: Embed, Retrieve, Generate]
+    F[Async Vector DB e.g. Qdrant]
+    G[Async Relational DB e.g. SQLite/Postgres]
+    H[Docker Containers]
+    I[LangChain/LangGraph Deps]
+    
+    A -->|HTTP Request/SSE Connect| B
+    B -->|Forwarded Headers/SSE Proxy| C
+    C -->|Async Invoke| D
+    D -->|Nodes/Edges| E
+    E -->|Async Add/Retrieve| F
+    C -->|Async Store/Fetch| G
+    H -->|Encapsulate| B
+    H -->|Encapsulate| C
+    H -->|Encapsulate| F
+    H -->|Encapsulate| G
+    H -->|Encapsulate| I
+    A -.->|SSE Stream Tokens| C
+    
+    style A fill:#FF6B6B,stroke:#C92A2A,stroke-width:3px,color:#fff
+    style B fill:#4ECDC4,stroke:#0A9396,stroke-width:3px,color:#fff
+    style C fill:#45B7D1,stroke:#1E88E5,stroke-width:3px,color:#fff
+    style D fill:#A78BFA,stroke:#7C3AED,stroke-width:3px,color:#fff
+    style E fill:#A78BFA,stroke:#7C3AED,stroke-width:3px,color:#fff
+    style F fill:#FFA726,stroke:#EF6C00,stroke-width:3px,color:#fff
+    style G fill:#FFA726,stroke:#EF6C00,stroke-width:3px,color:#fff
+    style H fill:#66BB6A,stroke:#2E7D32,stroke-width:3px,color:#fff
+    style I fill:#A78BFA,stroke:#7C3AED,stroke-width:3px,color:#fff
+</div></code></pre>
+<p>This diagram illustrates the request flow: UI to NGINX to FastAPI, invoking AI logic, with async DB access and streaming back.</p>
+<h4 id="comparative-table-of-components">Comparative Table of Components</h4>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Role in Stack</th>
+<th>Key Features/Integrations</th>
+<th>Examples/Dependencies</th>
+<th>Challenges/Best Practices</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Chatbot UI</td>
+<td>User Interface</td>
+<td>Handles input/output, connects via SSE for real-time; supports Streamlit for quick prototypes or React for custom.</td>
+<td>Streamlit st.chat_input, React EventSource.</td>
+<td>Ensure SSE fallback for older browsers; use Vercel AI SDK for simplicity.</td>
+</tr>
+<tr>
+<td>FastAPI</td>
+<td>Backend API Server</td>
+<td>Async endpoints for LangGraph invocation, SSE streaming; type-safe with Pydantic.</td>
+<td>POST /chat, EventSourceResponse for SSE.</td>
+<td>Use async def for routes; monitor concurrency with uvicorn --workers.</td>
+</tr>
+<tr>
+<td>NGINX</td>
+<td>Reverse Proxy/Security</td>
+<td>HTTPS termination, load balancing, SSE proxying with specific headers.</td>
+<td>proxy_pass to FastAPI, Connection &quot;&quot;.</td>
+<td>Configure for long-lived SSE connections; avoid buffering.</td>
+</tr>
+<tr>
+<td>HTTPS SSE</td>
+<td>Real-Time Communication</td>
+<td>Streams LLM tokens unidirectionally; lightweight alternative to WebSockets.</td>
+<td>Async generators yielding &quot;data: {token}\n\n&quot;.</td>
+<td>Handle disconnections; add heartbeats for proxies.</td>
+</tr>
+<tr>
+<td>Async DB Storage</td>
+<td>Persistence Layer</td>
+<td>Non-blocking storage for sessions/vectors; integrates with LangChain retrievers.</td>
+<td>aiosqlite for history, AsyncQdrant for vectors.</td>
+<td>Use await for ops; batch inserts for efficiency.</td>
+</tr>
+<tr>
+<td>Docker</td>
+<td>Containerization/Deployment</td>
+<td>Packages app with deps; multi-container for stack separation.</td>
+<td>Dockerfile with caching for requirements.txt.</td>
+<td>Optimize layers; use docker-compose for DB/NGINX.</td>
+</tr>
+<tr>
+<td>LangGraph</td>
+<td>AI Workflow Orchestration</td>
+<td>Stateful graphs for agents; memory for multi-turn chats.</td>
+<td>StateGraph with nodes like &quot;retriever&quot;.</td>
+<td>Compile to async runnable; extend for tools.</td>
+</tr>
+<tr>
+<td>LangChain</td>
+<td>LLM Abstractions</td>
+<td>Chains, embeddings, RAG; async support for integration.</td>
+<td>RecursiveCharacterTextSplitter, OpenAIEmbeddings.</td>
+<td>Use ainvoke/astream for async; avoid sync in loops.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="advanced-considerations-and-extensions">Advanced Considerations and Extensions</h4>
+<p>For production, scale with Kubernetes on Docker images, monitoring via Prometheus. Add authentication (e.g., JWT in FastAPI) and rate limiting. Controversies include SSE vs. WebSockets (SSE is simpler for uni-directional but less flexible); async DBs reduce latency but increase complexity—tests show up to 50% throughput gains. Extend with multi-agent systems in LangGraph for collaborative tasks.</p>
+<p>This interconnected stack, as evidenced by tutorials and guides, enables robust, real-time AI chatbots deployable across environments.</p>
+<h3 id="key-citations">Key Citations</h3>
+<ul>
+<li><a href="https://medium.com/codex/create-a-rag-chatbot-with-langgraph-and-fastapi-a-step-by-step-guide-4c2fbc33ed46">Create a RAG Chatbot with LangGraph and FastAPI - Medium</a></li>
+<li><a href="https://levelup.gitconnected.com/building-an-ai-chatbot-with-langgraph-fastapi-streamlit-an-end-to-end-guide-f658969b4436">Building an AI Chatbot with LangGraph, FastAPI &amp; Streamlit</a></li>
+<li><a href="https://blog.gopenai.com/how-to-stream-llm-responses-in-real-time-using-fastapi-and-sse-d2a5a30f2928">How to Stream LLM Responses in Real-Time Using FastAPI and SSE</a></li>
+<li><a href="https://fastapi.tiangolo.com/deployment/docker/">FastAPI in Containers - Docker</a></li>
+<li><a href="https://fastapi.tiangolo.com/advanced/behind-a-proxy/">Behind a Proxy - FastAPI</a></li>
+<li><a href="https://blog.futuresmart.ai/rag-system-with-async-fastapi-qdrant-langchain-and-openai">Async RAG System with FastAPI, Qdrant &amp; LangChain</a></li>
+<li><a href="https://medium.com/%40inandelibas/real-time-notifications-in-python-using-sse-with-fastapi-1c8c54746eb7">Real-Time Notifications in Python: Using SSE with FastAPI</a></li>
+<li><a href="https://serverfault.com/questions/801628/for-server-sent-events-sse-what-nginx-proxy-configuration-is-appropriate">For Server-Sent Events (SSE) what Nginx proxy configuration is appropriate</a></li>
+<li><a href="https://python.langchain.com/docs/concepts/async/">Async programming with LangChain</a></li>
+<li><a href="https://subhojyoti99.medium.com/deploying-a-langchain-app-with-docker-react-and-fastapi-556a2ea270f5">Deploying a LangChain App with Docker, React, and FastAPI</a></li>
+</ul>
+<h3 id="update">update</h3>
+<pre><code class="language-mermaid"><div class="mermaid">graph TD
+    A[Chatbot UI e.g. React Typescript]
+    B[NGINX Proxy HTTPS]
+    C[FastAPI Async Endpoints]
+    D[LangGraph Stateful Workflow]
+    E[LangChain Chains: Embed, Retrieve, Generate]
+    F[Vector DB]
+    G[Async Relational DB e.g. SQLite/Postgres]
+    H[Docker Containers]
+    
+    subgraph Backend [AI Backend Services]
+        C
+        D
+        E
+    end
+    
+    A -->|HTTP Request/SSE Connect| B
+    B -->|Forwarded Headers/SSE Proxy| C
+    C -->|Async Invoke| D
+    D -->|Nodes/Edges| E
+    E -->|Async Add/Retrieve| F
+    C -->|Async Store/Fetch| G
+    H -->|Encapsulate| A
+    H -->|Encapsulate| B
+    H -->|Encapsulate| Backend
+    H -->|Encapsulate| F
+    H -->|Encapsulate| G
+    A -.->|SSE Stream Tokens| C
+    
+    style A fill:#FF6B6B,stroke:#C92A2A,stroke-width:3px,color:#fff
+    style B fill:#4ECDC4,stroke:#0A9396,stroke-width:3px,color:#fff
+    style C fill:#45B7D1,stroke:#1E88E5,stroke-width:3px,color:#fff
+    style D fill:#A78BFA,stroke:#7C3AED,stroke-width:3px,color:#fff
+    style E fill:#A78BFA,stroke:#7C3AED,stroke-width:3px,color:#fff
+    style F fill:#FFA726,stroke:#EF6C00,stroke-width:3px,color:#fff
+    style G fill:#FFA726,stroke:#EF6C00,stroke-width:3px,color:#fff
+    style H fill:#66BB6A,stroke:#2E7D32,stroke-width:3px,color:#fff
+    style Backend fill:none,stroke:#000,stroke-width:2px,stroke-dasharray:5,5
+</div></code></pre>
+<h3 id=""></h3>
+<p>Nginx</p>
+<pre><code class="language-mermaid"><div class="mermaid">graph LR
+    subgraph "Client Side"
+        A[Client Browser]
+    end
+    subgraph "Server Side"
+        B[NGINX Reverse Proxy]
+        C["FastAPI Backend
+        (localhost:8000)"]
+        D["Frontend App
+        (localhost:3000 or static)"]
+    end
+
+    A -->|"HTTP Request: /api/endpoint"| B
+    A -->|"HTTP Request: /xxx/page"| B
+    B -->|"Proxies /api/"| C
+    B -->|"Proxies /xxx/"| D
+
+    classDef client fill:#add8e6,stroke:#333,stroke-width:2px,color:#000
+    classDef proxy fill:#90ee90,stroke:#333,stroke-width:2px,color:#000
+    classDef backend fill:#ffd700,stroke:#333,stroke-width:2px,color:#000
+    classDef frontend fill:#da70d6,stroke:#333,stroke-width:2px,color:#000
+    
+    class A client
+    class B proxy
+    class C backend
+    class D frontend
+</div></code></pre>
+<h3 id="nginx-update">Nginx update</h3>
+<p>Nginx</p>
+<pre><code class="language-mermaid"><div class="mermaid">graph LR
+    subgraph "Client Side"
+        A[Client Browser]:::client
+    end
+    subgraph "Server Side"
+        B["NGINX Reverse Proxy<br>(HTTPS:443)"]:::proxy
+        C["FastAPI<br>(API + Vite Frontend)<br>(localhost:8000)"]:::backend
+        E["Flowise Server<br>(localhost:3000)"]:::flowise
+    end
+
+    A -->|"HTTPS Request: /api/endpoint"| B
+    A -->|"HTTPS Request: /xxx/page"| B
+    A -->|"HTTPS Request: /flowise/"| B
+    B -->|"Proxies /api/"| C
+    B -->|"Proxies /xxx/"| C
+    B -->|"Proxies /flowise/"| E
+
+    classDef client fill:#add8e6,stroke:#333,stroke-width:2px,color:#000;
+    classDef proxy fill:#90ee90,stroke:#333,stroke-width:2px,color:#000;
+    classDef backend fill:#ffd700,stroke:#333,stroke-width:2px,color:#000;
+    classDef flowise fill:#8a2be2,stroke:#333,stroke-width:2px,color:#fff;
+</div></code></pre>
+<h3 id="nginx-update-2">Nginx update 2</h3>
+<p>Nginx</p>
+<p>Nginx</p>
+<pre><code class="language-mermaid"><div class="mermaid">graph LR
+    subgraph "Client Side"
+        A[Client Browser]:::client
+    end
+    subgraph "Server Side"
+        B["NGINX Reverse Proxy<br>(HTTPS:443, project-1-04.eduhk.hk)"]:::proxy
+        C["LangGraph Playground<br>(localhost:2024)"]:::backend
+        E["Flowise Server<br>(localhost:3000)"]:::flowise
+    end
+
+    A -->|"HTTPS Request: /"| B
+    A -->|"HTTPS Request: /langgraphplayground/endpoint"| B
+    B -->|"Proxies /"| E
+    B -->|"Proxies /langgraphplayground/"| C
+
+    classDef client fill:#add8e6,stroke:#333,stroke-width:2px,color:#000;
+    classDef proxy fill:#90ee90,stroke:#333,stroke-width:2px,color:#000;
+    classDef backend fill:#ffd700,stroke:#333,stroke-width:2px,color:#000;
+    classDef flowise fill:#8a2be2,stroke:#333,stroke-width:2px,color:#fff;
+</div></code></pre>
+<h3 id="nginx-update-3">Nginx update 3</h3>
+<p>I'll explain both location blocks in detail and highlight the key differences between them.</p>
+<hr>
+<h2 id="overview">Overview</h2>
+<p>Both blocks configure <strong>reverse proxy</strong> functionality, but they're optimized for different types of applications:</p>
+<ol>
+<li><strong><code>/langgraphplayground/</code></strong> - Configured for a <strong>real-time, interactive application</strong> (FastAPI with WebSockets)</li>
+<li><strong><code>/</code></strong> - Configured for a <strong>standard web application</strong> (likely React/Next.js)</li>
+</ol>
+<p>Let me break down each directive and then show you the differences.</p>
+<hr>
+<h2 id="location-block-1-langgraphplayground">Location Block 1: <code>/langgraphplayground/</code></h2>
+<pre class="hljs"><code><div><span class="hljs-attribute">location</span> /langgraphplayground/ {
+    <span class="hljs-attribute">proxy_pass</span> http://localhost:2024;
+    <span class="hljs-attribute">proxy_http_version</span> <span class="hljs-number">1</span>.<span class="hljs-number">1</span>;
+    <span class="hljs-attribute">proxy_set_header</span> Upgrade <span class="hljs-variable">$http_upgrade</span>;
+    <span class="hljs-attribute">proxy_set_header</span> Connection <span class="hljs-variable">$connection_upgrade</span>;
+    <span class="hljs-attribute">proxy_set_header</span> Host <span class="hljs-variable">$host</span>;
+    <span class="hljs-attribute">proxy_set_header</span> X-Real-IP <span class="hljs-variable">$remote_addr</span>;
+    <span class="hljs-attribute">proxy_set_header</span> X-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+    <span class="hljs-attribute">proxy_set_header</span> X-Forwarded-Proto <span class="hljs-variable">$scheme</span>;
+    <span class="hljs-attribute">proxy_buffering</span> <span class="hljs-literal">off</span>;
+    <span class="hljs-attribute">proxy_cache</span> <span class="hljs-literal">off</span>;
+    <span class="hljs-attribute">proxy_read_timeout</span> <span class="hljs-number">300s</span>;
+    <span class="hljs-attribute">proxy_connect_timeout</span> <span class="hljs-number">75s</span>;
+}
+</div></code></pre>
+<p>This is configured for <strong>WebSocket support and real-time streaming</strong>.</p>
+<hr>
+<h3 id="location-langgraphplayground"><code>location /langgraphplayground/</code></h3>
+<p><strong>What it matches</strong>: Any URL starting with <code>/langgraphplayground/</code></p>
+<p><strong>Examples</strong>:</p>
+<pre class="hljs"><code><div>✓ https://project-1-04.eduhk.hk/langgraphplayground/
+✓ https://project-1-04.eduhk.hk/langgraphplayground/api/chat
+✓ https://project-1-04.eduhk.hk/langgraphplayground/static/logo.png
+✗ https://project-1-04.eduhk.hk/langGraph/  (case-sensitive)
+✗ https://project-1-04.eduhk.hk/other/path
+</div></code></pre>
+<p><strong>The trailing slash matters</strong>:</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">location</span> /langgraphplayground/  {  <span class="hljs-comment"># With trailing slash</span>
+    <span class="hljs-comment"># Matches: /langgraphplayground/*, but NOT /langgraphplayground</span>
+}
+
+<span class="hljs-attribute">location</span> /langgraphplayground {    <span class="hljs-comment"># Without trailing slash</span>
+    <span class="hljs-comment"># Matches: /langgraphplayground and /langgraphplayground/*</span>
+}
+</div></code></pre>
+<p>In your case, with the trailing slash:</p>
+<pre class="hljs"><code><div>/langgraphplayground       → Goes to location /  (caught by second block)
+/langgraphplayground/      → Goes to this block ✓
+/langgraphplayground/chat  → Goes to this block ✓
+</div></code></pre>
+<hr>
+<h3 id="proxypass-httplocalhost2024"><code>proxy_pass http://localhost:2024;</code></h3>
+<p><strong>What it does</strong>: Forwards requests to FastAPI running on port 2024</p>
+<p><strong>No trailing slash</strong>: This is crucial!</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># Your configuration (no trailing slash)</span>
+<span class="hljs-attribute">proxy_pass</span> http://localhost:2024;
+
+Request: /langgraphplayground/api/<span class="hljs-attribute">chat</span>
+Proxied to: http://localhost:2024/langgraphplayground/api/chat
+             (Full path preserved)
+</div></code></pre>
+<p><strong>If it had a trailing slash</strong> (different behavior):</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># Alternative (WITH trailing slash)</span>
+<span class="hljs-attribute">proxy_pass</span> http://localhost:2024/;
+
+Request: /langgraphplayground/api/<span class="hljs-attribute">chat</span>
+Proxied to: http://localhost:2024/api/chat
+             (Path prefix removed!)
+</div></code></pre>
+<p><strong>Why no trailing slash for FastAPI?</strong></p>
+<p>The comment says: <code># Don't use rewrite! Let FastAPI handle the full path</code></p>
+<p>This means your FastAPI app expects the full path including <code>/langgraphplayground/</code>:</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># In your FastAPI app</span>
+<span class="hljs-meta">@app.get("/langgraphplayground/api/chat")</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">chat</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-keyword">return</span> {<span class="hljs-string">"status"</span>: <span class="hljs-string">"ok"</span>}
+
+<span class="hljs-comment"># If Nginx removed the prefix, FastAPI would receive:</span>
+<span class="hljs-comment"># GET /api/chat  ← Route not found! 404 error</span>
+</div></code></pre>
+<hr>
+<h3 id="proxyhttpversion-11"><code>proxy_http_version 1.1;</code></h3>
+<p><strong>What it does</strong>: Forces Nginx to use HTTP/1.1 when talking to the backend</p>
+<p><strong>Why this matters for WebSockets</strong>:</p>
+<pre class="hljs"><code><div>HTTP/1.0 (Nginx default for proxy_pass):
+  - Opens connection
+  - Sends request
+  - Gets response
+  - Closes connection
+  - ❌ Can't upgrade to WebSocket
+
+HTTP/1.1 (explicitly set):
+  - Opens connection
+  - Can keep connection alive
+  - Supports &quot;Connection: Upgrade&quot; header
+  - ✓ Can upgrade to WebSocket
+</div></code></pre>
+<p><strong>WebSocket upgrade process</strong>:</p>
+<pre class="hljs"><code><div>1. Client → Nginx:
+   GET /langgraphplayground/ws HTTP/1.1
+   Upgrade: websocket
+   Connection: Upgrade
+
+2. Nginx → Backend (HTTP/1.1 required):
+   GET /langgraphplayground/ws HTTP/1.1
+   Upgrade: websocket
+   Connection: Upgrade
+
+3. Backend → Nginx:
+   HTTP/1.1 101 Switching Protocols
+   Upgrade: websocket
+   Connection: Upgrade
+
+4. Nginx → Client:
+   HTTP/1.1 101 Switching Protocols
+   
+5. WebSocket connection established ✓
+   Real-time bidirectional communication begins
+</div></code></pre>
+<p><strong>Without <code>proxy_http_version 1.1;</code></strong>:</p>
+<pre class="hljs"><code><div>Nginx uses HTTP/1.0
+Upgrade header ignored
+WebSocket upgrade fails
+Error: 400 Bad Request
+</div></code></pre>
+<hr>
+<h3 id="proxysetheader-upgrade-httpupgrade"><code>proxy_set_header Upgrade $http_upgrade;</code></h3>
+<p><strong>What it does</strong>: Forwards the &quot;Upgrade&quot; header from client to backend</p>
+<p><strong><code>$http_upgrade</code></strong>: Nginx variable containing the value of the client's <code>Upgrade</code> header</p>
+<p><strong>How it works</strong>:</p>
+<pre class="hljs"><code><div>Client sends:
+  GET /langgraphplayground/ws HTTP/1.1
+  Upgrade: websocket
+  Connection: Upgrade
+
+Nginx reads $http_upgrade = &quot;websocket&quot;
+
+Nginx forwards to backend:
+  GET /langgraphplayground/ws HTTP/1.1
+  Upgrade: websocket    ← Set by this directive
+  Connection: upgrade
+</div></code></pre>
+<p><strong>Why this is critical for WebSockets</strong>:</p>
+<p>The backend needs to see the <code>Upgrade</code> header to know the client wants to switch protocols:</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># In your FastAPI app</span>
+<span class="hljs-keyword">from</span> fastapi <span class="hljs-keyword">import</span> WebSocket
+
+<span class="hljs-meta">@app.websocket("/langgraphplayground/ws")</span>
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">websocket_endpoint</span><span class="hljs-params">(websocket: WebSocket)</span>:</span>
+    <span class="hljs-keyword">await</span> websocket.accept()  <span class="hljs-comment"># Only works if Upgrade header present</span>
+</div></code></pre>
+<p><strong>Without this directive</strong>:</p>
+<pre class="hljs"><code><div>Client → Nginx: Upgrade: websocket
+Nginx → Backend: (no Upgrade header)
+Backend: &quot;This is just a regular HTTP request&quot;
+Backend sends: 200 OK (wrong!)
+WebSocket fails to establish
+</div></code></pre>
+<hr>
+<h3 id="proxysetheader-connection-connectionupgrade"><code>proxy_set_header Connection $connection_upgrade;</code></h3>
+<p><strong>What it does</strong>: Sets the Connection header based on whether it's a WebSocket upgrade</p>
+<p><strong><code>$connection_upgrade</code></strong>: Special Nginx variable (needs to be defined in http block)</p>
+<p><strong>This variable should be defined in your nginx.conf</strong>:</p>
+<pre class="hljs"><code><div><span class="hljs-section">http</span> {
+    <span class="hljs-attribute">map</span> <span class="hljs-variable">$http_upgrade</span> <span class="hljs-variable">$connection_upgrade</span> {
+        <span class="hljs-attribute">default</span> upgrade;
+        ''      close;
+    }
+    
+    <span class="hljs-comment"># ... rest of config</span>
+}
+</div></code></pre>
+<p><strong>How this map works</strong>:</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">map</span> <span class="hljs-variable">$http_upgrade</span> <span class="hljs-variable">$connection_upgrade</span> {
+    <span class="hljs-attribute">default</span> upgrade;    <span class="hljs-comment"># If $http_upgrade has any value → "upgrade"</span>
+    ''      close;      <span class="hljs-comment"># If $http_upgrade is empty → "close"</span>
+}
+</div></code></pre>
+<p><strong>Real-world behavior</strong>:</p>
+<p><strong>Scenario 1 - WebSocket request</strong>:</p>
+<pre class="hljs"><code><div>Client sends:
+  Upgrade: websocket
+  
+$http_upgrade = &quot;websocket&quot;
+
+Map evaluates:
+  $http_upgrade is not empty
+  → $connection_upgrade = &quot;upgrade&quot;
+  
+Nginx sends to backend:
+  Connection: upgrade  ← Tells backend to upgrade protocol
+</div></code></pre>
+<p><strong>Scenario 2 - Normal HTTP request</strong>:</p>
+<pre class="hljs"><code><div>Client sends:
+  (no Upgrade header)
+  
+$http_upgrade = &quot;&quot;
+
+Map evaluates:
+  $http_upgrade is empty ('')
+  → $connection_upgrade = &quot;close&quot;
+  
+Nginx sends to backend:
+  Connection: close  ← Normal HTTP, close after response
+</div></code></pre>
+<p><strong>Why not just hardcode <code>Connection: Upgrade</code>?</strong></p>
+<pre class="hljs"><code><div><span class="hljs-comment"># Bad: Always sends "Upgrade"</span>
+<span class="hljs-attribute">proxy_set_header</span> Connection <span class="hljs-string">"Upgrade"</span>;
+
+Problem:
+  - <span class="hljs-attribute">Normal</span> HTTP requests get <span class="hljs-string">"Connection: Upgrade"</span>
+  - Backend gets confused
+  - Connection handling breaks
+</div></code></pre>
+<p>The map makes it <strong>dynamic</strong> - upgrades only when needed!</p>
+<hr>
+<h3 id="proxysetheader-host-host"><code>proxy_set_header Host $host;</code></h3>
+<p><strong>What it does</strong>: Tells the backend which domain the client requested</p>
+<p><strong><code>$host</code></strong>: Nginx variable containing the requested hostname</p>
+<p><strong>Example</strong>:</p>
+<pre class="hljs"><code><div>User visits: https://project-1-04.eduhk.hk/langgraphplayground/
+
+$host = &quot;project-1-04.eduhk.hk&quot;
+
+Nginx sends to backend:
+  GET /langgraphplayground/ HTTP/1.1
+  Host: project-1-04.eduhk.hk
+</div></code></pre>
+<p><strong>Why the backend needs this</strong>:</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># In your FastAPI app</span>
+<span class="hljs-keyword">from</span> fastapi <span class="hljs-keyword">import</span> Request
+
+<span class="hljs-meta">@app.get("/langgraphplayground/api/data")</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_data</span><span class="hljs-params">(request: Request)</span>:</span>
+    <span class="hljs-comment"># Backend can see which domain was requested</span>
+    host = request.headers.get(<span class="hljs-string">"host"</span>)  <span class="hljs-comment"># "project-1-04.eduhk.hk"</span>
+    
+    <span class="hljs-comment"># Can generate correct URLs</span>
+    <span class="hljs-keyword">return</span> {
+        <span class="hljs-string">"download_url"</span>: <span class="hljs-string">f"https://<span class="hljs-subst">{host}</span>/langgraphplayground/download/file.pdf"</span>
+    }
+</div></code></pre>
+<p><strong>Without this header</strong>:</p>
+<pre class="hljs"><code><div>Backend receives:
+  Host: localhost:2024  (the proxy_pass destination)
+  
+Backend generates URLs:
+  http://localhost:2024/download/file.pdf  ❌ Broken for client!
+</div></code></pre>
+<hr>
+<h3 id="proxysetheader-x-real-ip-remoteaddr"><code>proxy_set_header X-Real-IP $remote_addr;</code></h3>
+<p><strong>What it does</strong>: Sends the client's actual IP address to the backend</p>
+<p><strong><code>$remote_addr</code></strong>: Nginx variable containing the client's IP</p>
+<p><strong>The problem without this</strong>:</p>
+<pre class="hljs"><code><div>Real scenario:
+  Client (203.123.45.67) → Nginx → Backend
+  
+Without X-Real-IP:
+  Backend sees IP: 127.0.0.1 (Nginx's IP)
+  
+With X-Real-IP:
+  Backend sees IP: 203.123.45.67 (client's real IP)
+</div></code></pre>
+<p><strong>Why this matters</strong>:</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># In your FastAPI app</span>
+<span class="hljs-keyword">from</span> fastapi <span class="hljs-keyword">import</span> Request
+
+<span class="hljs-meta">@app.get("/langgraphplayground/api/data")</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_data</span><span class="hljs-params">(request: Request)</span>:</span>
+    <span class="hljs-comment"># For logging</span>
+    client_ip = request.headers.get(<span class="hljs-string">"x-real-ip"</span>)
+    logger.info(<span class="hljs-string">f"Request from <span class="hljs-subst">{client_ip}</span>"</span>)
+    
+    <span class="hljs-comment"># For rate limiting</span>
+    <span class="hljs-keyword">if</span> redis.get(<span class="hljs-string">f"rate_limit:<span class="hljs-subst">{client_ip}</span>"</span>) &gt; <span class="hljs-number">100</span>:
+        <span class="hljs-keyword">return</span> {<span class="hljs-string">"error"</span>: <span class="hljs-string">"Too many requests"</span>}
+    
+    <span class="hljs-comment"># For geolocation</span>
+    country = geoip.lookup(client_ip)
+    
+    <span class="hljs-comment"># For security</span>
+    <span class="hljs-keyword">if</span> client_ip <span class="hljs-keyword">in</span> blocked_ips:
+        <span class="hljs-keyword">return</span> {<span class="hljs-string">"error"</span>: <span class="hljs-string">"Access denied"</span>}
+</div></code></pre>
+<p><strong>Without this header</strong>, you'd:</p>
+<ul>
+<li>Log every request as coming from 127.0.0.1</li>
+<li>Rate limit Nginx instead of individual users</li>
+<li>Can't block abusive IPs</li>
+<li>Can't do geographical restrictions</li>
+</ul>
+<hr>
+<h3 id="proxysetheader-x-forwarded-for-proxyaddxforwardedfor"><code>proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</code></h3>
+<p><strong>What it does</strong>: Maintains a chain of IP addresses through multiple proxies</p>
+<p><strong><code>$proxy_add_x_forwarded_for</code></strong>: Special variable that <strong>appends</strong> to existing X-Forwarded-For header</p>
+<p><strong>How it works</strong>:</p>
+<pre class="hljs"><code><div>Scenario 1 - Direct connection:
+  Client (203.123.45.67) → Nginx → Backend
+  
+  Client sends: (no X-Forwarded-For header)
+  
+  $proxy_add_x_forwarded_for = &quot;203.123.45.67&quot;
+  
+  Nginx sends to backend:
+    X-Forwarded-For: 203.123.45.67
+
+Scenario 2 - Through a proxy chain:
+  Client (203.123.45.67) → CDN (1.2.3.4) → Nginx → Backend
+  
+  CDN sends: X-Forwarded-For: 203.123.45.67
+  
+  $proxy_add_x_forwarded_for = &quot;203.123.45.67, 1.2.3.4&quot;
+  
+  Nginx sends to backend:
+    X-Forwarded-For: 203.123.45.67, 1.2.3.4
+</div></code></pre>
+<p><strong>Reading the chain (in your backend)</strong>:</p>
+<pre class="hljs"><code><div>x_forwarded_for = request.headers.get(<span class="hljs-string">"x-forwarded-for"</span>)
+<span class="hljs-comment"># "203.123.45.67, 1.2.3.4"</span>
+
+ips = x_forwarded_for.split(<span class="hljs-string">","</span>)
+client_ip = ips[<span class="hljs-number">0</span>].strip()  <span class="hljs-comment"># "203.123.45.67" ← Original client</span>
+</div></code></pre>
+<p><strong>Difference from X-Real-IP</strong>:</p>
+<pre class="hljs"><code><div>X-Real-IP: 203.123.45.67
+  → Single IP (immediate client)
+
+X-Forwarded-For: 203.123.45.67, 1.2.3.4, 5.6.7.8
+  → Full chain (original client → all proxies)
+</div></code></pre>
+<p><strong>Best practice in your backend</strong>:</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># Trust X-Real-IP (set by your Nginx)</span>
+client_ip = request.headers.get(<span class="hljs-string">"x-real-ip"</span>)
+
+<span class="hljs-comment"># Or get first IP from X-Forwarded-For</span>
+xff = request.headers.get(<span class="hljs-string">"x-forwarded-for"</span>, <span class="hljs-string">""</span>).split(<span class="hljs-string">","</span>)
+client_ip = xff[<span class="hljs-number">0</span>].strip() <span class="hljs-keyword">if</span> xff <span class="hljs-keyword">else</span> <span class="hljs-literal">None</span>
+</div></code></pre>
+<hr>
+<h3 id="proxysetheader-x-forwarded-proto-scheme"><code>proxy_set_header X-Forwarded-Proto $scheme;</code></h3>
+<p><strong>What it does</strong>: Tells the backend which protocol the client used (http or https)</p>
+<p><strong><code>$scheme</code></strong>: Nginx variable = &quot;http&quot; or &quot;https&quot;</p>
+<p><strong>Example</strong>:</p>
+<pre class="hljs"><code><div>Client visits: https://project-1-04.eduhk.hk/langgraphplayground/
+
+$scheme = &quot;https&quot;
+
+Nginx sends to backend:
+  X-Forwarded-Proto: https
+</div></code></pre>
+<p><strong>Why the backend needs this</strong>:</p>
+<pre class="hljs"><code><div>Real scenario:
+  Client → (HTTPS) → Nginx → (HTTP) → Backend on localhost:2024
+  
+Without X-Forwarded-Proto:
+  Backend thinks: &quot;Request came via HTTP&quot;
+  Backend generates: http://project-1-04.eduhk.hk/download
+  Browser blocks: &quot;Mixed content! HTTPS page loading HTTP resource&quot;
+  
+With X-Forwarded-Proto:
+  Backend knows: &quot;Original request was HTTPS&quot;
+  Backend generates: https://project-1-04.eduhk.hk/download ✓
+</div></code></pre>
+<p><strong>In your FastAPI app</strong>:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> fastapi <span class="hljs-keyword">import</span> Request
+
+<span class="hljs-meta">@app.get("/langgraphplayground/api/data")</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_data</span><span class="hljs-params">(request: Request)</span>:</span>
+    <span class="hljs-comment"># Check if original request was secure</span>
+    proto = request.headers.get(<span class="hljs-string">"x-forwarded-proto"</span>)
+    
+    <span class="hljs-keyword">if</span> proto == <span class="hljs-string">"https"</span>:
+        <span class="hljs-comment"># Generate HTTPS URLs</span>
+        <span class="hljs-keyword">return</span> {<span class="hljs-string">"secure"</span>: <span class="hljs-literal">True</span>}
+    <span class="hljs-keyword">else</span>:
+        <span class="hljs-comment"># Maybe redirect to HTTPS</span>
+        <span class="hljs-keyword">return</span> RedirectResponse(<span class="hljs-string">"https://project-1-04.eduhk.hk/..."</span>)
+</div></code></pre>
+<p><strong>Security consideration</strong>:</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># In production</span>
+<span class="hljs-keyword">if</span> request.headers.get(<span class="hljs-string">"x-forwarded-proto"</span>) != <span class="hljs-string">"https"</span>:
+    <span class="hljs-comment"># Force HTTPS for sensitive operations</span>
+    <span class="hljs-keyword">raise</span> HTTPException(<span class="hljs-number">403</span>, <span class="hljs-string">"HTTPS required"</span>)
+</div></code></pre>
+<hr>
+<h3 id="proxybuffering-off"><code>proxy_buffering off;</code></h3>
+<p><strong>What it does</strong>: Disables response buffering - sends data immediately as it arrives</p>
+<p><strong>Default behavior (buffering ON)</strong>:</p>
+<pre class="hljs"><code><div>Backend generates response slowly (streaming):
+  Chunk 1 (0.1s) → Nginx buffers
+  Chunk 2 (0.1s) → Nginx buffers
+  Chunk 3 (0.1s) → Nginx buffers
+  ...
+  Chunk 100 (10s) → Nginx buffers
+  
+Nginx waits until complete response received
+Then sends everything at once to client
+Client waits 10 seconds, then gets all data
+</div></code></pre>
+<p><strong>With buffering OFF</strong>:</p>
+<pre class="hljs"><code><div>Backend generates response:
+  Chunk 1 (0.1s) → Nginx → Client sees it immediately (0.1s)
+  Chunk 2 (0.1s) → Nginx → Client sees it immediately (0.2s)
+  Chunk 3 (0.1s) → Nginx → Client sees it immediately (0.3s)
+  
+Real-time streaming! Client sees data as it arrives
+</div></code></pre>
+<p><strong>Why this is critical for LangGraph</strong>:</p>
+<p>LangGraph likely streams AI responses:</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># In your FastAPI app</span>
+<span class="hljs-meta">@app.get("/langgraphplayground/api/chat")</span>
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">chat</span><span class="hljs-params">(query: str)</span>:</span>
+    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">generate</span><span class="hljs-params">()</span>:</span>
+        <span class="hljs-comment"># AI generates response word by word</span>
+        <span class="hljs-keyword">for</span> word <span class="hljs-keyword">in</span> ai_model.stream(query):
+            <span class="hljs-keyword">yield</span> <span class="hljs-string">f"data: <span class="hljs-subst">{word}</span>\n\n"</span>
+            <span class="hljs-keyword">await</span> asyncio.sleep(<span class="hljs-number">0.1</span>)  <span class="hljs-comment"># Simulating thinking time</span>
+    
+    <span class="hljs-keyword">return</span> StreamingResponse(generate(), media_type=<span class="hljs-string">"text/event-stream"</span>)
+</div></code></pre>
+<p><strong>User experience</strong>:</p>
+<pre class="hljs"><code><div>With buffering ON:
+  User: &quot;Explain quantum physics&quot;
+  [30 seconds of waiting...]
+  Screen: [Full response appears all at once]
+  User: &quot;This feels laggy&quot;
+
+With buffering OFF:
+  User: &quot;Explain quantum physics&quot;
+  Screen: &quot;Quantum&quot;
+  Screen: &quot;Quantum physics&quot;
+  Screen: &quot;Quantum physics is&quot;
+  Screen: &quot;Quantum physics is the study...&quot;
+  User: &quot;This feels responsive!&quot;
+</div></code></pre>
+<p><strong>Technical details</strong>:</p>
+<pre class="hljs"><code><div>Buffering OFF means:
+  proxy_buffering off;
+  proxy_buffer_size 4k;          ← Minimum buffer (just for headers)
+  proxy_buffers 8 4k;            ← Not used
+  proxy_busy_buffers_size 8k;    ← Not used
+</div></code></pre>
+<hr>
+<h3 id="proxycache-off"><code>proxy_cache off;</code></h3>
+<p><strong>What it does</strong>: Disables caching of responses</p>
+<p><strong>Why disable caching for dynamic content</strong>:</p>
+<pre class="hljs"><code><div>Without this (caching enabled):
+  User 1: &quot;What's 2+2?&quot;
+  Backend: &quot;4&quot;
+  Nginx caches: &quot;4&quot;
+  
+  User 2: &quot;What's 3+3?&quot;
+  Nginx returns cached: &quot;4&quot;  ❌ Wrong answer!
+</div></code></pre>
+<p><strong>LangGraph scenario</strong>:</p>
+<pre class="hljs"><code><div><span class="hljs-meta">@app.get("/langgraphplayground/api/ask")</span>
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">ask</span><span class="hljs-params">(question: str)</span>:</span>
+    <span class="hljs-comment"># Every question gets unique AI response</span>
+    <span class="hljs-keyword">return</span> ai_model.generate(question)
+</div></code></pre>
+<pre class="hljs"><code><div>Without proxy_cache off:
+  User 1: &quot;/api/ask?q=Hello&quot;
+  Response: &quot;Hi! How can I help you today?&quot;
+  Cached by Nginx ✓
+  
+  User 2: &quot;/api/ask?q=Hello&quot;
+  Response: [Same cached response]  ← This might be OK
+  
+  User 2: &quot;/api/ask?q=Goodbye&quot;
+  Response: [Might still get cached &quot;Hi!&quot;]  ❌ Cache key collision!
+  
+With proxy_cache off:
+  Every request goes to backend
+  Every response is fresh and unique ✓
+</div></code></pre>
+<p><strong>When you SHOULD cache</strong>:</p>
+<ul>
+<li>Static files (images, CSS, JS)</li>
+<li>API responses that don't change often</li>
+<li>Public data</li>
+</ul>
+<p><strong>When you SHOULD NOT cache</strong> (like this config):</p>
+<ul>
+<li>AI-generated responses</li>
+<li>User-specific data</li>
+<li>Real-time data</li>
+<li>Streaming responses</li>
+<li>WebSocket communications</li>
+</ul>
+<hr>
+<h3 id="proxyreadtimeout-300s"><code>proxy_read_timeout 300s;</code></h3>
+<p><strong>What it does</strong>: How long Nginx waits for the backend to send a response</p>
+<p><strong><code>300s</code></strong> = 5 minutes</p>
+<p><strong>Default</strong>: 60 seconds</p>
+<p><strong>Why 5 minutes for LangGraph?</strong></p>
+<p>AI operations can be slow:</p>
+<pre class="hljs"><code><div><span class="hljs-meta">@app.get("/langgraphplayground/api/complex-task")</span>
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">complex_task</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-comment"># Step 1: Retrieve documents (30s)</span>
+    docs = <span class="hljs-keyword">await</span> retrieve_documents()
+    
+    <span class="hljs-comment"># Step 2: Process with AI (120s)</span>
+    analysis = <span class="hljs-keyword">await</span> ai_model.analyze(docs)
+    
+    <span class="hljs-comment"># Step 3: Generate report (90s)</span>
+    report = <span class="hljs-keyword">await</span> ai_model.generate_report(analysis)
+    
+    <span class="hljs-keyword">return</span> report  <span class="hljs-comment"># Total: 240 seconds (4 minutes)</span>
+</div></code></pre>
+<p><strong>What happens without longer timeout</strong>:</p>
+<pre class="hljs"><code><div>User requests complex task
+Backend starts processing
+Nginx waits 60 seconds (default)
+Backend still processing...
+Nginx gives up: 504 Gateway Timeout ❌
+User sees error
+Backend continues working for nothing
+</div></code></pre>
+<p><strong>With 300s timeout</strong>:</p>
+<pre class="hljs"><code><div>User requests complex task
+Backend starts processing
+Backend takes 240 seconds
+Nginx patiently waits...
+Backend finishes
+Response delivered successfully ✓
+</div></code></pre>
+<p><strong>Real-world scenarios where this matters</strong>:</p>
+<pre class="hljs"><code><div>1. Video processing: 3-4 minutes
+2. Large dataset analysis: 2-3 minutes
+3. Complex AI reasoning: 1-2 minutes
+4. Report generation: 1 minute
+5. Multi-step workflows: varies
+</div></code></pre>
+<p><strong>Balance considerations</strong>:</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># Too short (30s)</span>
+<span class="hljs-attribute">proxy_read_timeout</span> <span class="hljs-number">30s</span>;
+→ <span class="hljs-attribute">Legitimate</span> long operations fail
+
+<span class="hljs-comment"># Too long (3600s = 1 hour)</span>
+proxy_read_timeout <span class="hljs-number">3600s</span>;
+→ <span class="hljs-attribute">Hung</span> requests waste resources
+
+<span class="hljs-comment"># Your setting (300s = 5 minutes) ✓</span>
+proxy_read_timeout <span class="hljs-number">300s</span>;
+→ <span class="hljs-attribute">Good</span> balance for AI operations
+</div></code></pre>
+<hr>
+<h3 id="proxyconnecttimeout-75s"><code>proxy_connect_timeout 75s;</code></h3>
+<p><strong>What it does</strong>: How long Nginx waits to establish a connection to the backend</p>
+<p><strong><code>75s</code></strong> = 75 seconds</p>
+<p><strong>Default</strong>: 60 seconds</p>
+<p><strong>Difference from read_timeout</strong>:</p>
+<pre class="hljs"><code><div>proxy_connect_timeout: Time to ESTABLISH connection
+  Client → Nginx → [Connecting to backend...] ← This phase
+  
+proxy_read_timeout: Time to RECEIVE response
+  Backend → [Processing...] → Nginx ← This phase
+</div></code></pre>
+<p><strong>Visual timeline</strong>:</p>
+<pre class="hljs"><code><div>0s:     Client requests /langgraphplayground/api/task
+0s:     Nginx starts connecting to localhost:2024
+0-75s:  [proxy_connect_timeout applies here]
+        Waiting for backend to accept connection
+        
+75s:    Connection established ✓
+75s:    Backend starts processing request
+75-375s: [proxy_read_timeout applies here]
+        Backend processing (up to 300 seconds)
+        
+375s:   Backend sends response
+375s:   Response delivered to client ✓
+
+Total possible time: 75s + 300s = 375s (6.25 minutes)
+</div></code></pre>
+<p><strong>When connect timeout matters</strong>:</p>
+<p><strong>Scenario 1 - Backend is slow to start</strong>:</p>
+<pre class="hljs"><code><div>FastAPI starting up, loading AI models...
+Takes 45 seconds to start
+Nginx tries to connect
+After 45 seconds: Connection succeeds ✓
+</div></code></pre>
+<p><strong>Scenario 2 - Backend is down</strong>:</p>
+<pre class="hljs"><code><div>Backend crashed
+Nginx tries to connect
+Waits 75 seconds
+No response
+Nginx gives up: 502 Bad Gateway
+</div></code></pre>
+<p><strong>Scenario 3 - Backend is overloaded</strong>:</p>
+<pre class="hljs"><code><div>Backend has 1000 requests queued
+Can't accept new connections immediately
+Takes 60 seconds before it can accept
+Connection succeeds after 60s ✓
+</div></code></pre>
+<p><strong>Why 75 seconds?</strong></p>
+<pre class="hljs"><code><div>Default 60s might be too short if:
+- Backend is loading large AI models
+- Backend is under heavy load
+- Backend is warming up after restart
+
+75s gives extra buffer for these scenarios
+</div></code></pre>
+<hr>
+<h2 id="location-block-2">Location Block 2: <code>/</code></h2>
+<pre class="hljs"><code><div><span class="hljs-attribute">location</span> / {
+    <span class="hljs-attribute">proxy_pass</span> http://localhost:3000;
+    <span class="hljs-attribute">proxy_set_header</span> Host <span class="hljs-variable">$host</span>;
+    <span class="hljs-attribute">proxy_set_header</span> X-Real-IP <span class="hljs-variable">$remote_addr</span>;
+    <span class="hljs-attribute">proxy_set_header</span> X-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+    <span class="hljs-attribute">proxy_set_header</span> X-Forwarded-Proto <span class="hljs-variable">$scheme</span>;
+}
+</div></code></pre>
+<p>This is a <strong>simple reverse proxy</strong> for a standard web application.</p>
+<hr>
+<h3 id="key-observations">Key Observations</h3>
+<p><strong>Simpler configuration</strong> because:</p>
+<ul>
+<li>No WebSocket support needed</li>
+<li>Uses default buffering (good for regular HTTP)</li>
+<li>Uses default caching behavior</li>
+<li>Uses default timeouts (60s)</li>
+<li>Standard HTTP/1.0 proxy communication</li>
+</ul>
+<p><strong>What this is likely serving</strong>:</p>
+<ul>
+<li>React/Next.js frontend on port 3000</li>
+<li>Standard web pages</li>
+<li>API endpoints that respond quickly</li>
+<li>Static assets</li>
+</ul>
+<hr>
+<h2 id="side-by-side-comparison">Side-by-Side Comparison</h2>
+<pre class="hljs"><code><div><span class="hljs-comment"># LangGraph Playground                    # Main Application</span>
+<span class="hljs-attribute">location</span> /langgraphplayground/ {          <span class="hljs-attribute">location</span> / {
+    <span class="hljs-attribute">proxy_pass</span> http://localhost:2024;         <span class="hljs-attribute">proxy_pass</span> http://localhost:3000;
+    
+    <span class="hljs-comment"># WebSocket support                      # (No WebSocket support)</span>
+    <span class="hljs-attribute">proxy_http_version</span> <span class="hljs-number">1</span>.<span class="hljs-number">1</span>;                   <span class="hljs-comment"># Uses default HTTP/1.0</span>
+    <span class="hljs-attribute">proxy_set_header</span> Upgrade <span class="hljs-variable">$http_upgrade</span>;   <span class="hljs-comment"># (Not needed)</span>
+    <span class="hljs-attribute">proxy_set_header</span> Connection               <span class="hljs-comment"># (Not needed)</span>
+        <span class="hljs-variable">$connection_upgrade</span>;                  
+    
+    <span class="hljs-comment"># Standard headers (same in both)</span>
+    <span class="hljs-attribute">proxy_set_header</span> Host <span class="hljs-variable">$host</span>;              <span class="hljs-attribute">proxy_set_header</span> Host <span class="hljs-variable">$host</span>;
+    <span class="hljs-attribute">proxy_set_header</span> X-Real-IP                proxy_set_header X-Real-IP
+        <span class="hljs-variable">$remote_addr</span>;                             $remote_addr;
+    <span class="hljs-attribute">proxy_set_header</span> X-Forwarded-For          proxy_set_header X-Forwarded-For
+        <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;               $proxy_add_x_forwarded_for;
+    <span class="hljs-attribute">proxy_set_header</span> X-Forwarded-Proto        proxy_set_header X-Forwarded-Proto
+        <span class="hljs-variable">$scheme</span>;                                  $scheme;
+    
+    <span class="hljs-comment"># Streaming optimization                 # (Uses default buffering)</span>
+    <span class="hljs-attribute">proxy_buffering</span> <span class="hljs-literal">off</span>;                      <span class="hljs-comment"># Default: on</span>
+    <span class="hljs-attribute">proxy_cache</span> <span class="hljs-literal">off</span>;                          <span class="hljs-comment"># Default: respects cache headers</span>
+    
+    <span class="hljs-comment"># Long operation timeouts                # (Uses default timeouts)</span>
+    <span class="hljs-attribute">proxy_read_timeout</span> <span class="hljs-number">300s</span>;                  <span class="hljs-comment"># Default: 60s</span>
+    <span class="hljs-attribute">proxy_connect_timeout</span> <span class="hljs-number">75s</span>;                <span class="hljs-comment"># Default: 60s</span>
+}                                         }
+</div></code></pre>
+<hr>
+<h2 id="the-key-differences-table">The Key Differences Table</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th><code>/langgraphplayground/</code></th>
+<th><code>/</code></th>
+<th>Why Different?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Backend Port</strong></td>
+<td>:2024 (FastAPI)</td>
+<td>:3000 (React/Next.js)</td>
+<td>Different applications</td>
+</tr>
+<tr>
+<td><strong>HTTP Version</strong></td>
+<td>1.1 (explicit)</td>
+<td>1.0 (default)</td>
+<td>WebSocket requires 1.1</td>
+</tr>
+<tr>
+<td><strong>WebSocket Support</strong></td>
+<td>✓ Yes</td>
+<td>✗ No</td>
+<td>AI playground needs real-time</td>
+</tr>
+<tr>
+<td><strong>Upgrade Header</strong></td>
+<td>✓ Forwarded</td>
+<td>✗ Not set</td>
+<td>For WebSocket protocol switch</td>
+</tr>
+<tr>
+<td><strong>Connection Header</strong></td>
+<td>✓ Dynamic (map)</td>
+<td>✗ Default</td>
+<td>Handles both WS and HTTP</td>
+</tr>
+<tr>
+<td><strong>Response Buffering</strong></td>
+<td>✗ Disabled</td>
+<td>✓ Enabled</td>
+<td>Stream AI responses immediately</td>
+</tr>
+<tr>
+<td><strong>Response Caching</strong></td>
+<td>✗ Disabled</td>
+<td>Default behavior</td>
+<td>AI responses are unique</td>
+</tr>
+<tr>
+<td><strong>Read Timeout</strong></td>
+<td>300s (5 min)</td>
+<td>60s (1 min)</td>
+<td>AI tasks take longer</td>
+</tr>
+<tr>
+<td><strong>Connect Timeout</strong></td>
+<td>75s</td>
+<td>60s</td>
+<td>AI backend slow to start</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="practical-flow-examples">Practical Flow Examples</h2>
+<h3 id="example-1-websocket-connection-to-langgraph">Example 1: WebSocket Connection to LangGraph</h3>
+<pre class="hljs"><code><div>1. User opens browser to:
+   https://project-1-04.eduhk.hk/langgraphplayground/chat
+
+2. JavaScript initiates WebSocket:
+   ws = new WebSocket('wss://project-1-04.eduhk.hk/langgraphplayground/ws')
+
+3. Browser sends:
+   GET /langgraphplayground/ws HTTP/1.1
+   Host: project-1-04.eduhk.hk
+   Upgrade: websocket
+   Connection: Upgrade
+
+4. Nginx matches: location /langgraphplayground/
+
+5. Nginx applies configuration:
+   - proxy_http_version 1.1 ← Uses HTTP/1.1
+   - proxy_set_header Upgrade $http_upgrade ← Forwards &quot;websocket&quot;
+   - proxy_set_header Connection $connection_upgrade ← Sets &quot;upgrade&quot;
+
+6. Nginx sends to localhost:2024:
+   GET /langgraphplayground/ws HTTP/1.1
+   Host: project-1-04.eduhk.hk
+   Upgrade: websocket
+   Connection: upgrade
+   X-Real-IP: 203.123.45.67
+   X-Forwarded-For: 203.123.45.67
+   X-Forwarded-Proto: https
+
+7. FastAPI accepts WebSocket:
+   HTTP/1.1 101 Switching Protocols
+   Upgrade: websocket
+   Connection: Upgrade
+
+8. Nginx forwards to client:
+   HTTP/1.1 101 Switching Protocols
+
+9. WebSocket connection established ✓
+   Real-time bidirectional communication begins
+</div></code></pre>
+<hr>
+<h3 id="example-2-streaming-ai-response">Example 2: Streaming AI Response</h3>
+<pre class="hljs"><code><div>1. User asks question in UI:
+   &quot;Explain quantum entanglement&quot;
+
+2. Frontend sends request:
+   GET /langgraphplayground/api/stream?q=quantum+entanglement
+
+3. Nginx matches: location /langgraphplayground/
+
+4. Nginx proxies to localhost:2024 with:
+   - proxy_buffering off ← Don't wait for complete response
+   - proxy_cache off ← Don't cache this response
+
+5. FastAPI starts streaming:
+   Time 0.0s: &quot;Quantum&quot;
+   Time 0.1s: &quot; entanglement&quot;
+   Time 0.2s: &quot; is&quot;
+   Time 0.3s: &quot; a&quot;
+   ...
+
+6. With proxy_buffering off:
+   Nginx immediately forwards each chunk to client
+   
+7. User sees response appearing word-by-word in real-time
+
+8. Backend takes 45 seconds to complete
+   - proxy_read_timeout 300s ← Nginx waits patiently
+   
+9. Full response delivered ✓
+</div></code></pre>
+<hr>
+<h3 id="example-3-regular-page-load-main-app">Example 3: Regular Page Load (Main App)</h3>
+<pre class="hljs"><code><div>1. User visits:
+   https://project-1-04.eduhk.hk/dashboard
+
+2. Browser sends:
+   GET /dashboard HTTP/1.1
+   Host: project-1-04.eduhk.hk
+
+3. Nginx matches: location /
+
+4. Nginx applies simple proxy:
+   - No WebSocket headers
+   - Default buffering (on)
+   - Default timeout (60s)
+
+5. Nginx proxies to localhost:3000:
+   GET /dashboard HTTP/1.0  ← Default HTTP/1.0
+   Host: project-1-04.eduhk.hk
+   X-Real-IP: 203.123.45.67
+   X-Forwarded-For: 203.123.45.67
+   X-Forwarded-Proto: https
+
+6. Next.js renders page (responds in 0.5s)
+
+7. Nginx buffers response (waits for complete response)
+
+8. Nginx sends complete page to client
+
+9. Page loads ✓
+</div></code></pre>
+<hr>
+<h2 id="why-these-differences-exist">Why These Differences Exist</h2>
+<h3 id="langgraph-playground-langgraphplayground">LangGraph Playground (<code>/langgraphplayground/</code>)</h3>
+<p><strong>Application Characteristics</strong>:</p>
+<ul>
+<li>AI-powered interactive playground</li>
+<li>Real-time communication needed (WebSockets)</li>
+<li>Streams responses token-by-token</li>
+<li>Long-running AI operations (minutes)</li>
+<li>Each response is unique (no caching)</li>
+</ul>
+<p><strong>Nginx Configuration Needed</strong>:</p>
+<ul>
+<li>WebSocket support (HTTP/1.1, Upgrade headers)</li>
+<li>No buffering (stream immediately)</li>
+<li>No caching (responses are unique)</li>
+<li>Long timeouts (AI takes time)</li>
+</ul>
+<hr>
+<h3 id="main-application">Main Application (<code>/</code>)</h3>
+<p><strong>Application Characteristics</strong>:</p>
+<ul>
+<li>Standard web application (likely React/Next.js)</li>
+<li>Traditional request-response pattern</li>
+<li>Quick responses (&lt;1s typically)</li>
+<li>Can benefit from caching</li>
+<li>No need for persistent connections</li>
+</ul>
+<p><strong>Nginx Configuration Needed</strong>:</p>
+<ul>
+<li>Simple reverse proxy</li>
+<li>Default buffering (optimize bandwidth)</li>
+<li>Standard caching behavior</li>
+<li>Default timeouts (60s is plenty)</li>
+</ul>
+<hr>
+<h2 id="summary">Summary</h2>
+<p>The <code>/langgraphplayground/</code> location is <strong>heavily optimized for real-time, interactive AI applications</strong> with WebSocket support, streaming, and long timeouts.</p>
+<p>The <code>/</code> location is a <strong>standard reverse proxy</strong> for a traditional web application with default settings that work well for quick request-response patterns.</p>
+<p>Both configurations properly forward client information (IP, host, protocol) to their backends, but the LangGraph playground has significant additional configuration to support its real-time, streaming, long-running AI operations.</p>
+
+</body>
+</html>
