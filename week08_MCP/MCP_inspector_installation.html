@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MCP_inspector_installation.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="comprehensive-guide-to-installing-and-running-mcp-inspector-on-windows-and-mac">Comprehensive Guide to Installing and Running MCP Inspector on Windows and Mac</h1>
+<h2 id="introduction">Introduction</h2>
+<p>MCP Inspector is a browser-based visual testing and debugging tool for Model Context Protocol (MCP) servers. It allows developers to interact with MCP servers, test resources, prompts, tools, and monitor notifications in an intuitive UI. The tool is built with Node.js and can be run directly using <code>npx</code> without a permanent installation, making it quick to set up. However, for development or repeated use, you can clone the repository and run it locally.</p>
+<p>This guide covers multiple installation methods including:</p>
+<ol>
+<li>Node.js-based installation (npx, Homebrew, GitHub)</li>
+<li><strong>Chrome Extension</strong> (MCP Security Inspector)</li>
+</ol>
+<p>The process is largely cross-platform, with specific notes for Windows and macOS. MCP Inspector launches a local web UI (default port 6274) and a proxy server (default port 6277), which you access via your browser.</p>
+<p><strong>Note:</strong> MCP Inspector is primarily for developers working with MCP servers. If you're new to MCP, refer to the official documentation at <a href="https://modelcontextprotocol.io">modelcontextprotocol.io</a> for more context.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Before installing or running MCP Inspector, ensure the following:</p>
+<ul>
+<li><strong>Node.js</strong>: Version 22.7.5 or higher is required. Download and install from the official Node.js website (nodejs.org).
+<ul>
+<li>Verify installation: Open a terminal (Command Prompt on Windows or Terminal on macOS) and run <code>node -v</code>. It should output a version &gt;= 22.7.5.</li>
+</ul>
+</li>
+<li><strong>npm/npx</strong>: These come bundled with Node.js. npx is used to run the tool without global installation.</li>
+<li><strong>Internet Access</strong>: Required initially for downloading packages via npx or npm.</li>
+<li><strong>Browser</strong>: A modern web browser like Chrome, Firefox, or Safari to access the UI.</li>
+<li><strong>Optional: Git</strong>: If you plan to clone the GitHub repository for development.</li>
+</ul>
+<p>No additional dependencies are needed, as the tool handles its own setup.</p>
+<h2 id="alternative-method-chrome-extension-mcp-security-inspector">Alternative Method: Chrome Extension (MCP Security Inspector)</h2>
+<p>For users who prefer a browser-based approach without Node.js installation, the MCP Security Inspector Chrome extension provides a lightweight alternative.</p>
+<h3 id="installation-steps">Installation Steps</h3>
+<ol>
+<li>
+<p><strong>Download from Chrome Web Store</strong>:</p>
+<ul>
+<li>Visit: <a href="https://chromewebstore.google.com/detail/mcp-security-inspector/opajbcoflmgkjmjafchlgehgllbekgeo">https://chromewebstore.google.com/detail/mcp-security-inspector/opajbcoflmgkjmjafchlgehgllbekgeo</a></li>
+<li>Click &quot;Add to Chrome&quot; to install the extension</li>
+</ul>
+</li>
+<li>
+<p><strong>Access the Extension</strong>:</p>
+<ul>
+<li>Click the extension icon in your Chrome toolbar</li>
+<li>The inspector interface will open in a new tab or popup</li>
+</ul>
+</li>
+<li>
+<p><strong>Configure MCP Server Connection</strong>:</p>
+<ul>
+<li><strong>Server Name</strong>: Enter a descriptive name (e.g., &quot;MTR MCP Server&quot;)</li>
+<li><strong>Transport Mode</strong>: Select &quot;Streamable HTTP&quot; from the dropdown</li>
+<li><strong>Server Address</strong>: Enter your MCP server URL (e.g., <code>https://project-1-04.eduhk.hk</code>)</li>
+<li><strong>MCP Path</strong>: Enter the endpoint path (e.g., <code>/mcp/sse</code>)</li>
+<li><strong>Authentication</strong>: Toggle &quot;No Authentication&quot; if not required</li>
+<li>Click &quot;Confirm&quot; to establish connection</li>
+</ul>
+</li>
+</ol>
+<p><img src="./MCPSecurityInspectorConfig.png" alt="MCP Security Inspector Configuration"></p>
+<h3 id="features">Features</h3>
+<ul>
+<li><strong>No Installation Required</strong>: Works directly in Chrome without Node.js</li>
+<li><strong>Streamable HTTP Support</strong>: Compatible with SSE and streaming endpoints</li>
+<li><strong>Visual Interface</strong>: User-friendly UI for testing MCP servers</li>
+<li><strong>Real-Time Monitoring</strong>: View server responses and protocol version</li>
+<li><strong>Cross-Platform</strong>: Works on any OS with Chrome browser</li>
+</ul>
+<h3 id="advantages-of-chrome-extension">Advantages of Chrome Extension</h3>
+<ul>
+<li>Instant access without command-line tools</li>
+<li>No port conflicts with local development</li>
+<li>Easy to share configurations</li>
+<li>Built-in browser security features</li>
+<li>Perfect for quick testing and demonstrations</li>
+</ul>
+<h3 id="when-to-use">When to Use</h3>
+<ul>
+<li>Quick MCP server testing without setup</li>
+<li>Educational environments (like EDUHK courses)</li>
+<li>Demonstrations and presentations</li>
+<li>Systems where Node.js installation is restricted</li>
+<li>Testing public MCP endpoints (like the EDUHK SSE endpoint)</li>
+</ul>
+<h2 id="prerequisites-for-nodejs-installation">Prerequisites for Node.js Installation</h2>
+<p>Before installing or running MCP Inspector via Node.js, ensure the following:</p>
+<ul>
+<li><strong>Node.js</strong>: Version 22.7.5 or higher is required. Download and install from the official Node.js website (nodejs.org).
+<ul>
+<li>Verify installation: Open a terminal (Command Prompt on Windows or Terminal on macOS) and run <code>node -v</code>. It should output a version &gt;= 22.7.5.</li>
+</ul>
+</li>
+<li><strong>npm/npx</strong>: These come bundled with Node.js. npx is used to run the tool without global installation.</li>
+<li><strong>Internet Access</strong>: Required initially for downloading packages via npx or npm.</li>
+<li><strong>Browser</strong>: A modern web browser like Chrome, Firefox, or Safari to access the UI.</li>
+<li><strong>Optional: Git</strong>: If you plan to clone the GitHub repository for development.</li>
+</ul>
+<p>No additional dependencies are needed, as the tool handles its own setup.</p>
+<h2 id="setup-and-installation-on-macos">Setup and Installation on macOS</h2>
+<p>macOS setup is straightforward using Terminal. MCP Inspector can be run via npx for quick use or installed via Homebrew for a binary executable. For development, clone the repo.</p>
+<h3 id="method-1-quick-run-with-npx-recommended-for-most-users">Method 1: Quick Run with npx (Recommended for Most Users)</h3>
+<ol>
+<li>Open Terminal (search for it in Spotlight or via Applications &gt; Utilities).</li>
+<li>Install Node.js if not already installed:
+<ul>
+<li>Download the macOS installer from nodejs.org and follow the prompts.</li>
+<li>Alternatively, use a package manager like Homebrew: <code>brew install node</code> (first install Homebrew if needed: <code>/bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&quot;</code>).</li>
+</ul>
+</li>
+<li>Run the Inspector:<pre class="hljs"><code><div>npx @modelcontextprotocol/inspector
+</div></code></pre>
+<ul>
+<li>This downloads and launches the tool automatically.</li>
+<li>Output will show the UI URL (e.g., <code>http://localhost:6274</code>) and a proxy server on port 6277.</li>
+</ul>
+</li>
+<li>Open the URL in your browser to access the Inspector UI.</li>
+</ol>
+<h3 id="method-2-homebrew-installation-for-cli-convenience">Method 2: Homebrew Installation (For CLI Convenience)</h3>
+<ol>
+<li>Install Homebrew if not present (see above).</li>
+<li>Run:<pre class="hljs"><code><div>brew install mcp-inspector
+</div></code></pre>
+</li>
+<li>Launch with:<pre class="hljs"><code><div>mcp-inspector
+</div></code></pre>
+<ul>
+<li>This is equivalent to the npx method but uses a locally installed binary.</li>
+</ul>
+</li>
+</ol>
+<h3 id="method-3-from-github-repository-for-development">Method 3: From GitHub Repository (For Development)</h3>
+<ol>
+<li>Install Git if needed: <code>brew install git</code>.</li>
+<li>Clone the repo:<pre class="hljs"><code><div>git clone https://github.com/modelcontextprotocol/inspector.git
+cd inspector
+</div></code></pre>
+</li>
+<li>Install dependencies:<pre class="hljs"><code><div>npm install
+</div></code></pre>
+</li>
+<li>Run in development mode:<pre class="hljs"><code><div>npm run dev
+</div></code></pre>
+<ul>
+<li>For co-development with the TypeScript SDK (if cloned separately): <code>npm run dev:sdk &quot;cd ../typescript-sdk &amp;&amp; npm run examples:simple-server:w&quot;</code>.</li>
+</ul>
+</li>
+<li>For production: <code>npm run build &amp;&amp; npm start</code>.</li>
+<li>Access at <code>http://localhost:6274</code>.</li>
+</ol>
+<h3 id="macos-specific-notes">macOS-Specific Notes</h3>
+<ul>
+<li>Paths: Use forward slashes (/) in commands.</li>
+<li>Permissions: If you encounter permission issues (e.g., with npm), use <code>sudo</code> sparingly or configure npm to use a user directory: <code>mkdir ~/.npm-global &amp;&amp; npm config set prefix '~/.npm-global'</code>, then add to PATH.</li>
+<li>Firewall: macOS may prompt to allow Node.js network access—approve it.</li>
+</ul>
+<h2 id="setup-and-installation-on-windows">Setup and Installation on Windows</h2>
+<p>Windows uses Command Prompt or PowerShell. The process is similar to macOS but accounts for path differences and potential antivirus interference.</p>
+<h3 id="method-1-quick-run-with-npx-recommended-for-most-users">Method 1: Quick Run with npx (Recommended for Most Users)</h3>
+<ol>
+<li>Open Command Prompt (search for &quot;cmd&quot; in the Start menu) or PowerShell.</li>
+<li>Install Node.js if not already installed:
+<ul>
+<li>Download the Windows installer (.msi) from nodejs.org and run it.</li>
+<li>During installation, select &quot;Add to PATH&quot; for easy access.</li>
+</ul>
+</li>
+<li>Run the Inspector:<pre class="hljs"><code><div>npx @modelcontextprotocol/inspector
+</div></code></pre>
+<ul>
+<li>This downloads and launches the tool.</li>
+<li>Output will show the UI URL (e.g., <code>http://localhost:6274</code>) and proxy server on port 6277.</li>
+</ul>
+</li>
+<li>Open the URL in your browser.</li>
+</ol>
+<h3 id="method-2-from-github-repository-for-development">Method 2: From GitHub Repository (For Development)</h3>
+<ol>
+<li>Install Git for Windows from git-scm.com if needed.</li>
+<li>Clone the repo:<pre class="hljs"><code><div>git clone https://github.com/modelcontextprotocol/inspector.git
+cd inspector
+</div></code></pre>
+</li>
+<li>Install dependencies:<pre class="hljs"><code><div>npm install
+</div></code></pre>
+</li>
+<li>Run in development mode:<pre class="hljs"><code><div>npm run dev:windows
+</div></code></pre>
+<ul>
+<li>Use this Windows-specific script to handle any platform quirks.</li>
+<li>For co-development with SDK: Similar to macOS, adjust paths accordingly.</li>
+</ul>
+</li>
+<li>For production: <code>npm run build &amp;&amp; npm start</code>.</li>
+<li>Access at <code>http://localhost:6274</code>.</li>
+</ol>
+<h3 id="windows-specific-notes">Windows-Specific Notes</h3>
+<ul>
+<li>Paths: Use backslashes () or forward slashes (/) in file paths; Node.js handles both.</li>
+<li>Environment Variables: Set via System Properties &gt; Advanced &gt; Environment Variables (e.g., for custom ports: <code>set CLIENT_PORT=8080</code> then run the command).</li>
+<li>Antivirus/Firewall: Windows Defender or third-party antivirus may block Node.js—add exceptions if prompted.</li>
+<li>PowerShell vs. Command Prompt: Both work, but PowerShell may require execution policy changes: <code>Set-ExecutionPolicy RemoteSigned</code>.</li>
+<li>No Homebrew equivalent; stick to npx or repo clone.</li>
+</ul>
+<h2 id="running-mcp-inspector">Running MCP Inspector</h2>
+<p>Once set up:</p>
+<ol>
+<li>Launch via npx or the repo scripts as above.</li>
+<li>Customize if needed:
+<ul>
+<li>Pass arguments: <code>npx @modelcontextprotocol/inspector node path/to/server.js arg1 arg2</code>.</li>
+<li>Environment variables: <code>npx @modelcontextprotocol/inspector -e KEY=VALUE node path/to/server.js</code>.</li>
+<li>Custom ports: <code>CLIENT_PORT=8080 SERVER_PORT=9000 npx @modelcontextprotocol/inspector</code>.</li>
+</ul>
+</li>
+<li>Connect to an MCP server in the UI:
+<ul>
+<li>Use the connection pane to select transport (e.g., STDIO for local servers).</li>
+<li>Test features in tabs: Resources, Prompts, Tools.</li>
+</ul>
+</li>
+<li>For inspecting NPM/PyPi servers: <code>npx @modelcontextprotocol/inspector npx @example/package args</code>.</li>
+</ol>
+<h2 id="testing-with-eduhk-sse-endpoint">Testing with EDUHK SSE Endpoint</h2>
+<p>The EDUHK project provides a public SSE (Server-Sent Events) endpoint for testing real-time streaming capabilities with MCP Inspector:</p>
+<h3 id="endpoint-details">Endpoint Details</h3>
+<ul>
+<li><strong>URL</strong>: <code>https://project-1-04.eduhk.hk/mcp/sse</code></li>
+<li><strong>Purpose</strong>: Demonstrates streamable SSE responses for MCP integration</li>
+<li><strong>Use Case</strong>: Testing real-time event streaming, LLM token streaming, and async notifications</li>
+</ul>
+<p>⚠️ <strong>Important</strong>: Before accessing this endpoint, ensure you are connected to the EDUHK VPN. The endpoint is only accessible from within the university network or through VPN connection.</p>
+<h3 id="testing-sse-with-mcp-inspector">Testing SSE with MCP Inspector</h3>
+<ol>
+<li><strong>Launch MCP Inspector</strong> as described above</li>
+<li><strong>Configure SSE Connection</strong>:
+<ul>
+<li>In the Inspector UI, navigate to the connection settings</li>
+<li>Select &quot;HTTP/SSE&quot; as the transport type</li>
+<li>Enter the endpoint URL: <code>https://project-1-04.eduhk.hk/mcp/sse</code></li>
+</ul>
+</li>
+<li><strong>Monitor Streaming Events</strong>:
+<ul>
+<li>The Inspector will display incoming SSE events in real-time</li>
+<li>Watch for event types: <code>message</code>, <code>token</code>, <code>completion</code>, or custom events</li>
+<li>Observe the streaming behavior and latency</li>
+</ul>
+</li>
+<li><strong>Test Integration</strong>:
+<ul>
+<li>Send requests through the Inspector's tool interface</li>
+<li>Verify SSE responses appear in the notifications panel</li>
+<li>Check for proper event parsing and display</li>
+</ul>
+</li>
+</ol>
+<h3 id="using-nodejs-mcp-inspector-with-streamable-http">Using Node.js MCP Inspector with Streamable HTTP</h3>
+<p>When using the Node.js version of MCP Inspector (npx method), configure it for streamable HTTP:</p>
+<ol>
+<li><strong>Launch MCP Inspector</strong> (version 0.15.0 or higher)</li>
+<li><strong>Configure Connection Settings</strong>:
+<ul>
+<li><strong>Transport Type</strong>: Select &quot;Streamable HTTP&quot; from the dropdown</li>
+<li><strong>URL</strong>: Enter <code>https://project-1-04.eduhk.hk/mcp/sse</code></li>
+<li><strong>Authentication</strong>: Expand if needed, otherwise leave collapsed</li>
+<li><strong>Server Entry/Servers File</strong>: Optional configuration tabs</li>
+<li><strong>Configuration</strong>: Additional settings if required</li>
+</ul>
+</li>
+<li><strong>Connect</strong>: Click the &quot;Connect&quot; button</li>
+<li><strong>Monitor Status</strong>: Watch for &quot;Disconnected&quot; → &quot;Connected&quot; status change</li>
+</ol>
+<p><img src="./MCPInspectorConfig.png" alt="MCP Inspector Streamable HTTP Configuration"></p>
+<p><em>Figure 1: MCP Inspector v0.15.0 configured for Streamable HTTP with EDUHK SSE endpoint at https://project-1-04.eduhk.hk/mcp/sse</em></p>
+<ol start="5">
+<li><strong>After Connection</strong>: Once connected, the Inspector will display available resources, prompts, and tools from the MCP server</li>
+</ol>
+<p><img src="./AfterConnection.png" alt="MCP Inspector After Connection"></p>
+<p><em>Figure 2: MCP Inspector successfully connected to https://project-1-04.eduhk.hk/mcp/sse showing server capabilities and available features</em></p>
+<h3 id="streamable-sse-features">Streamable SSE Features</h3>
+<p>When working with streamable SSE endpoints like the EDUHK example:</p>
+<ul>
+<li><strong>Token-by-Token Streaming</strong>: Observe LLM responses arriving incrementally</li>
+<li><strong>Event Types</strong>: Different event types for control flow (start, data, end, error)</li>
+<li><strong>Reconnection Handling</strong>: Test automatic reconnection on connection drops</li>
+<li><strong>Event Source API</strong>: Compatible with browser EventSource API and FastAPI's EventSourceResponse</li>
+<li><strong>HTTPS Support</strong>: Secure streaming over SSL/TLS</li>
+</ul>
+<h3 id="example-use-cases">Example Use Cases</h3>
+<ol>
+<li><strong>Real-Time Chat</strong>: Testing chatbot responses with streaming tokens</li>
+<li><strong>Progress Updates</strong>: Monitoring long-running MCP tool executions</li>
+<li><strong>Notifications</strong>: Receiving async updates from MCP server operations</li>
+<li><strong>Debugging</strong>: Inspecting SSE message format and timing</li>
+</ol>
+<h3 id="sse-best-practices">SSE Best Practices</h3>
+<ul>
+<li>Ensure proper <code>Content-Type: text/event-stream</code> header</li>
+<li>Handle connection timeouts and implement retry logic</li>
+<li>Use heartbeat events to keep connections alive through proxies</li>
+<li>Format messages as <code>data: {content}\n\n</code> for compatibility</li>
+<li>Send <code>[DONE]</code> or similar signals to indicate stream completion</li>
+</ul>
+
+</body>
+</html>
