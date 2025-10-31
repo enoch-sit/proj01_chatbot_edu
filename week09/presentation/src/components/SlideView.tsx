@@ -39,7 +39,27 @@ export const SlideView = ({ slide }: SlideViewProps) => {
         marginBottom: '2rem'
       }}>
         {slide.bullets.map((bullet, index) => (
-          <li key={index}>{bullet}</li>
+          <li key={index}>
+            {typeof bullet === 'string' ? (
+              bullet
+            ) : (
+              <div>
+                <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                  {bullet.point}
+                </div>
+                {bullet.subtext && (
+                  <div style={{ 
+                    fontSize: '1.1rem', 
+                    opacity: 0.8,
+                    lineHeight: '1.6',
+                    marginTop: '0.3rem'
+                  }}>
+                    {bullet.subtext}
+                  </div>
+                )}
+              </div>
+            )}
+          </li>
         ))}
       </ul>
 

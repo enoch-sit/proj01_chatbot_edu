@@ -31,7 +31,12 @@ export const exportToPptx = async (slides: Slide[]): Promise<void> => {
     });
 
     // Add bullet points
-    const bulletText = slide.bullets.map(bullet => ({ text: bullet, options: { bullet: true } }));
+    const bulletText = slide.bullets.map(bullet => {
+      const text = typeof bullet === 'string' 
+        ? bullet 
+        : `${bullet.point}\n${bullet.subtext || ''}`;
+      return { text, options: { bullet: true } };
+    });
     pptxSlide.addText(bulletText, {
       x: 0.5,
       y: 1.5,
