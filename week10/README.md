@@ -23,10 +23,12 @@ By the end of this workshop, participants will be able to:
 ## 📁 Repository Structure
 
 ```
-MscCyber/
+week10/
 ├── guide.md                      # Original workshop concept guide
 ├── workshop-slides.md            # Complete presentation slides
-├── README.md                     # This file
+├── README.md                     # This file - start here!
+├── QUICK-REFERENCE.md            # 📌 Quick reference for security concepts
+├── ADVANCED-CONCEPTS.md          # 📚 Deep dive into LLM security
 ├── vulnerable-demo/              # Intentionally vulnerable chatbot
 │   ├── index.html               # Frontend with vulnerabilities
 │   ├── server.js                # Backend with 10+ vulnerabilities
@@ -36,9 +38,17 @@ MscCyber/
 │   ├── server.js                # Backend with security best practices
 │   └── package.json             # Dependencies
 └── exercises/                    # Workshop exercises
-    ├── red-team-challenges.md   # Attack challenges
-    └── blue-team-defenses.md    # Defense tasks
+    ├── red-team-challenges.md   # 🔴 Attack challenges (12 challenges)
+    └── blue-team-defenses.md    # 🔵 Defense tasks (12 defenses)
 ```
+
+### 📖 Documentation Guide
+
+- **README.md** (this file) - Start here for setup and overview
+- **QUICK-REFERENCE.md** - Quick lookup for common patterns and fixes
+- **ADVANCED-CONCEPTS.md** - In-depth coverage of OWASP LLM Top 10 and advanced topics
+- **exercises/red-team-challenges.md** - Attack exercises (basic + advanced)
+- **exercises/blue-team-defenses.md** - Defense implementations (basic + LLM-specific)
 
 ---
 
