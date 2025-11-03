@@ -1,0 +1,26 @@
+{
+  "name": "vulnerable-chatbot",
+  "version": "1.0.0",
+  "description": "Deliberately vulnerable chatbot for cybersecurity workshop",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "secure": "node server-secure.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "security",
+    "education",
+    "owasp",
+    "vulnerable"
+  ],
+  "author": "Workshop Instructors",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-session": "^1.17.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
