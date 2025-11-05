@@ -270,16 +270,16 @@ app.get('/', (req, res) => {
       <div class="card-header">
         <strong>📚 HOW TO USE THIS DASHBOARD</strong>
       </div>
-      <div class="card-body">
-        <ol>
-          <li>Update XSS payloads to point to: <code>https://project-1-17.eduhk.hk/exfil</code></li>
+      <div class="card-body text-white">
+        <ol class="text-white">
+          <li>Update XSS payloads to point to: <code style="color: #00ff00;">https://project-1-17.eduhk.hk/exfil</code></li>
           <li>Post the payload in the vulnerable app's comment board</li>
           <li>When victims view the page, their data appears here automatically</li>
           <li>This page auto-refreshes every 3 seconds to show new victims</li>
         </ol>
         
         <div class="mt-3">
-          <strong class="text-warning">🎯 Example Payloads (click to copy):</strong>
+          <strong style="color: #ffaa00;">🎯 Example Payloads (click to copy):</strong>
           
           <div class="payload-container">
             <button class="copy-btn" onclick="copyPayload(this, 0)">📋 COPY</button>
