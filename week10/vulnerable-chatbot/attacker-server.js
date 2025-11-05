@@ -324,7 +324,7 @@ app.get('/', (req, res) => {
     }, 3000);
     
     function clearData() {
-      if (confirm('Clear all stolen data?')) {
+      if (confirm('Clear all data?')) {
         fetch('/clear', { method: 'POST' })
           .then(() => location.reload());
       }
