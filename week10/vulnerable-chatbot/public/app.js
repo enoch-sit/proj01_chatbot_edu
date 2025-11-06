@@ -218,9 +218,30 @@ function removeLoadingMessage(loadingId) {
 }
 
 function clearChatHistory() {
+  if (!currentUser) {
+    alert('Please login first');
+    return;
+  }
+  
+  if (!confirm('Delete chat history from server?\n\n⚠️ This will permanently delete all your messages!')) {
+    return;
+  }
+  
+  // Clear UI immediately
   const chatMessages = document.getElementById('chatMessages');
-  chatMessages.innerHTML = '<div class="system-message"><small><strong>System:</strong> Chat history cleared. Start a new conversation!</small></div>';
-  console.log('✅ Chat history cleared (UI only - server history unchanged)');
+  chatMessages.innerHTML = '<div class="system-message"><small><strong>System:</strong> Deleting chat history from server...</small></div>';
+  
+  // Delete from server
+  fetch(`/api/messages/${currentUser.id}`, { method: 'DELETE' })
+    .then(res => res.json())
+    .then(data => {
+      chatMessages.innerHTML = '<div class="system-message"><small><strong>System:</strong> ✅ Chat history deleted from server! (' + data.deleted + ' messages removed)</small></div>';
+      console.log(`✅ Deleted ${data.deleted} messages from server for user ${currentUser.id}`);
+    })
+    .catch(err => {
+      console.error('Delete error:', err);
+      chatMessages.innerHTML = '<div class="system-message text-danger"><small><strong>Error:</strong> Failed to delete from server</small></div>';
+    });
 }
 
 async function loadMessages() {

@@ -357,6 +357,27 @@ app.get('/api/messages/:userId', (req, res) => {
   res.json({ messages: userMessages });
 });
 
+// ❌ VULNERABILITY: IDOR - Delete messages without authorization
+app.delete('/api/messages/:userId', (req, res) => {
+  const requestedUserId = parseInt(req.params.userId);
+  
+  // ❌ VULNERABILITY: No authorization check - anyone can delete any user's messages!
+  // Should verify: req.session.userId === requestedUserId
+  
+  const beforeCount = mockDB.messages.length;
+  mockDB.messages = mockDB.messages.filter(m => m.userId !== requestedUserId);
+  const afterCount = mockDB.messages.length;
+  const deleted = beforeCount - afterCount;
+  
+  console.log(`🗑️ Deleted ${deleted} messages for user ${requestedUserId} (No auth check!)`);
+  
+  res.json({ 
+    success: true, 
+    deleted: deleted,
+    message: `Deleted ${deleted} messages from server`
+  });
+});
+
 // ❌ VULNERABILITY: Data Leakage - Exposes all users
 app.get('/api/users', (req, res) => {
   // ❌ VULNERABILITY: No authentication check!
