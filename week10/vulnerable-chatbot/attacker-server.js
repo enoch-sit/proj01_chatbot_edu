@@ -514,7 +514,7 @@ app.get('/', (req, res) => {
   </script>
 </body>
 </html>
-  `);
+`);
 });
 
 // Clear all data endpoint
