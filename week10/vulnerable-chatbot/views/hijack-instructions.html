@@ -226,7 +226,7 @@
         <ul>
           <li><code>document.cookie = "..."</code> - Sets the stolen session cookie in your browser</li>
           <li><code>path=/</code> - Makes the cookie valid for the entire website</li>
-          <li><code>location.reload()</code> - Refreshes the page to apply the hijacked session</li>
+          <li><code>location.href = "/comments.html"</code> - Navigates to comments page where you'll be logged in</li>
         </ul>
         
         <p style="margin-top: 15px;"><strong>Then:</strong></p>
@@ -301,8 +301,11 @@
     document.getElementById('targetDisplay').textContent = targetURL + '/comments.html';
     document.getElementById('targetURLDisplay').textContent = targetURL;
     document.getElementById('cookieDisplay').textContent = sessionCookie;
+    
+    // Updated command to navigate to comments page after setting cookie
+    // The comments.html page checks session and displays username
     document.getElementById('cookieCommand').textContent = 
-      'document.cookie = "' + sessionCookie + '; path=/"; location.reload();';
+      'document.cookie = "' + sessionCookie + '; path=/"; location.href = "/comments.html";';
     
     function copyCookieCmd() {
       const cmd = document.getElementById('cookieCommand').textContent;
