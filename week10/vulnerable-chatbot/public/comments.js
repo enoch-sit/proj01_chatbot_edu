@@ -18,14 +18,25 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function checkCurrentUser() {
-  // Try to get current session user
-  fetch('/api/users')
+  // Check if user is logged in via session
+  fetch('/api/me')
     .then(res => res.json())
     .then(data => {
-      // This is just for display, we're not actually checking auth
-      document.getElementById('currentUser').textContent = currentUsername;
+      if (data.loggedIn) {
+        currentUsername = data.username;
+        document.getElementById('currentUser').textContent = currentUsername;
+        document.getElementById('currentUser').style.color = '#00ff00';
+        document.getElementById('currentUser').style.fontWeight = 'bold';
+        console.log('✅ Logged in as:', currentUsername);
+      } else {
+        currentUsername = 'Anonymous';
+        document.getElementById('currentUser').textContent = currentUsername;
+        console.log('Not logged in, posting as Anonymous');
+      }
     })
     .catch(err => {
+      currentUsername = 'Anonymous';
+      document.getElementById('currentUser').textContent = currentUsername;
       console.log('Not logged in, posting as Anonymous');
     });
 }

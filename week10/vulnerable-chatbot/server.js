@@ -404,6 +404,27 @@ app.post('/api/logout', (req, res) => {
   });
 });
 
+// ❌ VULNERABILITY: Check current session (exposed endpoint)
+app.get('/api/me', (req, res) => {
+  if (req.session && req.session.username) {
+    // User is logged in - return their info
+    const user = mockDB.users.find(u => u.username === req.session.username);
+    if (user) {
+      res.json({
+        loggedIn: true,
+        username: user.username,
+        id: user.id,
+        role: user.role,
+        email: user.email
+      });
+    } else {
+      res.json({ loggedIn: false });
+    }
+  } else {
+    res.json({ loggedIn: false });
+  }
+});
+
 // ================== COMMENT BOARD ENDPOINTS (STORED XSS) ==================
 
 // ❌ VULNERABILITY: Get all comments - No authentication, no sanitization
