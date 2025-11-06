@@ -109,7 +109,7 @@ function generateDataItemsHTML() {
                 📋 Copy Cookie
               </button>
               <button class="btn btn-sm btn-danger" onclick="hijackSession(${actualIndex})">
-                🎯 Hijack Session (Auto-Login)
+                🎯 View Hijack Instructions
               </button>
             </div>
           </div>
