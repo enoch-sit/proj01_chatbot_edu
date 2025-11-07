@@ -84,12 +84,6 @@ const mockDB = {
       username: 'alice',
       text: 'Great service! Very helpful chatbot.',
       timestamp: Date.now() - 3600000
-    },
-    {
-      id: 3,
-      username: 'demo',
-      text: '<img src=x onerror=alert(1)>',
-      timestamp: Date.now() - 1800000
     }
   ],
   
