@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>assignment1.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="int6137-individual-assignment">INT6137 Individual Assignment</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>Individual assignment (50% out of the final grade of the course):</strong><br>
+A critical analysis of the chatbot's performance, with suggestions for improvement, should be written in 1500 words.</p>
+<hr>
+<h2 id="course-information">Course Information</h2>
+<h3 id="assignment-description">Assignment Description</h3>
+<p>Students are required to submit a <strong>1500-word critical analysis report</strong> evaluating the performance of their group-developed chatbot in a specific organizational context (e.g., healthcare, law, education, finance, domestic, or customer service).</p>
+<p>The report must include:</p>
+<ul>
+<li>Evidence-based analysis of strengths and weaknesses, supported by data</li>
+<li>Actionable suggestions for improvement</li>
+<li>Analysis drawing on course concepts such as:
+<ul>
+<li>Agentic AI</li>
+<li>Agile/Scrum methodologies</li>
+<li>Legal aspects/liabilities</li>
+</ul>
+</li>
+</ul>
+<h3 id="submission-requirements">Submission Requirements</h3>
+<ul>
+<li><strong>Word count:</strong> 1500 words (excluding references and appendices)</li>
+<li><strong>Structure:</strong>
+<ul>
+<li>Title page</li>
+<li>Introduction</li>
+<li>Critical analysis</li>
+<li>Suggestions for improvement</li>
+<li>Conclusion</li>
+<li>References (APA 7)</li>
+<li>Optional appendices</li>
+</ul>
+</li>
+<li><strong>Due Date:</strong> 17 December 2025</li>
+<li><strong>Weighting:</strong> 50% of the final grade</li>
+</ul>
+<hr>
+<h2 id="detailed-grading-rubric">Detailed Grading Rubric</h2>
+<table>
+<thead>
+<tr>
+<th>Criterion</th>
+<th>Detailed Description</th>
+<th>A Range (Excellent)</th>
+<th>B Range (Good)</th>
+<th>C Range (Satisfactory)</th>
+<th>D or Below (Poor)</th>
+<th>Weight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Introduction and Overview</strong></td>
+<td>The work demonstrates clarity in describing the chatbot, including its purpose, context, features, and development process. It includes a strong thesis statement and outlines the report structure. A reflection on the role and contribution of each team member.</td>
+<td>Exceptionally clear and comprehensive description of the chatbot's purpose, context, and features. Strong, well-articulated thesis statement. Detailed reflection on individual and team member contributions with specific examples. Excellent report structure outline.</td>
+<td>Clear and thorough description of the chatbot with good context. Well-defined thesis statement. Good reflection on contributions with some specific examples. Clear report structure.</td>
+<td>Adequate description of the chatbot with basic context. Thesis statement is present but could be stronger. Basic reflection on contributions with limited examples. Report structure is outlined.</td>
+<td>Unclear or incomplete description of the chatbot. Weak or missing thesis statement. Minimal or missing reflection on contributions. Poor or missing report structure outline.</td>
+<td>20%</td>
+</tr>
+<tr>
+<td><strong>Critical Analysis of Performance</strong></td>
+<td>The work provides depth in the evaluation of the chatbot's strengths and weaknesses, with root causes analyzed and linked to course concepts (Agentic AI, Agile/Scrum, legal aspects).</td>
+<td>Comprehensive, insightful evaluation with detailed evidence and data. Thorough root cause analysis. Strong, explicit connections to multiple course concepts (Agentic AI, Agile/Scrum, legal aspects). Critical thinking and analytical depth evident throughout.</td>
+<td>Solid evaluation with good supporting evidence. Clear root cause analysis. Good connections to course concepts with some depth. Demonstrates analytical thinking.</td>
+<td>Basic evaluation with some evidence. Adequate identification of root causes. Some connections to course concepts but may be superficial. Limited analytical depth.</td>
+<td>Weak or superficial evaluation. Little to no evidence or data. Poor or missing root cause analysis. Minimal or no connection to course concepts. Lacks critical analysis.</td>
+<td>30%</td>
+</tr>
+<tr>
+<td><strong>Suggestions for Improvement</strong></td>
+<td>Provide at least 3 feasible recommendations that are prioritized, actionable, and tied to the analysis. It incorporates Agile/Scrum methodologies for iteration, addresses legal aspects (e.g., liabilities, privacy), and discusses potential outcomes.</td>
+<td>Provides 3+ highly feasible, well-prioritized recommendations clearly tied to the analysis. Excellent integration of Agile/Scrum methodologies with specific sprint/iteration plans. Thorough consideration of legal aspects (liabilities, privacy, compliance). Detailed discussion of potential outcomes with supporting rationale.</td>
+<td>Provides 3 feasible, prioritized recommendations tied to the analysis. Good integration of Agile/Scrum methodologies. Clear consideration of legal aspects. Good discussion of potential outcomes.</td>
+<td>Provides 3 recommendations with basic prioritization. Adequate ties to the analysis. Some mention of Agile/Scrum methodologies. Basic consideration of legal aspects. Limited discussion of outcomes.</td>
+<td>Fewer than 3 recommendations or recommendations are not feasible. Poor or no prioritization. Weak ties to analysis. Minimal or no mention of Agile/Scrum or legal aspects. Little to no discussion of outcomes.</td>
+<td>30%</td>
+</tr>
+<tr>
+<td><strong>Conclusion and Reflection</strong></td>
+<td>Summarizes key findings, reflects on project lessons (e.g., group work, Agile approach), and provides forward-looking insights.</td>
+<td>Excellent synthesis of key findings. Deep, thoughtful reflection on project lessons including group dynamics, Agile approach, and personal learning. Insightful forward-looking perspectives on future improvements or applications.</td>
+<td>Good summary of key findings. Clear reflection on project lessons with meaningful insights. Relevant forward-looking insights provided.</td>
+<td>Adequate summary of key findings. Basic reflection on project lessons. Some forward-looking insights, though may be limited.</td>
+<td>Weak or incomplete summary. Minimal or superficial reflection on project lessons. Little to no forward-looking insights.</td>
+<td>20%</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="grade-scale-summary">Grade Scale Summary</h2>
+<ul>
+<li><strong>A Range:</strong> Excellent work demonstrating exceptional understanding, critical analysis, and application of course concepts</li>
+<li><strong>B Range:</strong> Good work demonstrating strong understanding and solid application of course concepts</li>
+<li><strong>C Range:</strong> Satisfactory work demonstrating adequate understanding and basic application of course concepts</li>
+<li><strong>D or Below:</strong> Poor work demonstrating insufficient understanding or application of course concepts</li>
+</ul>
+<hr>
+<h2 id="penalties">Penalties</h2>
+<ul>
+<li><strong>Late submission:</strong> 10% deduction per day</li>
+</ul>
+
+</body>
+</html>
