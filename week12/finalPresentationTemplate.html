@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>finalPresentationTemplate.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="presentation-template-15-25-min">Presentation Template (15-25 min)</h1>
+<h2 id="overview">Overview</h2>
+<p><strong>Total Duration</strong>: 15-25 minutes</p>
+<ul>
+<li>Presentation: 12-20 minutes</li>
+<li>Q&amp;A Session: 3-5 minutes</li>
+</ul>
+<p><strong>Objective</strong>: Demonstrate chatbot development, functionality, compliance, and Agile methodology application</p>
+<hr>
+<h2 id="section-breakdown">Section Breakdown</h2>
+<h3 id="1-introduction-1-2-minutes">1. Introduction (1-2 minutes)</h3>
+<ul>
+<li>Greeting and team introduction</li>
+<li>Project overview: Chatbot purpose (e.g., handling course registration, campus resources, academic advising)</li>
+<li>Agenda outline and transition to main content</li>
+</ul>
+<hr>
+<h3 id="2-chatbot-functionality-and-design---ui-2-3-minutes">2. Chatbot Functionality and Design - UI (2-3 minutes)</h3>
+<p><strong>Key Points</strong>:</p>
+<ul>
+<li>Intuitive design</li>
+<li>Responsiveness</li>
+<li>Integration with Scrum/Agile (iterative development, user stories)</li>
+</ul>
+<p><strong>Demo</strong>: Live UI walkthrough</p>
+<p><strong>Evidence</strong>: Frontend framework choices (e.g., React.js) and sprint enhancements</p>
+<hr>
+<h3 id="3-chatbot-functionality-and-design---agent-design-3-4-minutes">3. Chatbot Functionality and Design - Agent Design (3-4 minutes)</h3>
+<p><strong>Key Points</strong>:</p>
+<ul>
+<li>Core logic</li>
+<li>Data preparation</li>
+<li>Advanced features (e.g., RAG, multi-turn conversations, API integrations)</li>
+<li>Alignment with project needs and organizational use case</li>
+</ul>
+<p><strong>Evidence</strong>: Test results, accuracy metrics, charts</p>
+<hr>
+<h3 id="4-performance-evaluation-and-monitoring-2-3-minutes">4. Performance Evaluation and Monitoring (2-3 minutes)</h3>
+<p><strong>Key Points</strong>:</p>
+<ul>
+<li>Custom metrics (e.g., response accuracy, user satisfaction)</li>
+<li>Monitoring tools</li>
+<li>User feedback collection and iteration</li>
+</ul>
+<p><strong>Evidence</strong>: Feedback logs, analysis charts</p>
+<hr>
+<h3 id="5-agilescrum-application-and-planning-2-3-minutes">5. Agile/Scrum Application and Planning (2-3 minutes)</h3>
+<p><strong>Key Points</strong>:</p>
+<ul>
+<li>Use of sprints, backlogs, artifacts</li>
+<li>Team participation</li>
+<li>How Agile drove project success</li>
+</ul>
+<p><strong>Evidence</strong>: Scrum artifacts (e.g., screen captures of backlogs, iteration histories)</p>
+<hr>
+<h3 id="6-legal-and-ethical-considerations-1-2-minutes">6. Legal and Ethical Considerations (1-2 minutes)</h3>
+<p><strong>Key Points</strong>:</p>
+<ul>
+<li>Compliance with Hong Kong data privacy and AI regulations</li>
+<li>Implementation of data protection principles</li>
+<li>Ethical AI deployment practices</li>
+</ul>
+<p><strong>Evidence</strong>: Reference to official guidelines and frameworks</p>
+<h4 id="61-hong-kong-generative-ai-guidelines">6.1 Hong Kong Generative AI Guidelines</h4>
+<p><strong>Hong Kong Generative Artificial Intelligence Technical and Application Guideline (2025)</strong></p>
+<ul>
+<li><strong>Source</strong>: Digital Policy Office (.gov.hk)</li>
+<li><strong>URL</strong>: <a href="https://www.digitalpolicy.gov.hk/en/our_work/data_governance/policies_standards/ethical_ai_framework/doc/HK_Generative_AI_Technical_and_Application_Guideline_en.pdf">HK Generative AI Technical and Application Guideline</a></li>
+</ul>
+<p><strong>The Privacy Commissioner's Office Compliance Checks on 60 Organisations</strong></p>
+<ul>
+<li><strong>Topic</strong>: How the Use of Artificial Intelligence Affects Personal Data Privacy</li>
+<li><strong>Source</strong>: Privacy Commissioner for Personal Data (pcpd.org.hk)</li>
+<li><strong>URL</strong>: <a href="https://www.pcpd.org.hk/english/resources_centre/publications/files/AI_ComplianceChecks.pdf">AI Compliance Checks Report</a></li>
+</ul>
+<h4 id="62-implementing-the-six-data-protection-principles">6.2 Implementing the Six Data Protection Principles</h4>
+<p><strong>Six Data Protection Principles - Official PCPD Page</strong></p>
+<ul>
+<li><strong>Source</strong>: Privacy Commissioner for Personal Data (pcpd.org.hk)</li>
+<li><strong>URL</strong>: <a href="https://www.pcpd.org.hk/english/data_privacy_law/6_data_protection_principles/principles.html">Six Data Protection Principles</a></li>
+<li><strong>Type</strong>: Official legal framework</li>
+</ul>
+<p><strong>PCPD AI Security Hub</strong></p>
+<ul>
+<li><strong>Source</strong>: Privacy Commissioner for Personal Data</li>
+<li><strong>URL</strong>: <a href="https://www.pcpd.org.hk/english/artificial_intelligence/index.html">AI Security Hub</a></li>
+<li><strong>Type</strong>: Dedicated AI guidance portal</li>
+</ul>
+<h4 id="63-ai-protection-and-compliance-framework">6.3 AI Protection and Compliance Framework</h4>
+<p><strong>Artificial Intelligence Protection Framework</strong></p>
+<ul>
+<li><strong>Source</strong>: Digital Policy Office</li>
+<li><strong>URL</strong>: <a href="https://www.pcpd.org.hk/english/resources_centre/publications/files/ai_protection_framework.pdf">AI Protection Framework</a></li>
+<li><strong>Type</strong>: Compliance framework for AI deployment</li>
+</ul>
+<hr>
+<h3 id="7-documentation-1-2-minutes">7. Documentation (1-2 minutes)</h3>
+<p><strong>Key Points</strong>:</p>
+<ul>
+<li>Scrum artifacts, code annotations, feedback logs, iteration histories</li>
+<li>How documentation supports project understanding and maintainability</li>
+<li>Importance of clear documentation for future development and onboarding</li>
+</ul>
+<p><strong>Evidence</strong>: Slides with examples or references to submitted materials</p>
+<hr>
+<h3 id="8-conclusion-1-minute">8. Conclusion (1 minute)</h3>
+<p><strong>Key Points</strong>:</p>
+<ul>
+<li>Summary of key achievements and alignment with organizational needs</li>
+<li>Overall impact and future potential</li>
+<li>Thank the audience</li>
+<li>Transition to Q&amp;A</li>
+</ul>
+<hr>
+<h3 id="9-qa-section-3-5-minutes">9. Q&amp;A Section (3-5 minutes)</h3>
+<p><strong>Participants</strong>: All team members</p>
+<p><strong>Format</strong>:</p>
+<ul>
+<li>Open floor for questions</li>
+<li>All team members available to respond, ensuring balanced participation</li>
+<li>Address queries on features, process, evaluation, etc.</li>
+</ul>
+<hr>
+<h2 id="presentation-tips">Presentation Tips</h2>
+<ul>
+<li><strong>Time Management</strong>: Stick to allocated times for each section (total 15-25 minutes</li>
+<li><strong>Visual Aids</strong>: Use slides, diagrams, and live demos effectively</li>
+<li><strong>Engagement</strong>: Maintain eye contact and address the audience directly</li>
+<li><strong>Preparation</strong>: Rehearse multiple times as a team to ensure flow</li>
+<li><strong>Evidence</strong>: Always show supporting evidence (screenshots, charts, logs)</li>
+<li><strong>Criterion Alignment</strong>: Clearly map each section to the rubric criteria</li>
+</ul>
+
+</body>
+</html>

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>百分比與小數題解範例</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .question {
+            background-color: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .hint {
+            background-color: #fff9e6;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 16px;
+            color: #666;
+        }
+        .chart-container {
+            margin: 30px 0;
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .bar {
+            margin: 15px 0;
+        }
+        .bar-label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .bar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bar-fill {
+            height: 40px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            transition: width 0.5s ease;
+        }
+        .bar-part {
+            background: linear-gradient(90deg, #9C27B0, #BA68C8);
+        }
+        .bar-whole {
+            background: linear-gradient(90deg, #2196F3, #64B5F6);
+        }
+        .bar-result {
+            background: linear-gradient(90deg, #4CAF50, #81C784);
+        }
+        .pie-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .pie-svg {
+            max-width: 400px;
+            height: 400px;
+        }
+        .pie-legend {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .pie-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+        .pie-legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+        }
+        .answer {
+            background-color: #c8e6c9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #1b5e20;
+            text-align: center;
+        }
+    </style>
+    <script>
+        // URL parameter decoder
+        function decodeParam(param) {
+            return param ? decodeURIComponent(param) : null;
+        }
+
+        // Get all URL parameters
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Numeric parameters
+            let value = params.get('value');
+            let percent = params.get('percent');
+            let decimalPlaces = params.get('decimalPlaces');
+            
+            // Text parameters
+            const operation = params.get('operation') || 'percentOf';
+            const vizType = params.get('vizType') || 'bar';
+            const showAnswer = params.get('showAnswer') !== 'false';
+            const question = decodeParam(params.get('question'));
+            const hint = decodeParam(params.get('hint'));
+            const warning = decodeParam(params.get('warning'));
+            const chartTitle = decodeParam(params.get('chartTitle'));
+            const wholeLabel = decodeParam(params.get('wholeLabel'));
+            const partLabel = decodeParam(params.get('partLabel'));
+            const resultLabel = decodeParam(params.get('resultLabel'));
+            
+            // Parse and validate numeric values
+            value = value !== null ? parseFloat(value) : null;
+            percent = percent !== null ? parseFloat(percent) : null;
+            decimalPlaces = decimalPlaces !== null ? parseInt(decimalPlaces) : 2;
+            
+            // Validate and set defaults based on operation
+            const defaults = getDefaults(operation);
+            
+            const validatedParams = {
+                value: (value !== null && !isNaN(value)) ? value : defaults.value,
+                percent: (percent !== null && !isNaN(percent)) ? percent : defaults.percent,
+                decimalPlaces: (decimalPlaces >= 0 && decimalPlaces <= 10) ? decimalPlaces : 2,
+                operation: ['percentOf', 'whatPercent', 'increase', 'decrease', 'toDecimal', 'fromDecimal'].includes(operation) ? operation : 'percentOf',
+                vizType: ['bar', 'pie'].includes(vizType) ? vizType : 'bar',
+                question: question,
+                hint: hint,
+                warning: warning,
+                chartTitle: chartTitle,
+                wholeLabel: wholeLabel,
+                partLabel: partLabel,
+                resultLabel: resultLabel,
+                showAnswer: showAnswer
+            };
+            
+            // Check for validation errors
+            const errors = [];
+            if (params.get('value') !== null && isNaN(parseFloat(params.get('value')))) {
+                errors.push('value (必須是數字)');
+            }
+            if (params.get('percent') !== null && isNaN(parseFloat(params.get('percent')))) {
+                errors.push('percent (必須是數字)');
+            }
+            if (params.get('decimalPlaces') !== null && (isNaN(parseInt(params.get('decimalPlaces'))) || parseInt(params.get('decimalPlaces')) < 0 || parseInt(params.get('decimalPlaces')) > 10)) {
+                errors.push('decimalPlaces (必須是0-10的整數)');
+            }
+            
+            return {
+                ...validatedParams,
+                errors: errors
+            };
+        }
+
+        function getDefaults(operation) {
+            const defaults = {
+                percentOf: { value: 200, percent: 25 },
+                whatPercent: { value: 200, percent: 50 },
+                increase: { value: 100, percent: 20 },
+                decrease: { value: 100, percent: 15 },
+                toDecimal: { value: 75, percent: 75 },
+                fromDecimal: { value: 0.6, percent: 60 }
+            };
+            return defaults[operation] || { value: 100, percent: 25 };
+        }
+
+        // Calculate result based on operation
+        function calculate(value, percent, operation, decimalPlaces) {
+            let result, whole, part;
+            
+            switch(operation) {
+                case 'percentOf':
+                    // Calculate X% of Y
+                    result = (value * percent) / 100;
+                    whole = value;
+                    part = result;
+                    break;
+                case 'whatPercent':
+                    // X is what percent of Y (percent is actually the part here)
+                    result = value > 0 ? (percent / value) * 100 : 0;
+                    whole = value;
+                    part = percent;
+                    break;
+                case 'increase':
+                    // Increase X by Y%
+                    result = value * (1 + percent / 100);
+                    whole = value;
+                    part = result - value;
+                    break;
+                case 'decrease':
+                    // Decrease X by Y%
+                    result = value * (1 - percent / 100);
+                    whole = value;
+                    part = value - result;
+                    break;
+                case 'toDecimal':
+                    // Convert percent to decimal
+                    result = percent / 100;
+                    whole = 1;
+                    part = result;
+                    break;
+                case 'fromDecimal':
+                    // Convert decimal to percent
+                    result = value * 100;
+                    whole = 1;
+                    part = value;
+                    break;
+                default:
+                    result = 0;
+                    whole = 100;
+                    part = 0;
+            }
+            
+            // Round to decimal places (fix floating point issues)
+            result = parseFloat(result.toFixed(decimalPlaces));
+            
+            return { result, whole, part };
+        }
+
+        // Generate default question text
+        function generateQuestion(value, percent, operation) {
+            const questions = {
+                percentOf: `${percent}% 的 ${value} 是多少？`,
+                whatPercent: `${percent} 是 ${value} 的百分之幾？`,
+                increase: `${value} 增加 ${percent}% 後是多少？`,
+                decrease: `${value} 減少 ${percent}% 後是多少？`,
+                toDecimal: `${percent}% 轉換成小數是多少？`,
+                fromDecimal: `${value} 轉換成百分比是多少？`
+            };
+            return questions[operation] || '計算百分比';
+        }
+
+        // Generate default hint text
+        function generateHint(value, percent, operation, result) {
+            const hints = {
+                percentOf: `將 ${value} 乘以 ${percent}%（即 ${percent}/100 = ${(percent/100).toFixed(2)}）`,
+                whatPercent: `將 ${percent} 除以 ${value}，然後乘以 100`,
+                increase: `原值 ${value} 加上 ${percent}% 的增量（${value} × ${percent}% = ${(value * percent / 100).toFixed(2)}）`,
+                decrease: `原值 ${value} 減去 ${percent}% 的減量（${value} × ${percent}% = ${(value * percent / 100).toFixed(2)}）`,
+                toDecimal: `將百分比除以 100：${percent} ÷ 100`,
+                fromDecimal: `將小數乘以 100：${value} × 100`
+            };
+            return hints[operation] || '計算百分比關係';
+        }
+
+        // Generate default chart title
+        function generateChartTitle(operation) {
+            const titles = {
+                percentOf: '📊 百分比計算',
+                whatPercent: '📊 百分比關係',
+                increase: '📈 百分比增加',
+                decrease: '📉 百分比減少',
+                toDecimal: '🔢 百分比轉小數',
+                fromDecimal: '🔢 小數轉百分比'
+            };
+            return titles[operation] || '📊 百分比圖表';
+        }
+
+        // Create pie chart SVG
+        function createPieChart(whole, part, partLabel, wholeLabel) {
+            const percentage = whole > 0 ? Math.min((part / whole) * 100, 100) : 0;
+            const angle = (percentage / 100) * 360;
+            
+            // Calculate pie slice path
+            const radius = 150;
+            const cx = 200;
+            const cy = 200;
+            
+            let pathData = '';
+            if (percentage === 0) {
+                pathData = '';
+            } else if (percentage >= 100) {
+                // Full circle
+                pathData = `M ${cx},${cy} m -${radius},0 a ${radius},${radius} 0 1,0 ${radius*2},0 a ${radius},${radius} 0 1,0 -${radius*2},0`;
+            } else {
+                const radians = (angle - 90) * Math.PI / 180;
+                const x = cx + radius * Math.cos(radians);
+                const y = cy + radius * Math.sin(radians);
+                const largeArc = angle > 180 ? 1 : 0;
+                
+                pathData = `M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 ${largeArc},1 ${x},${y} Z`;
+            }
+            
+            const wholePath = `M ${cx},${cy} m -${radius},0 a ${radius},${radius} 0 1,0 ${radius*2},0 a ${radius},${radius} 0 1,0 -${radius*2},0`;
+            
+            return `
+                <svg class="pie-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Whole circle (background) -->
+                    <path d="${wholePath}" fill="#64B5F6" opacity="0.3"/>
+                    <!-- Part slice -->
+                    ${percentage > 0 ? `<path d="${pathData}" fill="#9C27B0"/>` : ''}
+                    <!-- Center text -->
+                    <text x="200" y="200" text-anchor="middle" font-size="24" font-weight="bold" fill="#2c3e50">
+                        ${percentage.toFixed(1)}%
+                    </text>
+                    <text x="200" y="230" text-anchor="middle" font-size="18" fill="#666">
+                        ${part.toFixed(2)}
+                    </text>
+                </svg>
+            `;
+        }
+
+        // Update the page content
+        function updateContent() {
+            const { value, percent, decimalPlaces, operation, vizType, question, hint, warning, chartTitle, wholeLabel, partLabel, resultLabel, showAnswer, errors } = getUrlParams();
+            
+            // Calculate values
+            const { result, whole, part } = calculate(value, percent, operation, decimalPlaces);
+            
+            // Calculate percentages for bar chart
+            let partPercent, wholePercent;
+            if (operation === 'percentOf') {
+                partPercent = percent;
+                wholePercent = 100 - percent;
+            } else if (operation === 'whatPercent') {
+                partPercent = whole > 0 ? (part / whole) * 100 : 0;
+                wholePercent = 100 - partPercent;
+            } else {
+                partPercent = whole > 0 ? (part / whole) * 100 : 0;
+                wholePercent = 100;
+            }
+            
+            // Build messages
+            let errorMessage = '';
+            if (errors.length > 0) {
+                errorMessage = `<div style="background-color: #ffebee; color: #c62828; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #c62828;">
+                    ⚠️ <strong>參數錯誤：</strong>${errors.join(', ')} 已使用預設值
+                </div>`;
+            }
+            
+            let warningMessage = '';
+            if (warning) {
+                warningMessage = `<div style="background-color: #fff3e0; color: #e65100; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ff9800;">
+                    ${warning}
+                </div>`;
+            }
+            
+            // Insert messages
+            const container = document.querySelector('.container');
+            const h1 = container.querySelector('h1');
+            
+            const oldMessages = container.querySelectorAll('.dynamic-message');
+            oldMessages.forEach(msg => msg.remove());
+            
+            if (errorMessage || warningMessage) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'dynamic-message';
+                messageDiv.innerHTML = errorMessage + warningMessage;
+                h1.insertAdjacentElement('afterend', messageDiv);
+            }
+            
+            // Update question text
+            const questionText = question || generateQuestion(value, percent, operation);
+            document.getElementById('question-text').innerHTML = `<strong>題目：</strong><br>${questionText}`;
+            
+            // Update hint text
+            const hintText = hint || generateHint(value, percent, operation, result);
+            document.getElementById('hint-text').innerHTML = `💡 提示：${hintText}`;
+            
+            // Update chart title
+            const finalChartTitle = chartTitle || generateChartTitle(operation);
+            document.getElementById('chart-title').textContent = finalChartTitle;
+            
+            // Show/hide chart based on vizType
+            const barContainer = document.getElementById('bar-chart');
+            const pieContainer = document.getElementById('pie-chart');
+            
+            if (vizType === 'pie') {
+                barContainer.style.display = 'none';
+                pieContainer.style.display = 'block';
+                
+                // Generate pie chart
+                const finalPartLabel = partLabel || '部分';
+                const finalWholeLabel = wholeLabel || '整體';
+                pieContainer.innerHTML = createPieChart(whole, part, finalPartLabel, finalWholeLabel);
+                
+                // Add legend
+                pieContainer.innerHTML += `
+                    <div class="pie-legend">
+                        <div class="pie-legend-item">
+                            <div class="pie-legend-color" style="background: #9C27B0;"></div>
+                            <span>${finalPartLabel}: ${part.toFixed(decimalPlaces)}</span>
+                        </div>
+                        <div class="pie-legend-item">
+                            <div class="pie-legend-color" style="background: #64B5F6; opacity: 0.3;"></div>
+                            <span>${finalWholeLabel}: ${whole.toFixed(decimalPlaces)}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                barContainer.style.display = 'block';
+                pieContainer.style.display = 'none';
+                
+                // Update bar labels
+                const finalPartLabel = partLabel || '部分';
+                const finalWholeLabel = wholeLabel || '整體';
+                document.getElementById('part-label').textContent = finalPartLabel;
+                document.getElementById('whole-label').textContent = finalWholeLabel;
+                
+                // Update bar chart
+                const partBar = document.getElementById('part-bar');
+                const wholeBar = document.getElementById('whole-bar');
+                
+                partBar.style.width = Math.min(Math.max(partPercent, 0), 100) + '%';
+                partBar.style.minWidth = part > 0 ? '80px' : '0';
+                partBar.textContent = `${part.toFixed(decimalPlaces)} (${partPercent.toFixed(1)}%)`;
+                
+                wholeBar.style.width = '100%';
+                wholeBar.style.minWidth = '80px';
+                wholeBar.textContent = `${whole.toFixed(decimalPlaces)} (100%)`;
+            }
+            
+            // Update answer
+            const finalResultLabel = resultLabel || '答案';
+            document.getElementById('answer-text').innerHTML = `${finalResultLabel}：<span style="font-size: 24px;">${result.toFixed(decimalPlaces)}</span>`;
+        }
+
+        // Run when page loads
+        window.addEventListener('DOMContentLoaded', updateContent);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 百分比與小數題解範例 - 自訂版</h1>
+        
+        <div class="question" id="question-text">
+            <strong>題目：</strong><br>
+            25% 的 200 是多少？
+        </div>
+
+        <div class="hint" id="hint-text">
+            💡 提示：將 200 乘以 25%（即 25/100 = 0.25）
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title" id="chart-title">📊 百分比計算</div>
+            
+            <!-- Bar Chart -->
+            <div id="bar-chart">
+                <div class="bar">
+                    <div class="bar-label" id="part-label">部分</div>
+                    <div class="bar-wrapper">
+                        <div class="bar-fill bar-part" id="part-bar" style="width: 25%;">
+                            50.00 (25.0%)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bar">
+                    <div class="bar-label" id="whole-label">整體</div>
+                    <div class="bar-wrapper">
+                        <div class="bar-fill bar-whole" id="whole-bar" style="width: 100%;">
+                            200.00 (100%)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pie Chart -->
+            <div id="pie-chart" style="display: none;">
+            </div>
+        </div>
+
+        <div class="answer" id="answer-text">
+            答案：<span style="font-size: 24px;">50.00</span>
+        </div>
+    </div>
+</body>
+</html>

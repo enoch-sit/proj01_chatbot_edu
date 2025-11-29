@@ -1,0 +1,47 @@
+{
+  "name": "ai-ethics-docs-repo",
+  "version": "1.0.0",
+  "description": "Automated repository for downloading and archiving official AI ethics and regulation documents from Hong Kong, EU, US, and UK",
+  "main": "index.js",
+  "scripts": {
+    "download:all": "node scripts/download-all.js",
+    "download:hk": "node scripts/download-hong-kong.js",
+    "download:china": "node scripts/download-china.js",
+    "download:eu": "node scripts/download-europe.js",
+    "download:us": "node scripts/download-united-states.js",
+    "download:uk": "node scripts/download-united-kingdom.js",
+    "screenshot:all": "node scripts/screenshot-all.js",
+    "screenshot:hk": "node scripts/screenshot-hong-kong.js",
+    "screenshot:eu": "node scripts/screenshot-europe.js",
+    "screenshot:us": "node scripts/screenshot-united-states.js",
+    "screenshot:uk": "node scripts/screenshot-united-kingdom.js",
+    "full-capture": "npm run download:all && npm run screenshot:all",
+    "verify": "node scripts/verify-downloads.js",
+    "report": "node scripts/generate-report.js"
+  },
+  "keywords": [
+    "ai",
+    "ethics",
+    "regulation",
+    "documentation",
+    "legal",
+    "compliance",
+    "playwright",
+    "automation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "playwright": "^1.48.0",
+    "axios": "^1.7.7",
+    "cheerio": "^1.0.0",
+    "csv-writer": "^1.6.0",
+    "dotenv": "^16.4.5",
+    "fs-extra": "^11.2.0",
+    "csv-parse": "^5.5.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.8.6",
+    "typescript": "^5.6.3"
+  }
+}

@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基本運算題解範例</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .question {
+            background-color: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .hint {
+            background-color: #fff9e6;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 16px;
+            color: #666;
+        }
+        .steps {
+            background-color: #f3e5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+        .steps ol {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+        .steps li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        .chart-container {
+            margin: 30px 0;
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .bar {
+            margin: 15px 0;
+        }
+        .bar-label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .bar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bar-fill {
+            height: 40px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            transition: width 0.5s ease;
+        }
+        .bar-num1 {
+            background: linear-gradient(90deg, #2196F3, #64B5F6);
+        }
+        .bar-num2 {
+            background: linear-gradient(90deg, #FF9800, #FFB74D);
+        }
+        .bar-result {
+            background: linear-gradient(90deg, #4CAF50, #81C784);
+        }
+        .bar-negative {
+            background: linear-gradient(90deg, #F44336, #EF5350);
+        }
+        .pie-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .pie-svg {
+            max-width: 400px;
+            height: 400px;
+        }
+        .pie-legend {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .pie-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+        .pie-legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+        }
+        .answer {
+            background-color: #c8e6c9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #1b5e20;
+            text-align: center;
+        }
+        /* Table styles for multi-number calculations */
+        .calc-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .calc-table th {
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+        .calc-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .calc-table tr:last-child td {
+            border-bottom: none;
+        }
+        .calc-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .step-number {
+            font-weight: bold;
+            color: #3498db;
+            min-width: 60px;
+        }
+        .expression {
+            font-family: 'Courier New', monospace;
+            color: #2c3e50;
+        }
+        .result-cell {
+            font-weight: bold;
+            color: #27ae60;
+        }
+        .final-row {
+            background-color: #e8f5e9 !important;
+            font-size: 18px;
+        }
+        .final-row td {
+            padding: 15px 12px;
+        }
+    </style>
+    <script>
+        // URL parameter decoder
+        function decodeParam(param) {
+            return param ? decodeURIComponent(param) : null;
+        }
+
+        // Parse comma-separated numbers
+        function parseNumbersArray(str) {
+            if (!str) return null;
+            return str.split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
+        }
+
+        // Parse comma-separated operations (support both symbols and words)
+        function parseOperationsArray(str) {
+            if (!str) return null;
+            const ops = str.split(',').map(op => op.trim());
+            const normalized = ops.map(op => {
+                switch(op) {
+                    case '+': case 'add': return 'add';
+                    case '-': case 'subtract': return 'subtract';
+                    case '*': case '×': case 'x': case 'multiply': return 'multiply';
+                    case '/': case '÷': case 'divide': return 'divide';
+                    default: return null;
+                }
+            }).filter(op => op !== null);
+            return normalized.length > 0 ? normalized : null;
+        }
+
+        // Get all URL parameters
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Check for multi-number mode
+            const numbersParam = params.get('numbers');
+            const operationsParam = params.get('operations');
+            
+            let isMultiMode = false;
+            let numbers = null;
+            let operations = null;
+            
+            if (numbersParam) {
+                numbers = parseNumbersArray(numbersParam);
+                if (numbers && numbers.length >= 3) {
+                    isMultiMode = true;
+                    operations = parseOperationsArray(operationsParam);
+                    if (!operations || operations.length !== numbers.length - 1) {
+                        // Generate default operations
+                        operations = Array(numbers.length - 1).fill('add');
+                    }
+                }
+            }
+            
+            // For backward compatibility, support two-number mode
+            let num1 = params.get('num1');
+            let num2 = params.get('num2');
+            let decimalPlaces = params.get('decimalPlaces');
+            
+            // Text/boolean parameters
+            const operation = params.get('operation') || 'add';
+            const vizType = params.get('vizType') || (isMultiMode ? 'table' : 'bar');
+            const showSteps = params.get('showSteps') !== 'false';
+            const showRemainder = params.get('showRemainder') !== 'false';
+            const showAnswer = params.get('showAnswer') !== 'false';
+            const orderPrecedence = params.get('orderPrecedence') === 'true';
+            const question = decodeParam(params.get('question'));
+            const hint = decodeParam(params.get('hint'));
+            const warning = decodeParam(params.get('warning'));
+            const chartTitle = decodeParam(params.get('chartTitle'));
+            const num1Label = decodeParam(params.get('num1Label'));
+            const num2Label = decodeParam(params.get('num2Label'));
+            const resultLabel = decodeParam(params.get('resultLabel'));
+            
+            // Parse and validate numeric values for two-number mode
+            num1 = num1 !== null ? parseFloat(num1) : null;
+            num2 = num2 !== null ? parseFloat(num2) : null;
+            decimalPlaces = decimalPlaces !== null ? parseInt(decimalPlaces) : 2;
+            
+            // Validate and set defaults
+            let validatedParams;
+            
+            if (isMultiMode) {
+                validatedParams = {
+                    isMultiMode: true,
+                    numbers: numbers,
+                    operations: operations,
+                    decimalPlaces: (decimalPlaces >= 0 && decimalPlaces <= 10) ? decimalPlaces : 2,
+                    vizType: ['table', 'bar'].includes(vizType) ? vizType : 'table',
+                    showSteps: showSteps,
+                    orderPrecedence: orderPrecedence,
+                    question: question,
+                    hint: hint,
+                    warning: warning,
+                    chartTitle: chartTitle
+                };
+            } else {
+                const defaults = getDefaults(operation);
+                validatedParams = {
+                    isMultiMode: false,
+                    num1: (num1 !== null && !isNaN(num1)) ? num1 : defaults.num1,
+                    num2: (num2 !== null && !isNaN(num2)) ? num2 : defaults.num2,
+                    decimalPlaces: (decimalPlaces >= 0 && decimalPlaces <= 10) ? decimalPlaces : 2,
+                    operation: ['add', 'subtract', 'multiply', 'divide'].includes(operation) ? operation : 'add',
+                    vizType: ['bar', 'pie'].includes(vizType) ? vizType : 'bar',
+                    showSteps: showSteps,
+                    showRemainder: showRemainder,
+                    question: question,
+                    hint: hint,
+                    warning: warning,
+                    chartTitle: chartTitle,
+                    num1Label: num1Label,
+                    num2Label: num2Label,
+                    resultLabel: resultLabel,
+                    showAnswer: showAnswer
+                };
+            }
+            
+            // Check for validation errors
+            const errors = [];
+            if (!isMultiMode) {
+                if (params.get('num1') !== null && isNaN(parseFloat(params.get('num1')))) {
+                    errors.push('num1 (必須是數字)');
+                }
+                if (params.get('num2') !== null && isNaN(parseFloat(params.get('num2')))) {
+                    errors.push('num2 (必須是數字)');
+                }
+            }
+            if (params.get('decimalPlaces') !== null && (isNaN(parseInt(params.get('decimalPlaces'))) || parseInt(params.get('decimalPlaces')) < 0 || parseInt(params.get('decimalPlaces')) > 10)) {
+                errors.push('decimalPlaces (必須是0-10的整數)');
+            }
+            
+            return {
+                ...validatedParams,
+                errors: errors
+            };
+        }
+
+        function getDefaults(operation) {
+            const defaults = {
+                add: { num1: 45, num2: 38 },
+                subtract: { num1: 82, num2: 37 },
+                multiply: { num1: 12, num2: 8 },
+                divide: { num1: 96, num2: 8 }
+            };
+            return defaults[operation] || { num1: 10, num2: 5 };
+        }
+
+        // Perform single operation
+        function performOperation(a, b, op, decimalPlaces) {
+            let result;
+            switch(op) {
+                case 'add': result = a + b; break;
+                case 'subtract': result = a - b; break;
+                case 'multiply': result = a * b; break;
+                case 'divide':
+                    if (b === 0) return NaN;
+                    result = a / b;
+                    break;
+                default: result = 0;
+            }
+            return parseFloat(result.toFixed(decimalPlaces));
+        }
+
+        // Calculate with order of operations (PEMDAS)
+        function calculateWithPrecedence(numbers, operations, decimalPlaces) {
+            let nums = [...numbers];
+            let ops = [...operations];
+            const steps = [];
+            
+            // First pass: multiply and divide
+            let i = 0;
+            while (i < ops.length) {
+                if (ops[i] === 'multiply' || ops[i] === 'divide') {
+                    const result = performOperation(nums[i], nums[i + 1], ops[i], decimalPlaces);
+                    const expression = formatExpression(nums[i], nums[i + 1], ops[i]);
+                    steps.push({ expression, result, type: 'intermediate' });
+                    
+                    nums.splice(i, 2, result);
+                    ops.splice(i, 1);
+                } else {
+                    i++;
+                }
+            }
+            
+            // Second pass: add and subtract (left to right)
+            i = 0;
+            while (ops.length > 0) {
+                const result = performOperation(nums[0], nums[1], ops[0], decimalPlaces);
+                const expression = formatExpression(nums[0], nums[1], ops[0]);
+                steps.push({ expression, result, type: 'intermediate' });
+                
+                nums.splice(0, 2, result);
+                ops.splice(0, 1);
+            }
+            
+            return { result: nums[0], steps };
+        }
+
+        // Calculate left to right (no precedence)
+        function calculateLeftToRight(numbers, operations, decimalPlaces) {
+            let result = numbers[0];
+            const steps = [];
+            
+            for (let i = 0; i < operations.length; i++) {
+                const nextNum = numbers[i + 1];
+                const op = operations[i];
+                const expression = formatExpression(result, nextNum, op);
+                result = performOperation(result, nextNum, op, decimalPlaces);
+                steps.push({ expression, result, type: 'step' });
+            }
+            
+            return { result, steps };
+        }
+
+        // Format expression for display
+        function formatExpression(a, b, op) {
+            const symbols = {
+                add: '+',
+                subtract: '-',
+                multiply: '×',
+                divide: '÷'
+            };
+            return `${a} ${symbols[op]} ${b}`;
+        }
+
+        // Calculate result based on operation (two-number mode)
+        function calculate(num1, num2, operation, decimalPlaces, showRemainder) {
+            let result, quotient, remainder;
+            
+            switch(operation) {
+                case 'add':
+                    result = num1 + num2;
+                    break;
+                case 'subtract':
+                    result = num1 - num2;
+                    break;
+                case 'multiply':
+                    result = num1 * num2;
+                    break;
+                case 'divide':
+                    if (num2 === 0) {
+                        result = NaN;
+                        quotient = NaN;
+                        remainder = NaN;
+                    } else {
+                        result = num1 / num2;
+                        if (showRemainder && Number.isInteger(num1) && Number.isInteger(num2)) {
+                            quotient = Math.floor(num1 / num2);
+                            remainder = num1 % num2;
+                        }
+                    }
+                    break;
+                default:
+                    result = 0;
+            }
+            
+            if (!isNaN(result)) {
+                result = parseFloat(result.toFixed(decimalPlaces));
+            }
+            
+            return { result, quotient, remainder };
+        }
+
+        // Generate default question text
+        function generateQuestion(num1, num2, operation) {
+            const words = {
+                add: '加',
+                subtract: '減',
+                multiply: '乘',
+                divide: '除以'
+            };
+            return `${num1} ${words[operation]} ${num2} 等於多少？`;
+        }
+
+        function generateMultiQuestion(numbers, operations) {
+            const symbols = {
+                add: '+',
+                subtract: '-',
+                multiply: '×',
+                divide: '÷'
+            };
+            let expr = numbers[0].toString();
+            for (let i = 0; i < operations.length; i++) {
+                expr += ` ${symbols[operations[i]]} ${numbers[i + 1]}`;
+            }
+            return `計算：${expr} = ?`;
+        }
+
+        // Generate default hint text
+        function generateHint(num1, num2, operation) {
+            const hints = {
+                add: `將兩個數字相加：${num1} + ${num2}`,
+                subtract: `從 ${num1} 減去 ${num2}`,
+                multiply: `將 ${num1} 乘以 ${num2}，或想成 ${num1} 個 ${num2} 相加`,
+                divide: `將 ${num1} 除以 ${num2}，或想成 ${num1} 分成 ${num2} 等份`
+            };
+            return hints[operation] || '進行基本運算';
+        }
+
+        function generateMultiHint(orderPrecedence) {
+            if (orderPrecedence) {
+                return '依照運算順序規則：先乘除，後加減（由左至右）';
+            } else {
+                return '依照出現順序，由左至右依序計算';
+            }
+        }
+
+        // Generate calculation steps for two-number mode
+        function generateSteps(num1, num2, operation, result, quotient, remainder) {
+            let steps = [];
+            
+            switch(operation) {
+                case 'add':
+                    steps.push(`將兩個數字相加：${num1} + ${num2}`);
+                    steps.push(`答案：${result}`);
+                    break;
+                case 'subtract':
+                    steps.push(`從第一個數字減去第二個數字：${num1} - ${num2}`);
+                    steps.push(`答案：${result}`);
+                    break;
+                case 'multiply':
+                    steps.push(`將兩個數字相乘：${num1} × ${num2}`);
+                    if (num2 <= 12 && num2 > 0) {
+                        steps.push(`或想成：${num1} + ${num1} + ... (${num2} 次)`);
+                    }
+                    steps.push(`答案：${result}`);
+                    break;
+                case 'divide':
+                    if (num2 === 0) {
+                        steps.push(`⚠️ 除數不能為 0`);
+                    } else {
+                        steps.push(`將被除數 ${num1} 除以除數 ${num2}`);
+                        if (quotient !== undefined && remainder !== undefined) {
+                            steps.push(`商數：${quotient}，餘數：${remainder}`);
+                            if (remainder === 0) {
+                                steps.push(`${num1} 可以被 ${num2} 整除`);
+                            }
+                        }
+                        steps.push(`答案：${result}`);
+                    }
+                    break;
+            }
+            
+            return steps;
+        }
+
+        // Generate default chart title
+        function generateChartTitle(operation) {
+            const titles = {
+                add: '➕ 加法運算',
+                subtract: '➖ 減法運算',
+                multiply: '✖️ 乘法運算',
+                divide: '➗ 除法運算'
+            };
+            return titles[operation] || '📊 運算圖表';
+        }
+
+        function generateMultiChartTitle(orderPrecedence) {
+            return orderPrecedence ? '📊 運算步驟（依運算順序）' : '📊 運算步驟（由左至右）';
+        }
+
+        // Create calculation table for multi-number mode
+        function createCalculationTable(steps, finalResult, orderPrecedence) {
+            let html = '<table class="calc-table">';
+            html += '<thead><tr>';
+            html += '<th>步驟</th>';
+            html += '<th>運算式</th>';
+            html += '<th>結果</th>';
+            html += '</tr></thead>';
+            html += '<tbody>';
+            
+            steps.forEach((step, index) => {
+                html += '<tr>';
+                html += `<td class="step-number">步驟 ${index + 1}</td>`;
+                html += `<td class="expression">${step.expression}</td>`;
+                html += `<td class="result-cell">${step.result}</td>`;
+                html += '</tr>';
+            });
+            
+            html += '<tr class="final-row">';
+            html += '<td class="step-number">最終答案</td>';
+            html += '<td class="expression">─</td>';
+            html += `<td class="result-cell">${finalResult}</td>`;
+            html += '</tr>';
+            
+            html += '</tbody></table>';
+            return html;
+        }
+
+        // Create pie chart SVG
+        function createPieChart(num1, num2, result, operation, num1Label, num2Label) {
+            const total = Math.abs(num1) + Math.abs(num2);
+            
+            if (total === 0 || operation === 'multiply' || operation === 'divide') {
+                return createAlternativePieChart(num1, num2, result, operation, num1Label, num2Label);
+            }
+            
+            const percent1 = (Math.abs(num1) / total) * 100;
+            const percent2 = (Math.abs(num2) / total) * 100;
+            
+            const radius = 150;
+            const cx = 200;
+            const cy = 200;
+            
+            const angle1 = (percent1 / 100) * 360;
+            const angle2 = (percent2 / 100) * 360;
+            
+            const radians1 = (angle1 - 90) * Math.PI / 180;
+            const x1 = cx + radius * Math.cos(radians1);
+            const y1 = cy + radius * Math.sin(radians1);
+            const largeArc1 = angle1 > 180 ? 1 : 0;
+            
+            const path1 = `M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 ${largeArc1},1 ${x1},${y1} Z`;
+            
+            const startAngle2 = angle1 - 90;
+            const endAngle2 = startAngle2 + angle2;
+            const radians2Start = startAngle2 * Math.PI / 180;
+            const radians2End = endAngle2 * Math.PI / 180;
+            const x2Start = cx + radius * Math.cos(radians2Start);
+            const y2Start = cy + radius * Math.sin(radians2Start);
+            const x2End = cx + radius * Math.cos(radians2End);
+            const y2End = cy + radius * Math.sin(radians2End);
+            const largeArc2 = angle2 > 180 ? 1 : 0;
+            
+            const path2 = `M ${cx},${cy} L ${x2Start},${y2Start} A ${radius},${radius} 0 ${largeArc2},1 ${x2End},${y2End} Z`;
+            
+            return `
+                <svg class="pie-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                    <path d="${path1}" fill="#2196F3"/>
+                    <path d="${path2}" fill="#FF9800"/>
+                    <text x="200" y="200" text-anchor="middle" font-size="24" font-weight="bold" fill="white">
+                        ${operation === 'add' ? '+' : '-'}
+                    </text>
+                    <text x="200" y="230" text-anchor="middle" font-size="20" fill="white">
+                        = ${result}
+                    </text>
+                </svg>
+            `;
+        }
+
+        function createAlternativePieChart(num1, num2, result, operation, num1Label, num2Label) {
+            const symbol = operation === 'multiply' ? '×' : '÷';
+            
+            return `
+                <svg class="pie-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="120" cy="200" r="80" fill="#2196F3" opacity="0.8"/>
+                    <text x="120" y="210" text-anchor="middle" font-size="28" font-weight="bold" fill="white">
+                        ${num1}
+                    </text>
+                    <text x="200" y="210" text-anchor="middle" font-size="36" font-weight="bold" fill="#666">
+                        ${symbol}
+                    </text>
+                    <circle cx="280" cy="200" r="80" fill="#FF9800" opacity="0.8"/>
+                    <text x="280" y="210" text-anchor="middle" font-size="28" font-weight="bold" fill="white">
+                        ${num2}
+                    </text>
+                    <text x="200" y="320" text-anchor="middle" font-size="24" font-weight="bold" fill="#4CAF50">
+                        = ${result}
+                    </text>
+                </svg>
+            `;
+        }
+
+        // Update the page content
+        function updateContent() {
+            const params = getUrlParams();
+            const container = document.querySelector('.container');
+            const h1 = container.querySelector('h1');
+            
+            // Remove old messages
+            const oldMessages = container.querySelectorAll('.dynamic-message');
+            oldMessages.forEach(msg => msg.remove());
+            
+            // Build error/warning messages
+            let errorMessage = '';
+            if (params.errors.length > 0) {
+                errorMessage = `<div class="dynamic-message" style="background-color: #ffebee; color: #c62828; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #c62828;">
+                    ⚠️ <strong>參數錯誤：</strong>${params.errors.join(', ')} 已使用預設值
+                </div>`;
+            }
+            
+            let warningMessage = '';
+            if (params.warning) {
+                warningMessage = `<div class="dynamic-message" style="background-color: #fff3e0; color: #e65100; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ff9800;">
+                    ${params.warning}
+                </div>`;
+            }
+            
+            if (errorMessage || warningMessage) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'dynamic-message';
+                messageDiv.innerHTML = errorMessage + warningMessage;
+                h1.insertAdjacentElement('afterend', messageDiv);
+            }
+            
+            // Handle multi-number mode
+            if (params.isMultiMode) {
+                updateMultiNumberMode(params);
+            } else {
+                updateTwoNumberMode(params);
+            }
+        }
+
+        function updateMultiNumberMode(params) {
+            const { numbers, operations, decimalPlaces, orderPrecedence, showSteps, vizType, question, hint, chartTitle, showAnswer } = params;
+            
+            // Calculate result
+            const calculation = orderPrecedence 
+                ? calculateWithPrecedence(numbers, operations, decimalPlaces)
+                : calculateLeftToRight(numbers, operations, decimalPlaces);
+            
+            const { result, steps } = calculation;
+            
+            // Update question
+            const questionText = question || generateMultiQuestion(numbers, operations);
+            document.getElementById('question-text').innerHTML = `<strong>題目：</strong><br>${questionText}`;
+            
+            // Update hint
+            const hintText = hint || generateMultiHint(orderPrecedence);
+            document.getElementById('hint-text').innerHTML = `💡 提示：${hintText}`;
+            
+            // Update steps section
+            const stepsContainer = document.getElementById('steps-container');
+            if (showSteps && steps.length > 0) {
+                let stepsHTML = '<strong>解題步驟：</strong><ol>';
+                steps.forEach(step => {
+                    stepsHTML += `<li>${step.expression} = ${step.result}</li>`;
+                });
+                stepsHTML += `<li>最終答案：${result}</li>`;
+                stepsHTML += '</ol>';
+                stepsContainer.innerHTML = stepsHTML;
+                stepsContainer.style.display = 'block';
+            } else {
+                stepsContainer.style.display = 'none';
+            }
+            
+            // Update chart
+            const finalChartTitle = chartTitle || generateMultiChartTitle(orderPrecedence);
+            document.getElementById('chart-title').textContent = finalChartTitle;
+            
+            const barContainer = document.getElementById('bar-chart');
+            const pieContainer = document.getElementById('pie-chart');
+            
+            if (vizType === 'table') {
+                barContainer.style.display = 'none';
+                pieContainer.style.display = 'none';
+                
+                // Create table in chart container
+                const chartContainer = document.querySelector('.chart-container');
+                let tableDiv = chartContainer.querySelector('.table-viz');
+                if (!tableDiv) {
+                    tableDiv = document.createElement('div');
+                    tableDiv.className = 'table-viz';
+                    chartContainer.appendChild(tableDiv);
+                }
+                tableDiv.innerHTML = createCalculationTable(steps, result, orderPrecedence);
+            } else {
+                // Hide table if exists
+                const tableDiv = document.querySelector('.table-viz');
+                if (tableDiv) tableDiv.style.display = 'none';
+                
+                barContainer.style.display = 'block';
+                pieContainer.style.display = 'none';
+                
+                // Simple bar chart for multi-number (show all numbers + result)
+                const maxVal = Math.max(...numbers.map(Math.abs), Math.abs(result));
+                let barsHTML = '';
+                
+                numbers.forEach((num, idx) => {
+                    const width = maxVal > 0 ? (Math.abs(num) / maxVal * 100) : 0;
+                    const colors = ['#2196F3', '#FF9800', '#9C27B0', '#E91E63', '#00BCD4'];
+                    const color = colors[idx % colors.length];
+                    barsHTML += `
+                        <div class="bar">
+                            <div class="bar-label">數字 ${idx + 1}</div>
+                            <div class="bar-wrapper">
+                                <div class="bar-fill" style="width: ${width}%; min-width: 60px; background: ${color};">
+                                    ${num}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                const resultWidth = maxVal > 0 ? (Math.abs(result) / maxVal * 100) : 0;
+                barsHTML += `
+                    <div class="bar">
+                        <div class="bar-label">結果</div>
+                        <div class="bar-wrapper">
+                            <div class="bar-fill bar-result" style="width: ${resultWidth}%; min-width: 60px;">
+                                ${result}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                barContainer.innerHTML = barsHTML;
+            }
+            
+            // Update answer
+            const answerContainer = document.getElementById('answer-text').parentElement;
+            if (showAnswer) {
+                answerContainer.style.display = 'block';
+                document.getElementById('answer-text').textContent = result;
+            } else {
+                answerContainer.style.display = 'none';
+            }
+        }
+
+        function updateTwoNumberMode(params) {
+            const { num1, num2, decimalPlaces, operation, vizType, showSteps, showRemainder, question, hint, warning, chartTitle, num1Label, num2Label, resultLabel, showAnswer } = params;
+            
+            // Calculate values
+            const { result, quotient, remainder } = calculate(num1, num2, operation, decimalPlaces, showRemainder);
+            
+            // Check for division by zero
+            if (operation === 'divide' && num2 === 0 && !warning) {
+                const h1 = document.querySelector('h1');
+                const warningDiv = document.createElement('div');
+                warningDiv.className = 'dynamic-message';
+                warningDiv.innerHTML = `<div style="background-color: #ffebee; color: #c62828; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #c62828;">
+                    ⚠️ <strong>錯誤：</strong>除數不能為 0
+                </div>`;
+                h1.insertAdjacentElement('afterend', warningDiv);
+            }
+            
+            // Hide table if exists
+            const tableDiv = document.querySelector('.table-viz');
+            if (tableDiv) tableDiv.style.display = 'none';
+            
+            // Update question text
+            const questionText = question || generateQuestion(num1, num2, operation);
+            document.getElementById('question-text').innerHTML = `<strong>題目：</strong><br>${questionText}`;
+            
+            // Update hint text
+            const hintText = hint || generateHint(num1, num2, operation);
+            document.getElementById('hint-text').innerHTML = `💡 提示：${hintText}`;
+            
+            // Update steps
+            const stepsContainer = document.getElementById('steps-container');
+            if (showSteps) {
+                const steps = generateSteps(num1, num2, operation, result, quotient, remainder);
+                let stepsHTML = '<strong>解題步驟：</strong><ol>';
+                steps.forEach(step => {
+                    stepsHTML += `<li>${step}</li>`;
+                });
+                stepsHTML += '</ol>';
+                stepsContainer.innerHTML = stepsHTML;
+                stepsContainer.style.display = 'block';
+            } else {
+                stepsContainer.style.display = 'none';
+            }
+            
+            // Update chart title
+            const finalChartTitle = chartTitle || generateChartTitle(operation);
+            document.getElementById('chart-title').textContent = finalChartTitle;
+            
+            // Show/hide chart based on vizType
+            const barContainer = document.getElementById('bar-chart');
+            const pieContainer = document.getElementById('pie-chart');
+            
+            if (vizType === 'pie') {
+                barContainer.style.display = 'none';
+                pieContainer.style.display = 'block';
+                
+                const finalNum1Label = num1Label || '第一個數';
+                const finalNum2Label = num2Label || '第二個數';
+                pieContainer.innerHTML = createPieChart(num1, num2, result, operation, finalNum1Label, finalNum2Label);
+                
+                pieContainer.innerHTML += `
+                    <div class="pie-legend">
+                        <div class="pie-legend-item">
+                            <div class="pie-legend-color" style="background: #2196F3;"></div>
+                            <span>${finalNum1Label}: ${num1}</span>
+                        </div>
+                        <div class="pie-legend-item">
+                            <div class="pie-legend-color" style="background: #FF9800;"></div>
+                            <span>${finalNum2Label}: ${num2}</span>
+                        </div>
+                        <div class="pie-legend-item">
+                            <div class="pie-legend-color" style="background: #4CAF50;"></div>
+                            <span>結果: ${result}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                barContainer.style.display = 'block';
+                pieContainer.style.display = 'none';
+                
+                const finalNum1Label = num1Label || '第一個數';
+                const finalNum2Label = num2Label || '第二個數';
+                const finalResultLabel = resultLabel || '結果';
+                document.getElementById('num1-label').textContent = finalNum1Label;
+                document.getElementById('num2-label').textContent = finalNum2Label;
+                document.getElementById('result-label').textContent = finalResultLabel;
+                
+                const maxVal = Math.max(Math.abs(num1), Math.abs(num2), Math.abs(result));
+                
+                const num1Bar = document.getElementById('num1-bar');
+                const num2Bar = document.getElementById('num2-bar');
+                const resultBar = document.getElementById('result-bar');
+                
+                num1Bar.style.width = maxVal > 0 ? (Math.abs(num1) / maxVal * 100) + '%' : '0%';
+                num1Bar.style.minWidth = num1 !== 0 ? '60px' : '0';
+                num1Bar.textContent = num1;
+                num1Bar.className = 'bar-fill ' + (num1 < 0 ? 'bar-negative' : 'bar-num1');
+                
+                num2Bar.style.width = maxVal > 0 ? (Math.abs(num2) / maxVal * 100) + '%' : '0%';
+                num2Bar.style.minWidth = num2 !== 0 ? '60px' : '0';
+                num2Bar.textContent = num2;
+                num2Bar.className = 'bar-fill ' + (num2 < 0 ? 'bar-negative' : 'bar-num2');
+                
+                if (!isNaN(result)) {
+                    resultBar.style.width = maxVal > 0 ? (Math.abs(result) / maxVal * 100) + '%' : '0%';
+                    resultBar.style.minWidth = result !== 0 ? '60px' : '0';
+                    resultBar.textContent = result;
+                    resultBar.className = 'bar-fill ' + (result < 0 ? 'bar-negative' : 'bar-result');
+                } else {
+                    resultBar.style.width = '0%';
+                    resultBar.textContent = '無法計算';
+                }
+            }
+            
+            // Update answer
+            let answerText = '';
+            if (isNaN(result)) {
+                answerText = '無法計算（除數為0）';
+            } else if (quotient !== undefined && remainder !== undefined && remainder !== 0) {
+                answerText = `${result} （商數：${quotient}，餘數：${remainder}）`;
+            } else {
+                answerText = result;
+            }
+            const answerContainer = document.getElementById('answer-text').parentElement;
+            if (showAnswer) {
+                answerContainer.style.display = 'block';
+                document.getElementById('answer-text').textContent = answerText;
+            } else {
+                answerContainer.style.display = 'none';
+            }
+        }
+
+        // Run when page loads
+        window.addEventListener('DOMContentLoaded', updateContent);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>🔢 基本運算題解範例 - 自訂版</h1>
+        
+        <div class="question" id="question-text">
+            <strong>題目：</strong><br>
+            45 加 38 等於多少？
+        </div>
+
+        <div class="hint" id="hint-text">
+            💡 提示：將兩個數字相加：45 + 38
+        </div>
+
+        <div class="steps" id="steps-container">
+            <strong>解題步驟：</strong>
+            <ol>
+                <li>將兩個數字相加：45 + 38</li>
+                <li>答案：83</li>
+            </ol>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title" id="chart-title">➕ 加法運算</div>
+            
+            <!-- Bar Chart -->
+            <div id="bar-chart">
+                <div class="bar">
+                    <div class="bar-label" id="num1-label">第一個數</div>
+                    <div class="bar-wrapper">
+                        <div class="bar-fill bar-num1" id="num1-bar" style="width: 54%;">
+                            45
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bar">
+                    <div class="bar-label" id="num2-label">第二個數</div>
+                    <div class="bar-wrapper">
+                        <div class="bar-fill bar-num2" id="num2-bar" style="width: 46%;">
+                            38
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bar">
+                    <div class="bar-label" id="result-label">結果</div>
+                    <div class="bar-wrapper">
+                        <div class="bar-fill bar-result" id="result-bar" style="width: 100%;">
+                            83
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pie Chart -->
+            <div id="pie-chart" style="display: none;">
+            </div>
+        </div>
+
+        <div class="answer" id="answer-text">
+            83
+        </div>
+    </div>
+</body>
+</html>

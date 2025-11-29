@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment variables
+.env
+
+# Logs
+logs/*.log
+*.log
+npm-debug.log*
+
+# Downloaded files (optional - comment out if you want to track downloads)
+# downloads/**/*.pdf
+# downloads/**/*.html
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Playwright
+playwright-report/
+test-results/
+.playwright/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>速率題解範例</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .question {
+            background-color: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .hint {
+            background-color: #fff9e6;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 16px;
+            color: #666;
+        }
+        .formula {
+            background-color: #f3e5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .formula-triangle {
+            display: inline-block;
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 20px;
+        }
+        .formula-triangle svg {
+            width: 100%;
+            height: 100%;
+        }
+        .chart-container {
+            margin: 30px 0;
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .bar {
+            margin: 15px 0;
+        }
+        .bar-label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .bar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bar-fill {
+            height: 40px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            transition: width 0.5s ease;
+        }
+        .bar-distance {
+            background: linear-gradient(90deg, #2196F3, #64B5F6);
+        }
+        .bar-time {
+            background: linear-gradient(90deg, #FF9800, #FFB74D);
+        }
+        .bar-speed {
+            background: linear-gradient(90deg, #4CAF50, #81C784);
+        }
+        .pie-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .pie-svg {
+            max-width: 400px;
+            height: 400px;
+        }
+        .pie-legend {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .pie-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+        .pie-legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+        }
+        .answer {
+            background-color: #c8e6c9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #1b5e20;
+            text-align: center;
+        }
+    </style>
+    <script>
+        // Unit conversion tables
+        const distanceUnits = {
+            'm': { name: '公尺', toMeters: 1 },
+            'km': { name: '公里', toMeters: 1000 },
+            'cm': { name: '公分', toMeters: 0.01 },
+            'mile': { name: '英里', toMeters: 1609.34 },
+            'ft': { name: '英尺', toMeters: 0.3048 }
+        };
+        
+        const timeUnits = {
+            'second': { name: '秒', toSeconds: 1 },
+            'minute': { name: '分鐘', toSeconds: 60 },
+            'hour': { name: '小時', toSeconds: 3600 },
+            'day': { name: '天', toSeconds: 86400 }
+        };
+
+        // URL parameter decoder
+        function decodeParam(param) {
+            return param ? decodeURIComponent(param) : null;
+        }
+
+        // Get all URL parameters
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Numeric parameters
+            let distance = params.get('distance');
+            let time = params.get('time');
+            let decimalPlaces = params.get('decimalPlaces');
+            
+            // Text parameters
+            const solve = params.get('solve') || 'speed';
+            const distanceUnit = params.get('distanceUnit') || 'km';
+            const timeUnit = params.get('timeUnit') || 'hour';
+            const vizType = params.get('vizType') || 'bar';
+            const showFormula = params.get('showFormula') !== 'false';
+            const showAnswer = params.get('showAnswer') !== 'false';
+            const question = decodeParam(params.get('question'));
+            const hint = decodeParam(params.get('hint'));
+            const warning = decodeParam(params.get('warning'));
+            const chartTitle = decodeParam(params.get('chartTitle'));
+            const distanceLabel = decodeParam(params.get('distanceLabel'));
+            const timeLabel = decodeParam(params.get('timeLabel'));
+            const speedLabel = decodeParam(params.get('speedLabel'));
+            
+            // Parse and validate numeric values
+            distance = distance !== null ? parseFloat(distance) : null;
+            time = time !== null ? parseFloat(time) : null;
+            decimalPlaces = decimalPlaces !== null ? parseInt(decimalPlaces) : 2;
+            
+            // Validate and set defaults based on solve
+            const defaults = getDefaults(solve);
+            
+            const validatedParams = {
+                distance: (distance !== null && !isNaN(distance) && distance > 0) ? distance : defaults.distance,
+                time: (time !== null && !isNaN(time) && time > 0) ? time : defaults.time,
+                decimalPlaces: (decimalPlaces >= 0 && decimalPlaces <= 10) ? decimalPlaces : 2,
+                solve: ['speed', 'distance', 'time'].includes(solve) ? solve : 'speed',
+                distanceUnit: Object.keys(distanceUnits).includes(distanceUnit) ? distanceUnit : 'km',
+                timeUnit: Object.keys(timeUnits).includes(timeUnit) ? timeUnit : 'hour',
+                vizType: ['bar', 'pie'].includes(vizType) ? vizType : 'bar',
+                showFormula: showFormula,
+                question: question,
+                hint: hint,
+                warning: warning,
+                chartTitle: chartTitle,
+                distanceLabel: distanceLabel,
+                timeLabel: timeLabel,
+                speedLabel: speedLabel
+            };
+            
+            // Check for validation errors
+            const errors = [];
+            if (params.get('distance') !== null && (isNaN(parseFloat(params.get('distance'))) || parseFloat(params.get('distance')) <= 0)) {
+                errors.push('distance (必須是正數)');
+            }
+            if (params.get('time') !== null && (isNaN(parseFloat(params.get('time'))) || parseFloat(params.get('time')) <= 0)) {
+                errors.push('time (必須是正數)');
+            }
+            if (params.get('decimalPlaces') !== null && (isNaN(parseInt(params.get('decimalPlaces'))) || parseInt(params.get('decimalPlaces')) < 0 || parseInt(params.get('decimalPlaces')) > 10)) {
+                errors.push('decimalPlaces (必須是0-10的整數)');
+            }
+            
+            return {
+                ...validatedParams,
+                errors: errors
+            };
+        }
+
+        function getDefaults(solve) {
+            const defaults = {
+                speed: { distance: 120, time: 2 },
+                distance: { distance: 150, time: 3 },
+                time: { distance: 240, time: 4 }
+            };
+            return defaults[solve] || { distance: 100, time: 2 };
+        }
+
+        // Calculate based on solve parameter
+        function calculate(distance, time, solve, decimalPlaces) {
+            let result;
+            
+            switch(solve) {
+                case 'speed':
+                    // speed = distance / time
+                    result = time > 0 ? distance / time : NaN;
+                    break;
+                case 'distance':
+                    // distance = speed * time (here 'distance' param is actually speed)
+                    result = distance * time;
+                    break;
+                case 'time':
+                    // time = distance / speed (here 'time' param is actually speed)
+                    result = time > 0 ? distance / time : NaN;
+                    break;
+                default:
+                    result = 0;
+            }
+            
+            // Round to decimal places
+            if (!isNaN(result)) {
+                result = parseFloat(result.toFixed(decimalPlaces));
+            }
+            
+            return result;
+        }
+
+        // Generate default question text
+        function generateQuestion(distance, time, solve, distanceUnit, timeUnit) {
+            const dUnit = distanceUnits[distanceUnit].name;
+            const tUnit = timeUnits[timeUnit].name;
+            
+            const questions = {
+                speed: `一輛汽車行駛了 ${distance} ${dUnit}，花費了 ${time} ${tUnit}，請問平均速率是多少？`,
+                distance: `一輛汽車以 ${distance} ${dUnit}/${tUnit} 的速率行駛了 ${time} ${tUnit}，請問行駛了多遠？`,
+                time: `一輛汽車要行駛 ${distance} ${dUnit}，速率是 ${time} ${dUnit}/${timeUnit === 'hour' ? '小時' : timeUnit === 'minute' ? '分鐘' : '秒'}，需要多少時間？`
+            };
+            return questions[solve] || '計算速率問題';
+        }
+
+        // Generate default hint text
+        function generateHint(distance, time, solve, distanceUnit, timeUnit) {
+            const dUnit = distanceUnits[distanceUnit].name;
+            const tUnit = timeUnits[timeUnit].name;
+            
+            const hints = {
+                speed: `使用公式：速率 = 距離 ÷ 時間（${distance} ÷ ${time}）`,
+                distance: `使用公式：距離 = 速率 × 時間（${distance} × ${time}）`,
+                time: `使用公式：時間 = 距離 ÷ 速率（${distance} ÷ ${time}）`
+            };
+            return hints[solve] || '使用速率公式計算';
+        }
+
+        // Generate default chart title
+        function generateChartTitle(solve) {
+            const titles = {
+                speed: '🚗 速率計算',
+                distance: '📏 距離計算',
+                time: '⏱️ 時間計算'
+            };
+            return titles[solve] || '📊 速率圖表';
+        }
+
+        // Create formula triangle SVG
+        function createFormulaTriangle(solve) {
+            const highlights = {
+                speed: 'speed',
+                distance: 'distance',
+                time: 'time'
+            };
+            const highlight = highlights[solve] || 'speed';
+            
+            return `
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Triangle -->
+                    <path d="M 100,20 L 180,180 L 20,180 Z" fill="none" stroke="#2c3e50" stroke-width="3"/>
+                    
+                    <!-- Horizontal line -->
+                    <line x1="20" y1="100" x2="180" y2="100" stroke="#2c3e50" stroke-width="2"/>
+                    
+                    <!-- D (Distance) -->
+                    <circle cx="100" cy="60" r="35" fill="${highlight === 'distance' ? '#2196F3' : '#e0e0e0'}" opacity="0.8"/>
+                    <text x="100" y="70" text-anchor="middle" font-size="28" font-weight="bold" fill="${highlight === 'distance' ? 'white' : '#333'}">D</text>
+                    
+                    <!-- S (Speed) -->
+                    <circle cx="60" cy="140" r="30" fill="${highlight === 'speed' ? '#4CAF50' : '#e0e0e0'}" opacity="0.8"/>
+                    <text x="60" y="148" text-anchor="middle" font-size="24" font-weight="bold" fill="${highlight === 'speed' ? 'white' : '#333'}">S</text>
+                    
+                    <!-- T (Time) -->
+                    <circle cx="140" cy="140" r="30" fill="${highlight === 'time' ? '#FF9800' : '#e0e0e0'}" opacity="0.8"/>
+                    <text x="140" y="148" text-anchor="middle" font-size="24" font-weight="bold" fill="${highlight === 'time' ? 'white' : '#333'}">T</text>
+                </svg>
+            `;
+        }
+
+        // Create pie chart SVG
+        function createPieChart(distance, time, result, solve, distanceUnit, timeUnit) {
+            // For speed calculation, show distance and time as parts
+            // Calculate proportions
+            const total = distance + time;
+            const distPercent = total > 0 ? (distance / total) * 100 : 50;
+            const timePercent = total > 0 ? (time / total) * 100 : 50;
+            
+            const radius = 150;
+            const cx = 200;
+            const cy = 200;
+            
+            const angle1 = (distPercent / 100) * 360;
+            const angle2 = (timePercent / 100) * 360;
+            
+            // First slice (distance)
+            const radians1 = (angle1 - 90) * Math.PI / 180;
+            const x1 = cx + radius * Math.cos(radians1);
+            const y1 = cy + radius * Math.sin(radians1);
+            const largeArc1 = angle1 > 180 ? 1 : 0;
+            
+            const path1 = `M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 ${largeArc1},1 ${x1},${y1} Z`;
+            
+            // Second slice (time)
+            const startAngle2 = angle1 - 90;
+            const endAngle2 = startAngle2 + angle2;
+            const radians2Start = startAngle2 * Math.PI / 180;
+            const radians2End = endAngle2 * Math.PI / 180;
+            const x2Start = cx + radius * Math.cos(radians2Start);
+            const y2Start = cy + radius * Math.sin(radians2Start);
+            const x2End = cx + radius * Math.cos(radians2End);
+            const y2End = cy + radius * Math.sin(radians2End);
+            const largeArc2 = angle2 > 180 ? 1 : 0;
+            
+            const path2 = `M ${cx},${cy} L ${x2Start},${y2Start} A ${radius},${radius} 0 ${largeArc2},1 ${x2End},${y2End} Z`;
+            
+            return `
+                <svg class="pie-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                    <path d="${path1}" fill="#2196F3"/>
+                    <path d="${path2}" fill="#FF9800"/>
+                    <text x="200" y="190" text-anchor="middle" font-size="20" font-weight="bold" fill="white">
+                        ${solve === 'speed' ? '速率' : solve === 'distance' ? '距離' : '時間'}
+                    </text>
+                    <text x="200" y="220" text-anchor="middle" font-size="24" font-weight="bold" fill="white">
+                        ${result}
+                    </text>
+                </svg>
+            `;
+        }
+
+        // Update the page content
+        function updateContent() {
+            const { distance, time, decimalPlaces, solve, distanceUnit, timeUnit, vizType, showFormula, question, hint, warning, chartTitle, distanceLabel, timeLabel, speedLabel, showAnswer, errors } = getUrlParams();
+            
+            // Calculate result
+            const result = calculate(distance, time, solve, decimalPlaces);
+            
+            // Build messages
+            let errorMessage = '';
+            if (errors.length > 0) {
+                errorMessage = `<div style="background-color: #ffebee; color: #c62828; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #c62828;">
+                    ⚠️ <strong>參數錯誤：</strong>${errors.join(', ')} 已使用預設值
+                </div>`;
+            }
+            
+            let warningMessage = '';
+            if (warning) {
+                warningMessage = `<div style="background-color: #fff3e0; color: #e65100; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ff9800;">
+                    ${warning}
+                </div>`;
+            } else if (isNaN(result)) {
+                warningMessage = `<div style="background-color: #ffebee; color: #c62828; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #c62828;">
+                    ⚠️ <strong>錯誤：</strong>無法計算（時間不能為0）
+                </div>`;
+            }
+            
+            // Insert messages
+            const container = document.querySelector('.container');
+            const h1 = container.querySelector('h1');
+            
+            const oldMessages = container.querySelectorAll('.dynamic-message');
+            oldMessages.forEach(msg => msg.remove());
+            
+            if (errorMessage || warningMessage) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'dynamic-message';
+                messageDiv.innerHTML = errorMessage + warningMessage;
+                h1.insertAdjacentElement('afterend', messageDiv);
+            }
+            
+            // Update question text
+            const questionText = question || generateQuestion(distance, time, solve, distanceUnit, timeUnit);
+            document.getElementById('question-text').innerHTML = `<strong>題目：</strong><br>${questionText}`;
+            
+            // Update hint text
+            const hintText = hint || generateHint(distance, time, solve, distanceUnit, timeUnit);
+            document.getElementById('hint-text').innerHTML = `💡 提示：${hintText}`;
+            
+            // Update formula triangle
+            const formulaContainer = document.getElementById('formula-container');
+            if (showFormula) {
+                formulaContainer.innerHTML = `
+                    <strong>公式三角形：</strong>
+                    <div class="formula-triangle">
+                        ${createFormulaTriangle(solve)}
+                    </div>
+                    <div style="text-align: center; color: #666; margin-top: 10px;">
+                        遮住要求的值，剩下的就是計算公式
+                    </div>
+                `;
+                formulaContainer.style.display = 'block';
+            } else {
+                formulaContainer.style.display = 'none';
+            }
+            
+            // Update chart title
+            const finalChartTitle = chartTitle || generateChartTitle(solve);
+            document.getElementById('chart-title').textContent = finalChartTitle;
+            
+            // Show/hide chart based on vizType
+            const barContainer = document.getElementById('bar-chart');
+            const pieContainer = document.getElementById('pie-chart');
+            
+            const dUnit = distanceUnits[distanceUnit].name;
+            const tUnit = timeUnits[timeUnit].name;
+            
+            if (vizType === 'pie') {
+                barContainer.style.display = 'none';
+                pieContainer.style.display = 'block';
+                
+                pieContainer.innerHTML = createPieChart(distance, time, result, solve, distanceUnit, timeUnit);
+                
+                // Add legend
+                const finalDistanceLabel = distanceLabel || `距離 (${dUnit})`;
+                const finalTimeLabel = timeLabel || `時間 (${tUnit})`;
+                pieContainer.innerHTML += `
+                    <div class="pie-legend">
+                        <div class="pie-legend-item">
+                            <div class="pie-legend-color" style="background: #2196F3;"></div>
+                            <span>${finalDistanceLabel}: ${distance}</span>
+                        </div>
+                        <div class="pie-legend-item">
+                            <div class="pie-legend-color" style="background: #FF9800;"></div>
+                            <span>${finalTimeLabel}: ${time}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                barContainer.style.display = 'block';
+                pieContainer.style.display = 'none';
+                
+                // Update bar labels
+                const finalDistanceLabel = distanceLabel || `距離 (${dUnit})`;
+                const finalTimeLabel = timeLabel || `時間 (${tUnit})`;
+                const finalSpeedLabel = speedLabel || `速率 (${dUnit}/${tUnit})`;
+                
+                document.getElementById('distance-label').textContent = finalDistanceLabel;
+                document.getElementById('time-label').textContent = finalTimeLabel;
+                document.getElementById('speed-label').textContent = finalSpeedLabel;
+                
+                // Calculate max value for scaling
+                const maxVal = Math.max(distance, time, result);
+                
+                // Update bar chart
+                const distanceBar = document.getElementById('distance-bar');
+                const timeBar = document.getElementById('time-bar');
+                const speedBar = document.getElementById('speed-bar');
+                
+                distanceBar.style.width = maxVal > 0 ? (distance / maxVal * 100) + '%' : '0%';
+                distanceBar.style.minWidth = distance > 0 ? '60px' : '0';
+                distanceBar.textContent = distance + ' ' + dUnit;
+                
+                timeBar.style.width = maxVal > 0 ? (time / maxVal * 100) + '%' : '0%';
+                timeBar.style.minWidth = time > 0 ? '60px' : '0';
+                timeBar.textContent = time + ' ' + tUnit;
+                
+                if (!isNaN(result)) {
+                    speedBar.style.width = maxVal > 0 ? (result / maxVal * 100) + '%' : '0%';
+                    speedBar.style.minWidth = result > 0 ? '60px' : '0';
+                    speedBar.textContent = result + ' ' + dUnit + '/' + tUnit;
+                } else {
+                    speedBar.style.width = '0%';
+                    speedBar.textContent = '無法計算';
+                }
+            }
+            
+            // Update answer
+            let answerText = '';
+            if (isNaN(result)) {
+                answerText = '無法計算';
+            } else {
+                if (solve === 'speed') {
+                    answerText = `${result} ${dUnit}/${tUnit}`;
+                } else if (solve === 'distance') {
+                    answerText = `${result} ${dUnit}`;
+                } else {
+                    answerText = `${result} ${tUnit}`;
+                }
+            }
+            const answerContainer = document.getElementById('answer-text').parentElement;
+            if (showAnswer) {
+                answerContainer.style.display = 'block';
+                document.getElementById('answer-text').textContent = answerText;
+            } else {
+                answerContainer.style.display = 'none';
+            }
+        }
+
+        // Run when page loads
+        window.addEventListener('DOMContentLoaded', updateContent);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 速率題解範例 - 自訂版</h1>
+        
+        <div class="question" id="question-text">
+            <strong>題目：</strong><br>
+            一輛汽車行駛了 120 公里，花費了 2 小時，請問平均速率是多少？
+        </div>
+
+        <div class="hint" id="hint-text">
+            💡 提示：使用公式：速率 = 距離 ÷ 時間（120 ÷ 2）
+        </div>
+
+        <div class="formula" id="formula-container">
+            <strong>公式三角形：</strong>
+            <div class="formula-triangle">
+                <!-- SVG will be inserted here -->
+            </div>
+            <div style="text-align: center; color: #666; margin-top: 10px;">
+                遮住要求的值，剩下的就是計算公式
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title" id="chart-title">🚗 速率計算</div>
+            
+            <!-- Bar Chart -->
+            <div id="bar-chart">
+                <div class="bar">
+                    <div class="bar-label" id="distance-label">距離 (公里)</div>
+                    <div class="bar-wrapper">
+                        <div class="bar-fill bar-distance" id="distance-bar" style="width: 100%;">
+                            120 公里
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bar">
+                    <div class="bar-label" id="time-label">時間 (小時)</div>
+                    <div class="bar-wrapper">
+                        <div class="bar-fill bar-time" id="time-bar" style="width: 17%;">
+                            2 小時
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bar">
+                    <div class="bar-label" id="speed-label">速率 (公里/小時)</div>
+                    <div class="bar-wrapper">
+                        <div class="bar-fill bar-speed" id="speed-bar" style="width: 50%;">
+                            60 公里/小時
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pie Chart -->
+            <div id="pie-chart" style="display: none;">
+            </div>
+        </div>
+
+        <div class="answer" id="answer-text">
+            60 公里/小時
+        </div>
+    </div>
+</body>
+</html>

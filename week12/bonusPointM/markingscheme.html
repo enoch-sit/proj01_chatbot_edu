@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>markingscheme.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h3 id="key-points-on-revised-feedback-guidelines">Key Points on Revised Feedback Guidelines</h3>
+<ul>
+<li><strong>Bonus Incentives</strong>: Up to 5% per phase (total potential 10%), awarded individually and capped at 15% for the Agile/Scrum component, to encourage constructive peer input without over-rewarding.</li>
+<li><strong>Submission Essentials</strong>: Focus on other groups only, with required elements like 2-3 feature requests (primary in Phase 1, optional/relevant in Phase 2) and constructive suggestions, ensuring feedback drives agile improvement.</li>
+<li><strong>Holistic Scoring</strong>: Uniform 0-5 scale across phases directly maps to bonus percentage (e.g., 4 = 4%), rewarding overall engagement while allowing phase-specific focus.</li>
+<li><strong>Fairness Emphasis</strong>: Guidelines promote balanced, empathetic feedback, acknowledging agile principles like iteration and customer perspective.</li>
+</ul>
+<h3 id="overview-of-changes-for-consistency">Overview of Changes for Consistency</h3>
+<p>To enhance clarity and alignment, I've revised the text you provided by standardizing formatting (using consistent bullets), explicitly linking scores to bonuses, and clarifying phase-specific elements like feature requests. This avoids potential confusion, ensures logical flow, and maintains educational best practices for peer assessments in project-based courses.</p>
+<h3 id="revised-feedback-guidelines-and-marking-schemes">Revised Feedback Guidelines and Marking Schemes</h3>
+<p><strong>Feedback for Bonus Points</strong></p>
+<ul>
+<li>All feedback given to other group(s) qualifies for bonus points.</li>
+<li>Format: Feedback materials must be in DOCX, DOC, or PDF format.</li>
+<li>You must include the name of the group(s) (NOT YOUR OWN GROUP) to which you have given feedback.</li>
+<li>You must list 2-3 specific feature requests based on the topic (primary in Phase 1; optional in Phase 2 if relevant to refinements).</li>
+<li>You must comment on the strengths and weaknesses and provide 2-3 constructive suggestions.</li>
+<li>Bonus points are awarded to individuals and applied to the individual component (Agile/Scrum Application and Planning) of the group project grade.</li>
+<li>If you are confident that you can achieve full marks in the individual component (Agile/Scrum Application and Planning), you may ignore this bonus as it only applies to that specific component.
+<ul>
+<li>Example: If you score 11% in the component and earn a 5% bonus (totaling 16%), your score will be capped at the maximum of 15%.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Phase 1 Marking Scheme (After Midterm Presentation)</strong><br>
+Use this for feedback on early planning, including 2-3 feature requests with value explanations, survey completion (if provided), and comments on strengths/weaknesses (e.g., backlog alignment). Assign one score based on how well the submission as a whole demonstrates thoughtful engagement. Scores map directly to bonus percentage (e.g., 3 = 3%).</p>
+<ul>
+<li>5 (Excellent): Comprehensive coverage with specific, insightful input across all sections; shows strong understanding of agile principles.</li>
+<li>4 (Strong): Good overall effort, addressing most sections with relevant details.</li>
+<li>3 (Adequate): Basic completion of key elements, but lacks depth or specificity.</li>
+<li>2 (Partial): Attempts some sections, but incomplete or vague.</li>
+<li>1 (Minimal): Limited input in one or two areas.</li>
+<li>0 (None): No meaningful submission or irrelevant.</li>
+</ul>
+<p><strong>Phase 2 Marking Scheme (After First MVP)</strong><br>
+Apply to post-MVP feedback, covering A/B testing, bug reports, surveys, legal/ethical issues, overall satisfaction, and UI/UX comments. Score holistically on the submission's collective value in promoting refinement. Scores map directly to bonus percentage (e.g., 3 = 3%).</p>
+<ul>
+<li>5 (Excellent): Thorough, evidence-based input (e.g., steps for bugs, suggestions for ethics); highly constructive for iteration.</li>
+<li>4 (Strong): Covers most areas effectively, with practical recommendations.</li>
+<li>3 (Adequate): Addresses essentials minimally, including ratings and basic comments.</li>
+<li>2 (Partial): Partial engagement with a few sections.</li>
+<li>1 (Minimal): Sparse or superficial responses.</li>
+<li>0 (None): Absent or off-topic.</li>
+</ul>
+<p>These revisions ensure the guidelines are self-contained, phase-appropriate, and easy to implement, supporting fair grading in your course.</p>
+<hr>
+<p>In educational contexts, particularly within courses emphasizing agile methodologies like Scrum for group projects (e.g., chatbot development), establishing consistent peer feedback guidelines and marking schemes is crucial for fostering collaboration, ensuring fairness, and aligning with pedagogical goals such as iterative improvement and ethical considerations. The revised version provided in the direct answer section addresses potential inconsistencies in your original text by incorporating targeted refinements based on best practices from academic resources. For instance, standardizing bullet formats enhances readability, while explicitly mapping scores to bonuses (e.g., 4 = 4%) promotes transparency, as recommended in rubric design guidelines from institutions like Cornell University and the Association for Supervision and Curriculum Development (ASCD). This holistic approach—using a unified 0-5 scale across phases—simplifies assessment while allowing for nuanced evaluation, mirroring effective peer review models in software engineering education, where phased feedback supports agile cycles like planning (Phase 1) and refinement (Phase 2).</p>
+<p>To elaborate on the rationale for changes: The original mandate for 2-3 feature requests was retained but clarified as &quot;primary in Phase 1; optional in Phase 2 if relevant to refinements,&quot; resolving a potential mismatch since Phase 2's template focuses more on execution elements (e.g., bug reports with reproduction steps and severity ratings 1-5, A/B testing comparisons with effectiveness ratings, legal/ethical highlights like privacy concerns with GDPR-compliant suggestions, post-MVP survey completions with performance ratings, overall satisfaction ratings 1-5 with recommendations referencing tests or demos, and UI/UX comments on strengths like responsive design, weaknesses like navigation issues, and suggestions for multilingual support). This adjustment prevents forced inclusion in Phase 2, which could dilute its practical focus, and aligns with flexible rubric strategies from Kritik and Small Improvements, emphasizing context-specific requirements to encourage genuine, customer-like input.</p>
+<p>The bonus application remains unchanged—individual, capped at 15% for the Agile/Scrum component—with the example illustrating the cap to avoid grade inflation, a common concern in bonus systems as noted in NCBI studies on peer assessments in professional curricula. Eligibility ties to the course timeline: Phase 1 post-midterm (starting around November 29, 2025, per the current date), and Phase 2 after the first MVP, with submissions due by December 17, 2025, ensuring timely integration with presentations on November 29 or December 6, 2025. Submissions must target other groups, excluding self-reviews to mitigate bias, and use specified formats (DOCX, DOC, or PDF) for traceability, consistent with UBC's Carl Wieman Science Education Initiative guidelines.</p>
+<p>For marking, the holistic scales emphasize overall engagement (&quot;thoughtful engagement&quot; in Phase 1, &quot;collective value in promoting refinement&quot; in Phase 2), rewarding depth (e.g., evidence-based input like bug steps or ethical suggestions) while allowing partial credit for minimal efforts, which motivates participation without punishing novices. This draws from ACM research on grader consistency in programming courses, where holistic methods reduce bias and time compared to analytic breakdowns. Instructors can add brief notes during grading for student growth, aligning with a strengths-based mindset from FeedbackFruits.</p>
+<p>To visualize alignment between phases and requirements, consider the following table summarizing key elements:</p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>General Requirements</th>
+<th>Phase 1 (After Midterm) Specifics</th>
+<th>Phase 2 (After First MVP) Specifics</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Core Mandates</strong></td>
+<td>Include reviewed group name; 2-3 feature requests; strengths/weaknesses comments; 2-3 suggestions.</td>
+<td>Feature requests with value explanations (e.g., &quot;Improves user satisfaction because...&quot;); survey if provided; planning comments (e.g., backlog alignment).</td>
+<td>A/B testing (ratings 1-5, refinements); bug reports (steps, severity 1-5, fixes); surveys; legal/ethical (ratings 1-5, risks/suggestions); overall satisfaction (1-5, recommendations); UI/UX (strengths/weaknesses/suggestions).</td>
+</tr>
+<tr>
+<td><strong>Optional Handling</strong></td>
+<td>&quot;If provided&quot; for surveys/A/B.</td>
+<td>Emphasize conceptual coherence.</td>
+<td>Focus on execution quality; feature requests optional if tied to refinements.</td>
+</tr>
+<tr>
+<td><strong>Scoring Focus</strong></td>
+<td>Holistic 0-5, maps to % bonus.</td>
+<td>Thoughtful engagement with agile principles.</td>
+<td>Constructive value for iteration, evidence-based.</td>
+</tr>
+<tr>
+<td><strong>Bonus Eligibility</strong></td>
+<td>Up to 5% per phase, individual cap at 15%.</td>
+<td>Post-midterm (e.g., starting November 29, 2025).</td>
+<td>Post-first MVP; submissions by December 17, 2025.</td>
+</tr>
+</tbody>
+</table>
+<p>This table highlights how the revisions ensure phase differentiation while maintaining overarching consistency, facilitating equitable implementation. For example, Phase 1 prioritizes ideation (e.g., user stories), while Phase 2 targets testing and ethics, supporting Scrum artifacts like backlogs and MVPs.</p>
+<p>In practice, this framework promotes a collaborative environment, as per Medium articles on agile peer reviews, by encouraging balanced, professional tones—empathetic to strengths while constructively addressing weaknesses. Edge cases, such as unavailable surveys, are handled by evaluating remaining sections without penalty, embodying fairness. If scaling for larger classes, tools like spreadsheets for tracking or anonymous submissions could further enhance it, as suggested in Reddit discussions on professor-led peer evaluations.</p>
+<p>Ultimately, these consistent guidelines not only resolve minor original discrepancies but also embody effective assessment principles, driving better project outcomes in organizational contexts like chatbot demos and evaluations.</p>
+<h3 id="key-citations">Key Citations</h3>
+<ul>
+<li><a href="https://teaching.cornell.edu/teaching-resources/active-collaborative-learning/collaborative-learning/how-evaluate-group-work">How to evaluate group work - Center for Teaching Innovation</a></li>
+<li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10159466/">A Practical Review for Implementing Peer Assessments Within Teams</a></li>
+<li><a href="https://www.small-improvements.com/blog/7-best-practices-for-giving-peer-feedback/">7 best practices for giving peer feedback - Small Improvements</a></li>
+<li><a href="https://dl.acm.org/doi/full/10.1145/3759256">How Consistent Are Humans When Grading Programming ...</a></li>
+<li><a href="https://medium.com/%40AdvanceAgility/peer-review-effective-agile-way-to-improve-quality-dab7daa5c04">Peer Review- Effective Agile Way to Improve Quality - Medium</a></li>
+<li><a href="https://www.kritik.io/blog-post/nailing-the-perfect-peer-evaluation-rubric">Nailing the perfect peer evaluation rubric - Kritik</a></li>
+<li><a href="https://cwsei.ubc.ca/files/resources/instructor/Student-Peer-Review_Resources.pdf">Resources and Guidance for Student Peer Review Overview</a></li>
+<li><a href="https://www.reddit.com/r/Professors/comments/1iorpa2/peer_evaluations_for_group_projects/">Peer evaluations for group projects : r/Professors - Reddit</a></li>
+<li><a href="https://feedbackfruits.com/blog/nurturing-a-growth-mindset-with-quality-feedback-and-holistic-scoring">Feedback and holistic scoring strategies to build growth mindset</a></li>
+</ul>
+
+</body>
+</html>

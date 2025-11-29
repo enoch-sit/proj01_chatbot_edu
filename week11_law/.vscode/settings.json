@@ -1,0 +1,17 @@
+{
+  "github.copilot.chat.mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--browser=chromium",
+        "--caps=vision,pdf,testing,tracing",
+        "--output-dir=./.playwright-mcp",
+        "--timeout-action=30000",
+        "--timeout-navigation=60000",
+        "--ignore-https-errors"
+      ]
+    }
+  },
+  "github.copilot.chat.virtualTools.threshold": 128
+}

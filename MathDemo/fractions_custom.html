@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分數運算題解範例</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .question {
+            background-color: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .fraction {
+            display: inline-block;
+            vertical-align: middle;
+            text-align: center;
+            margin: 0 5px;
+        }
+        .fraction .numerator {
+            display: block;
+            border-bottom: 2px solid #333;
+            padding: 2px 8px;
+            font-size: 20px;
+        }
+        .fraction .denominator {
+            display: block;
+            padding: 2px 8px;
+            font-size: 20px;
+        }
+        .hint {
+            background-color: #fff9e6;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 16px;
+            color: #666;
+        }
+        .lcd-info {
+            background-color: #f3e5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+        .chart-container {
+            margin: 30px 0;
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .bar {
+            margin: 15px 0;
+        }
+        .bar-label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .bar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            height: 65px;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            font-weight: bold;
+            font-size: 16px;
+            transition: width 0.5s ease;
+            position: relative;
+            z-index: 1;
+            min-width: 150px;
+            overflow: visible;
+            white-space: nowrap;
+        }
+        .bar-frac1 {
+            background: linear-gradient(90deg, #2196F3, #64B5F6);
+        }
+        .bar-frac2 {
+            background: linear-gradient(90deg, #FF9800, #FFB74D);
+        }
+        .bar-result {
+            background: linear-gradient(90deg, #4CAF50, #81C784);
+        }
+        .pie-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .pie-svg {
+            max-width: 400px;
+            height: 400px;
+        }
+        .pie-legend {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .pie-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+        .pie-legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+        }
+        .answer {
+            background-color: #c8e6c9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #1b5e20;
+            text-align: center;
+        }
+    </style>
+    <script>
+        // Greatest Common Divisor (Euclidean algorithm)
+        function gcd(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b !== 0) {
+                let t = b;
+                b = a % b;
+                a = t;
+            }
+            return a;
+        }
+
+        // Least Common Multiple
+        function lcm(a, b) {
+            return Math.abs(a * b) / gcd(a, b);
+        }
+
+        // Simplify fraction
+        function simplifyFraction(num, den) {
+            if (den === 0) return { num: NaN, den: NaN };
+            const divisor = gcd(num, den);
+            return {
+                num: num / divisor,
+                den: den / divisor
+            };
+        }
+
+        // Convert to mixed number
+        function toMixed(num, den) {
+            if (den === 0) return null;
+            const whole = Math.floor(Math.abs(num) / den);
+            const remainder = Math.abs(num) % den;
+            const sign = num < 0 ? '-' : '';
+            return { sign, whole, num: remainder, den };
+        }
+
+        // Format fraction for display
+        function formatFraction(num, den, simplify = false) {
+            if (den === 0) return '未定義';
+            if (num === 0) return '0';
+            
+            let displayNum = num;
+            let displayDen = den;
+            
+            if (simplify) {
+                const simplified = simplifyFraction(num, den);
+                displayNum = simplified.num;
+                displayDen = simplified.den;
+            }
+            
+            if (displayDen === 1) return displayNum.toString();
+            
+            const mixed = toMixed(displayNum, displayDen);
+            if (mixed && mixed.whole > 0) {
+                if (mixed.num === 0) {
+                    return `${mixed.sign}${mixed.whole}`;
+                }
+                return `${mixed.sign}${mixed.whole} <span class="fraction"><span class="numerator">${mixed.num}</span><span class="denominator">${mixed.den}</span></span>`;
+            }
+            
+            return `<span class="fraction"><span class="numerator">${displayNum}</span><span class="denominator">${displayDen}</span></span>`;
+        }
+
+        // URL parameter decoder
+        function decodeParam(param) {
+            return param ? decodeURIComponent(param) : null;
+        }
+
+        // Get all URL parameters
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Numeric parameters
+            let num1 = params.get('num1');
+            let den1 = params.get('den1');
+            let num2 = params.get('num2');
+            let den2 = params.get('den2');
+            
+            // Text/boolean parameters
+            const operation = params.get('operation') || 'add';
+            const vizType = params.get('vizType') || 'bar';
+            const showAnswer = params.get('showAnswer') !== 'false';
+            const simplify = params.get('simplify') !== 'false';
+            const showLCD = params.get('showLCD') !== 'false';
+            const question = decodeParam(params.get('question'));
+            const hint = decodeParam(params.get('hint'));
+            const warning = decodeParam(params.get('warning'));
+            const chartTitle = decodeParam(params.get('chartTitle'));
+            const fraction1Label = decodeParam(params.get('fraction1Label'));
+            const fraction2Label = decodeParam(params.get('fraction2Label'));
+            const resultLabel = decodeParam(params.get('resultLabel'));
+            
+            // Parse and validate numeric values
+            num1 = num1 !== null ? parseInt(num1) : null;
+            den1 = den1 !== null ? parseInt(den1) : null;
+            num2 = num2 !== null ? parseInt(num2) : null;
+            den2 = den2 !== null ? parseInt(den2) : null;
+            
+            // Validate and set defaults based on operation
+            const defaults = getDefaults(operation);
+            
+            const validatedParams = {
+                num1: (num1 !== null && !isNaN(num1)) ? num1 : defaults.num1,
+                den1: (den1 !== null && !isNaN(den1) && den1 !== 0) ? den1 : defaults.den1,
+                num2: (num2 !== null && !isNaN(num2)) ? num2 : defaults.num2,
+                den2: (den2 !== null && !isNaN(den2) && den2 !== 0) ? den2 : defaults.den2,
+                operation: ['add', 'subtract', 'multiply', 'divide'].includes(operation) ? operation : 'add',
+                vizType: ['bar', 'pie'].includes(vizType) ? vizType : 'bar',
+                simplify: simplify,
+                showLCD: showLCD,
+                question: question,
+                hint: hint,
+                warning: warning,
+                chartTitle: chartTitle,
+                fraction1Label: fraction1Label,
+                fraction2Label: fraction2Label,
+                resultLabel: resultLabel
+            };
+            
+            // Check for validation errors
+            const errors = [];
+            if (params.get('num1') !== null && isNaN(parseInt(params.get('num1')))) {
+                errors.push('num1 (必須是整數)');
+            }
+            if (params.get('den1') !== null && (isNaN(parseInt(params.get('den1'))) || parseInt(params.get('den1')) === 0)) {
+                errors.push('den1 (必須是非零整數)');
+            }
+            if (params.get('num2') !== null && isNaN(parseInt(params.get('num2')))) {
+                errors.push('num2 (必須是整數)');
+            }
+            if (params.get('den2') !== null && (isNaN(parseInt(params.get('den2'))) || parseInt(params.get('den2')) === 0)) {
+                errors.push('den2 (必須是非零整數)');
+            }
+            
+            return {
+                ...validatedParams,
+                errors: errors
+            };
+        }
+
+        function getDefaults(operation) {
+            const defaults = {
+                add: { num1: 1, den1: 4, num2: 1, den2: 3 },
+                subtract: { num1: 3, den1: 4, num2: 1, den2: 2 },
+                multiply: { num1: 2, den1: 3, num2: 3, den2: 4 },
+                divide: { num1: 2, den1: 3, num2: 4, den2: 5 }
+            };
+            return defaults[operation] || { num1: 1, den1: 2, num2: 1, den2: 3 };
+        }
+
+        // Calculate result based on operation
+        function calculate(num1, den1, num2, den2, operation, simplify) {
+            let resultNum, resultDen, lcd;
+            
+            switch(operation) {
+                case 'add':
+                    lcd = lcm(den1, den2);
+                    resultNum = (num1 * lcd / den1) + (num2 * lcd / den2);
+                    resultDen = lcd;
+                    break;
+                case 'subtract':
+                    lcd = lcm(den1, den2);
+                    resultNum = (num1 * lcd / den1) - (num2 * lcd / den2);
+                    resultDen = lcd;
+                    break;
+                case 'multiply':
+                    resultNum = num1 * num2;
+                    resultDen = den1 * den2;
+                    lcd = null;
+                    break;
+                case 'divide':
+                    if (num2 === 0) {
+                        resultNum = NaN;
+                        resultDen = NaN;
+                    } else {
+                        resultNum = num1 * den2;
+                        resultDen = den1 * num2;
+                    }
+                    lcd = null;
+                    break;
+                default:
+                    resultNum = 0;
+                    resultDen = 1;
+                    lcd = null;
+            }
+            
+            // Simplify if requested
+            if (simplify && !isNaN(resultNum) && !isNaN(resultDen)) {
+                const simplified = simplifyFraction(resultNum, resultDen);
+                return { num: simplified.num, den: simplified.den, lcd };
+            }
+            
+            return { num: resultNum, den: resultDen, lcd };
+        }
+
+        // Generate default question text
+        function generateQuestion(num1, den1, num2, den2, operation) {
+            const symbols = {
+                add: '+',
+                subtract: '-',
+                multiply: '×',
+                divide: '÷'
+            };
+            const frac1 = `<span class="fraction"><span class="numerator">${num1}</span><span class="denominator">${den1}</span></span>`;
+            const frac2 = `<span class="fraction"><span class="numerator">${num2}</span><span class="denominator">${den2}</span></span>`;
+            return `${frac1} ${symbols[operation]} ${frac2} 等於多少？`;
+        }
+
+        // Generate default hint text
+        function generateHint(num1, den1, num2, den2, operation, lcd) {
+            const hints = {
+                add: lcd ? `找出最小公分母 ${lcd}，將分數通分後相加` : `將分數通分後相加`,
+                subtract: lcd ? `找出最小公分母 ${lcd}，將分數通分後相減` : `將分數通分後相減`,
+                multiply: `分子相乘，分母相乘：(${num1} × ${num2}) / (${den1} × ${den2})`,
+                divide: `除以一個分數等於乘以其倒數：${num1}/${den1} × ${den2}/${num2}`
+            };
+            return hints[operation] || '進行分數運算';
+        }
+
+        // Generate default chart title
+        function generateChartTitle(operation) {
+            const titles = {
+                add: '➕ 分數加法',
+                subtract: '➖ 分數減法',
+                multiply: '✖️ 分數乘法',
+                divide: '➗ 分數除法'
+            };
+            return titles[operation] || '📊 分數運算';
+        }
+
+        // Create pie chart SVG for fractions
+        function createPieChart(num1, den1, num2, den2, resultNum, resultDen, operation) {
+            const radius = 150;
+            const cx = 200;
+            const cy = 200;
+            
+            // Calculate angles
+            const fraction1Value = den1 !== 0 ? num1 / den1 : 0;
+            const fraction2Value = den2 !== 0 ? num2 / den2 : 0;
+            
+            const angle1 = Math.min(fraction1Value * 360, 360);
+            const angle2 = Math.min(fraction2Value * 360, 360);
+            
+            // Create path for first fraction
+            let path1 = '';
+            if (angle1 > 0) {
+                const radians1 = (angle1 - 90) * Math.PI / 180;
+                const x1 = cx + radius * Math.cos(radians1);
+                const y1 = cy + radius * Math.sin(radians1);
+                const largeArc1 = angle1 > 180 ? 1 : 0;
+                path1 = `M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 ${largeArc1},1 ${x1},${y1} Z`;
+            }
+            
+            // Create path for second fraction (offset)
+            let path2 = '';
+            if (angle2 > 0) {
+                const radians2 = (angle2 - 90) * Math.PI / 180;
+                const x2 = cx + radius * 0.7 * Math.cos(radians2);
+                const y2 = cy + radius * 0.7 * Math.sin(radians2);
+                const largeArc2 = angle2 > 180 ? 1 : 0;
+                const r2 = radius * 0.7;
+                path2 = `M ${cx},${cy} L ${cx},${cy - r2} A ${r2},${r2} 0 ${largeArc2},1 ${x2},${y2} Z`;
+            }
+            
+            const resultValue = resultDen !== 0 ? resultNum / resultDen : 0;
+            const resultDisplay = formatFraction(resultNum, resultDen, true);
+            
+            return `
+                <svg class="pie-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Background circle -->
+                    <circle cx="200" cy="200" r="150" fill="#e0e0e0" opacity="0.3"/>
+                    
+                    <!-- First fraction -->
+                    ${path1 ? `<path d="${path1}" fill="#2196F3" opacity="0.7"/>` : ''}
+                    
+                    <!-- Second fraction (smaller, overlapping) -->
+                    ${path2 ? `<path d="${path2}" fill="#FF9800" opacity="0.7"/>` : ''}
+                    
+                    <!-- Center text -->
+                    <text x="200" y="190" text-anchor="middle" font-size="20" font-weight="bold" fill="#333">
+                        結果
+                    </text>
+                    <text x="200" y="220" text-anchor="middle" font-size="18" fill="#4CAF50">
+                        ${resultValue.toFixed(2)}
+                    </text>
+                </svg>
+            `;
+        }
+
+        // Create division background for fraction bars
+        function getDivisionBackground(divisions) {
+            if (divisions > 50) divisions = 50; // Cap for readability
+            if (divisions <= 1) return 'none';
+            
+            return `repeating-linear-gradient(
+                to right,
+                transparent,
+                transparent calc(100% / ${divisions} - 2px),
+                rgba(0, 0, 0, 0.3) calc(100% / ${divisions} - 2px),
+                rgba(0, 0, 0, 0.3) calc(100% / ${divisions})
+            )`;
+        }
+
+        // Update the page content
+        function updateContent() {
+            const { num1, den1, num2, den2, operation, vizType, simplify, showLCD, question, hint, warning, chartTitle, fraction1Label, fraction2Label, resultLabel, errors } = getUrlParams();
+            
+            // Calculate result
+            const { num: resultNum, den: resultDen, lcd } = calculate(num1, den1, num2, den2, operation, simplify);
+            
+            // Build messages
+            let errorMessage = '';
+            if (errors.length > 0) {
+                errorMessage = `<div style="background-color: #ffebee; color: #c62828; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #c62828;">
+                    ⚠️ <strong>參數錯誤：</strong>${errors.join(', ')} 已使用預設值
+                </div>`;
+            }
+            
+            let warningMessage = '';
+            if (warning) {
+                warningMessage = `<div style="background-color: #fff3e0; color: #e65100; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ff9800;">
+                    ${warning}
+                </div>`;
+            } else if (operation === 'divide' && num2 === 0) {
+                warningMessage = `<div style="background-color: #ffebee; color: #c62828; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #c62828;">
+                    ⚠️ <strong>錯誤：</strong>除數不能為 0
+                </div>`;
+            }
+            
+            // Insert messages
+            const container = document.querySelector('.container');
+            const h1 = container.querySelector('h1');
+            
+            const oldMessages = container.querySelectorAll('.dynamic-message');
+            oldMessages.forEach(msg => msg.remove());
+            
+            if (errorMessage || warningMessage) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'dynamic-message';
+                messageDiv.innerHTML = errorMessage + warningMessage;
+                h1.insertAdjacentElement('afterend', messageDiv);
+            }
+            
+            // Update question text
+            const questionText = question || generateQuestion(num1, den1, num2, den2, operation);
+            document.getElementById('question-text').innerHTML = `<strong>題目：</strong><br>${questionText}`;
+            
+            // Update hint text
+            const hintText = hint || generateHint(num1, den1, num2, den2, operation, lcd);
+            document.getElementById('hint-text').innerHTML = `💡 提示：${hintText}`;
+            
+            // Update LCD info
+            const lcdContainer = document.getElementById('lcd-container');
+            if (showLCD && lcd !== null && (operation === 'add' || operation === 'subtract')) {
+                lcdContainer.innerHTML = `
+                    <strong>最小公分母 (LCD)：${lcd}</strong><br>
+                    ${num1}/${den1} = ${num1 * lcd / den1}/${lcd}<br>
+                    ${num2}/${den2} = ${num2 * lcd / den2}/${lcd}
+                `;
+                lcdContainer.style.display = 'block';
+            } else {
+                lcdContainer.style.display = 'none';
+            }
+            
+            // Update chart title
+            const finalChartTitle = chartTitle || generateChartTitle(operation);
+            document.getElementById('chart-title').textContent = finalChartTitle;
+            
+            // Show/hide chart based on vizType
+            const barContainer = document.getElementById('bar-chart');
+            const pieContainer = document.getElementById('pie-chart');
+            
+            if (vizType === 'pie') {
+                barContainer.style.display = 'none';
+                pieContainer.style.display = 'block';
+                
+                pieContainer.innerHTML = createPieChart(num1, den1, num2, den2, resultNum, resultDen, operation);
+                
+                // Add legend
+                const finalFraction1Label = fraction1Label || '第一個分數';
+                const finalFraction2Label = fraction2Label || '第二個分數';
+                pieContainer.innerHTML += `
+                    <div class="pie-legend">
+                        <div class="pie-legend-item">
+                            <div class="pie-legend-color" style="background: #2196F3;"></div>
+                            <span>${finalFraction1Label}: ${formatFraction(num1, den1, false)}</span>
+                        </div>
+                        <div class="pie-legend-item">
+                            <div class="pie-legend-color" style="background: #FF9800;"></div>
+                            <span>${finalFraction2Label}: ${formatFraction(num2, den2, false)}</span>
+                        </div>
+                        <div class="pie-legend-item">
+                            <div class="pie-legend-color" style="background: #4CAF50;"></div>
+                            <span>結果: ${formatFraction(resultNum, resultDen, true)}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                barContainer.style.display = 'block';
+                pieContainer.style.display = 'none';
+                
+                // Update bar labels
+                const finalFraction1Label = fraction1Label || '第一個分數';
+                const finalFraction2Label = fraction2Label || '第二個分數';
+                const finalResultLabel = resultLabel || '結果';
+                
+                document.getElementById('frac1-label').textContent = finalFraction1Label;
+                document.getElementById('frac2-label').textContent = finalFraction2Label;
+                document.getElementById('result-label').textContent = finalResultLabel;
+                
+                // Calculate decimal values for bar widths
+                const frac1Value = den1 !== 0 ? Math.abs(num1 / den1) : 0;
+                const frac2Value = den2 !== 0 ? Math.abs(num2 / den2) : 0;
+                const resultValue = resultDen !== 0 ? Math.abs(resultNum / resultDen) : 0;
+                
+                const maxVal = Math.max(frac1Value, frac2Value, resultValue, 1);
+                
+                // Calculate common LCD for all three fractions to create divisions
+                const commonLCD = lcm(lcm(den1, den2), resultDen);
+                const divisionBg = getDivisionBackground(commonLCD);
+                
+                // Update bar chart
+                const frac1Bar = document.getElementById('frac1-bar');
+                const frac2Bar = document.getElementById('frac2-bar');
+                const resultBar = document.getElementById('result-bar');
+                const frac1Wrapper = frac1Bar.parentElement;
+                const frac2Wrapper = frac2Bar.parentElement;
+                const resultWrapper = resultBar.parentElement;
+                
+                frac1Bar.style.width = (frac1Value / maxVal * 100) + '%';
+                frac1Bar.style.minWidth = '150px';
+                frac1Bar.innerHTML = formatFraction(num1, den1, false);
+                frac1Wrapper.style.backgroundImage = divisionBg;
+                
+                frac2Bar.style.width = (frac2Value / maxVal * 100) + '%';
+                frac2Bar.style.minWidth = '150px';
+                frac2Bar.innerHTML = formatFraction(num2, den2, false);
+                frac2Wrapper.style.backgroundImage = divisionBg;
+                
+                if (!isNaN(resultNum) && !isNaN(resultDen)) {
+                resultBar.style.width = (resultValue / maxVal * 100) + '%';
+                resultBar.style.minWidth = '150px';
+                resultBar.innerHTML = formatFraction(resultNum, resultDen, true);
+                resultWrapper.style.backgroundImage = divisionBg;
+                } else {
+                    resultBar.style.width = '0%';
+                    resultBar.textContent = '無法計算';
+                }
+            }
+            
+            // Update answer
+            let answerText = '';
+            if (isNaN(resultNum) || isNaN(resultDen)) {
+                answerText = '無法計算（除數為0）';
+            } else {
+                answerText = formatFraction(resultNum, resultDen, simplify);
+                if (simplify && resultDen !== 0) {
+                    const unsimplified = `${resultNum}/${resultDen}`;
+                    const simplified = simplifyFraction(resultNum, resultDen);
+                    if (simplified.num !== resultNum || simplified.den !== resultDen) {
+                        const mixedInfo = toMixed(simplified.num, simplified.den);
+                        if (mixedInfo && mixedInfo.whole > 0 && mixedInfo.num > 0) {
+                            answerText += ` （帶分數：${mixedInfo.sign}${mixedInfo.whole} ${mixedInfo.num}/${mixedInfo.den}）`;
+                        }
+                    }
+                }
+            }
+            document.getElementById('answer-text').innerHTML = answerText;
+        }
+
+        // Run when page loads
+        window.addEventListener('DOMContentLoaded', updateContent);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>🔢 分數運算題解範例 - 自訂版</h1>
+        
+        <div class="question" id="question-text">
+            <strong>題目：</strong><br>
+            <span class="fraction"><span class="numerator">1</span><span class="denominator">4</span></span> + <span class="fraction"><span class="numerator">1</span><span class="denominator">3</span></span> 等於多少？
+        </div>
+
+        <div class="hint" id="hint-text">
+            💡 提示：找出最小公分母 12，將分數通分後相加
+        </div>
+
+        <div class="lcd-info" id="lcd-container">
+            <strong>最小公分母 (LCD)：12</strong><br>
+            1/4 = 3/12<br>
+            1/3 = 4/12
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title" id="chart-title">➕ 分數加法</div>
+            
+            <!-- Bar Chart -->
+            <div id="bar-chart">
+                <div class="bar">
+                    <div class="bar-label" id="frac1-label">第一個分數</div>
+                    <div class="bar-wrapper">
+                        <div class="bar-fill bar-frac1" id="frac1-bar" style="width: 25%;">
+                            <span class="fraction"><span class="numerator">1</span><span class="denominator">4</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bar">
+                    <div class="bar-label" id="frac2-label">第二個分數</div>
+                    <div class="bar-wrapper">
+                        <div class="bar-fill bar-frac2" id="frac2-bar" style="width: 33%;">
+                            <span class="fraction"><span class="numerator">1</span><span class="denominator">3</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bar">
+                    <div class="bar-label" id="result-label">結果</div>
+                    <div class="bar-wrapper">
+                        <div class="bar-fill bar-result" id="result-bar" style="width: 58%;">
+                            <span class="fraction"><span class="numerator">7</span><span class="denominator">12</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pie Chart -->
+            <div id="pie-chart" style="display: none;">
+            </div>
+        </div>
+
+        <div class="answer" id="answer-text">
+            <span class="fraction"><span class="numerator">7</span><span class="denominator">12</span></span>
+        </div>
+    </div>
+</body>
+</html>
